@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "706002533157",
+    "project_id": "debity",
+    "storage_bucket": "debity.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:706002533157:android:91c6f5911453664ad538cc",
+        "android_client_info": {
+          "package_name": "com.example.debity"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCQctcm7l6NYVItlZnXCOOqAfgDCK_xD6g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

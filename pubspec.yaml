@@ -1,0 +1,74 @@
+name: debity
+description: "تطبيق إدارة الأقساط والديون - Installment & Debt Management App"
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.9.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  intl: ^0.20.1
+
+  # UI
+  cupertino_icons: ^1.0.8
+  
+  # Supabase
+  supabase_flutter: ^2.8.3
+  
+  
+  # Local Notifications
+  flutter_local_notifications: ^18.0.1
+  timezone: ^0.10.0
+  
+  # Background Tasks
+  # TODO: Fix workmanager compatibility or use alternative
+  # workmanager: ^0.5.2
+  
+  # Firebase
+  firebase_core: ^3.9.0
+  firebase_messaging: ^15.2.0
+  
+  # HTTP Client
+  http: ^1.2.0
+  
+  # Secure token storage
+  flutter_secure_storage: ^9.2.2
+
+  # Utilities
+  # intl is already included above
+  url_launcher: ^6.3.1
+  shared_preferences: ^2.3.4
+  flutter_svg: ^2.2.3
+  google_fonts: ^8.0.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  flutter_launcher_icons: ^0.14.3
+
+flutter:
+  uses-material-design: true
+  
+  assets:
+    - assets/images/
+    - assets/fonts/
+
+  fonts:
+    - family: Parastoo
+      fonts:
+        - asset: assets/fonts/alfont_com_Parastoo-.ttf
+  #
+  # For details regarding fonts from package dependencies,
+  # see https://flutter.dev/to/font-from-package
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/icon/icon.png"
+  min_sdk_android: 21

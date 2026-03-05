@@ -1,0 +1,694 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../../api/api_service.dart';
+import '../../core/theme/app_colors.dart';
+import '../../core/theme/theme_controller.dart';
+import '../../core/services/fcm_service.dart';
+import '../auth/auth_screen.dart';
+
+class SettingsScreen extends StatefulWidget {
+  const SettingsScreen({super.key});
+
+  @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  final ApiService _apiService = ApiService();
+
+  bool _notificationsEnabled = true;
+  bool _dailyReminder = true;
+  bool _overdueAlerts = true;
+  int _reminderDaysBefore = 1;
+  ThemeMode _themeMode = ThemeMode.system;
+  String? _fcmToken;
+  bool _testingNotification = false;
+  bool _triggeringReminders = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSettings();
+    _loadFcmToken();
+  }
+
+  Future<void> _loadFcmToken() async {
+    final token = await FCMService.getToken();
+    if (mounted) setState(() => _fcmToken = token);
+  }
+
+  Future<void> _loadSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _notificationsEnabled = prefs.getBool('notifications_enabled') ?? true;
+      _dailyReminder = prefs.getBool('daily_reminder') ?? true;
+      _overdueAlerts = prefs.getBool('overdue_alerts') ?? true;
+      _reminderDaysBefore = prefs.getInt('reminder_days_before') ?? 1;
+      // Sync local state with the global ThemeController.
+      _themeMode = ThemeController.themeMode.value;
+    });
+  }
+
+  Future<void> _saveSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('notifications_enabled', _notificationsEnabled);
+    await prefs.setBool('daily_reminder', _dailyReminder);
+    await prefs.setBool('overdue_alerts', _overdueAlerts);
+    await prefs.setInt('reminder_days_before', _reminderDaysBefore);
+    // Theme is persisted by ThemeController — no need to save here.
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bgColor = isDark ? const Color(0xFF0F0F1A) : const Color(0xFFF4F6FB);
+    return Scaffold(
+      backgroundColor: bgColor,
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            pinned: true,
+            expandedHeight: 140,
+            backgroundColor: bgColor,
+            elevation: 0,
+            scrolledUnderElevation: 0,
+            flexibleSpace: FlexibleSpaceBar(
+              background: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft, end: Alignment.bottomRight,
+                    colors: isDark
+                        ? [const Color(0xFF1A1A3A), const Color(0xFF0D0D20)]
+                        : [AppColors.primaryColor, const Color(0xFF1565C0)],
+                  ),
+                ),
+                child: Padding(padding: EdgeInsets.fromLTRB(20, MediaQuery.of(context).padding.top + 20, 20, 16),
+                  child: Row(children: [
+                    Container(
+                      width: 56, height: 56,
+                      decoration: BoxDecoration(color: Colors.white.withOpacity(0.15), borderRadius: BorderRadius.circular(16)),
+                      child: const Center(child: Icon(Icons.account_balance_wallet_rounded, color: Colors.white, size: 28)),
+                    ),
+                    const SizedBox(width: 16),
+                    Column(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      const Text('ديبتي', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+                      Text('إدارة الأقساط والديون', style: TextStyle(color: Colors.white70, fontSize: 12)),
+                    ]),
+                  ]),
+                ),
+              ),
+            ),
+            title: const Text('الإعدادات', style: TextStyle(color: Colors.white)),
+            centerTitle: true,
+          ),
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+            sliver: SliverList(delegate: SliverChildListDelegate([
+              _buildSection(title: 'معلومات التطبيق', isDark: isDark, children: [
+                _buildInfoTile(icon: Icons.info_outline, title: 'الإصدار', subtitle: '1.0.0'),
+                _buildInfoTile(icon: Icons.code, title: 'المطور', subtitle: 'Karar Haider'),
+              ]),
+              const SizedBox(height: 20),
+              _buildSection(title: 'المظهر', isDark: isDark, children: [_buildThemeTile()]),
+              const SizedBox(height: 20),
+              _buildSection(title: 'الإشعارات', isDark: isDark, children: [
+                _buildSwitchTile(
+                  icon: Icons.notifications_rounded,
+                  title: 'تفعيل الإشعارات',
+                  subtitle: 'استلام إشعارات التذكير',
+                  value: _notificationsEnabled,
+                  onChanged: _onNotificationsToggled,
+                ),
+                if (_notificationsEnabled) ...[
+                  _buildSwitchTile(
+                    icon: Icons.today_rounded,
+                    title: 'تذكير يومي',
+                    subtitle: 'تذكير بالأقساط المستحقة',
+                    value: _dailyReminder,
+                    onChanged: (v) { setState(() => _dailyReminder = v); _saveSettings(); },
+                  ),
+                  _buildSwitchTile(
+                    icon: Icons.warning_amber_rounded,
+                    title: 'تنبيه المتأخرات',
+                    subtitle: 'تنبيه عند تأخر الأقساط',
+                    value: _overdueAlerts,
+                    onChanged: (v) { setState(() => _overdueAlerts = v); _saveSettings(); },
+                  ),
+                  _buildReminderDaysTile(),
+                ],
+              ]),
+              const SizedBox(height: 20),
+              _buildSection(title: 'اختبار الإشعارات', isDark: isDark, children: [
+                _buildActionTile(icon: Icons.notifications_active_rounded, title: 'إشعار تجريبي فوري', subtitle: 'اختبر ظهور الإشعارات على جهازك', loading: _testingNotification, onTap: _sendTestNotification),
+                _buildActionTile(icon: Icons.send_rounded, title: 'إرسال إشعارات المستحقات', subtitle: 'إرسال FCM لأقساط غداً', loading: _triggeringReminders, onTap: _triggerUpcomingReminders),
+                _buildActionTile(icon: Icons.vpn_key_outlined, title: 'عرض رمز FCM', subtitle: 'رمز الجهاز لاختبار الإشعارات', onTap: _showFcmTokenDialog),
+              ]),
+              const SizedBox(height: 20),
+              _buildSection(title: 'البيانات', isDark: isDark, children: [
+                _buildActionTile(icon: Icons.sync_rounded, title: 'مزامنة البيانات', subtitle: 'تحديث البيانات من الخادم', onTap: _syncData),
+                _buildActionTile(icon: Icons.update_rounded, title: 'تحديث المتأخرات', subtitle: 'فحص وتحديث حالة الأقساط', onTap: _checkOverdue),
+              ]),
+              const SizedBox(height: 20),
+              _buildSection(title: 'حول', isDark: isDark, children: [
+                _buildActionTile(icon: Icons.description_outlined, title: 'سياسة الخصوصية', onTap: _showPrivacyPolicy),
+                _buildActionTile(icon: Icons.gavel_rounded, title: 'شروط الاستخدام', onTap: _showTermsOfService),
+                _buildActionTile(icon: Icons.help_outline_rounded, title: 'المساعدة والدعم', onTap: _showHelpAndSupport),
+                _buildActionTile(icon: Icons.star_outline_rounded, title: 'تقييم التطبيق', onTap: _showRateApp),
+              ]),
+              const SizedBox(height: 20),
+              _buildSection(title: 'حساب المستخدم', isDark: isDark, children: [
+                _buildActionTile(icon: Icons.logout_rounded, title: 'تسجيل الخروج', subtitle: 'تسجيل الخروج من حسابك', onTap: _handleLogout, isDestructive: true),
+              ]),
+              const SizedBox(height: 32),
+              Center(child: Column(children: [
+                Text('ديبتي', style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.primaryColor, fontSize: 16)),
+                const SizedBox(height: 4),
+                Text('إدارة الأقساط والديون', style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                const SizedBox(height: 4),
+                Text('© 2026 جميع الحقوق محفوظة', style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+              ])),
+            ])),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSection({required String title, required List<Widget> children, bool isDark = false}) {
+    final surface = isDark ? const Color(0xFF1C1C2E) : Colors.white;
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Padding(padding: const EdgeInsets.only(bottom: 10, right: 4, left: 4),
+        child: Text(title, style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.primaryColor, fontSize: 13, letterSpacing: 0.3))),
+      Container(
+        decoration: BoxDecoration(
+          color: surface,
+          borderRadius: BorderRadius.circular(18),
+          boxShadow: [BoxShadow(color: Colors.black.withOpacity(isDark ? 0.2 : 0.05), blurRadius: 14, offset: const Offset(0, 4))],
+        ),
+        child: Column(children: children),
+      ),
+    ]);
+  }
+
+  Widget _buildInfoTile({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+  }) {
+    return ListTile(
+      leading: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: AppColors.primaryColor.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Icon(icon, color: AppColors.primaryColor, size: 20),
+      ),
+      title: Text(title),
+      trailing: Text(
+        subtitle,
+        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: AppColors.textSecondary,
+            ),
+      ),
+    );
+  }
+
+  Widget _buildSwitchTile({
+    required IconData icon,
+    required String title,
+    String? subtitle,
+    required bool value,
+    required ValueChanged<bool> onChanged,
+  }) {
+    return SwitchListTile(
+      secondary: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: AppColors.primaryColor.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Icon(icon, color: AppColors.primaryColor, size: 20),
+      ),
+      title: Text(title),
+      subtitle: subtitle != null
+          ? Text(
+              subtitle,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+            )
+          : null,
+      value: value,
+      onChanged: onChanged,
+      activeThumbColor: AppColors.primaryColor,
+    );
+  }
+
+  Widget _buildActionTile({
+    required IconData icon,
+    required String title,
+    String? subtitle,
+    required VoidCallback onTap,
+    bool loading = false,
+    bool isDestructive = false,
+  }) {
+    final color = isDestructive ? AppColors.error : AppColors.primaryColor;
+    return ListTile(
+      leading: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Icon(icon, color: color, size: 20),
+      ),
+      title: Text(title,
+          style: isDestructive ? const TextStyle(color: AppColors.error) : null),
+      subtitle: subtitle != null
+          ? Text(
+              subtitle,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+            )
+          : null,
+      trailing: loading
+          ? const SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(strokeWidth: 2))
+          : Icon(Icons.chevron_left,
+              color: isDestructive ? AppColors.error : AppColors.textSecondary),
+      onTap: loading ? null : onTap,
+    );
+  }
+
+  Widget _buildThemeTile() {
+    return ListTile(
+      leading: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: AppColors.primaryColor.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Icon(
+          _themeMode == ThemeMode.dark
+              ? Icons.dark_mode
+              : _themeMode == ThemeMode.light
+                  ? Icons.light_mode
+                  : Icons.brightness_auto,
+          color: AppColors.primaryColor,
+          size: 20,
+        ),
+      ),
+      title: const Text('المظهر'),
+      trailing: DropdownButton<ThemeMode>(
+        value: _themeMode,
+        underline: const SizedBox(),
+        items: const [
+          DropdownMenuItem(
+            value: ThemeMode.system,
+            child: Text('تلقائي'),
+          ),
+          DropdownMenuItem(
+            value: ThemeMode.light,
+            child: Text('فاتح'),
+          ),
+          DropdownMenuItem(
+            value: ThemeMode.dark,
+            child: Text('داكن'),
+          ),
+        ],
+        onChanged: (value) {
+          if (value != null) {
+            setState(() => _themeMode = value);
+            // Updates the global notifier → MaterialApp rebuilds instantly.
+            ThemeController.setThemeMode(value);
+          }
+        },
+      ),
+    );
+  }
+
+  Widget _buildReminderDaysTile() {
+    return ListTile(
+      leading: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: AppColors.primaryColor.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child:
+            const Icon(Icons.schedule, color: AppColors.primaryColor, size: 20),
+      ),
+      title: const Text('التذكير قبل'),
+      trailing: DropdownButton<int>(
+        value: _reminderDaysBefore,
+        underline: const SizedBox(),
+        items: const [
+          DropdownMenuItem(value: 1, child: Text('يوم واحد')),
+          DropdownMenuItem(value: 2, child: Text('يومين')),
+          DropdownMenuItem(value: 3, child: Text('3 أيام')),
+          DropdownMenuItem(value: 7, child: Text('أسبوع')),
+        ],
+        onChanged: (value) {
+          if (value != null) {
+            setState(() => _reminderDaysBefore = value);
+            _saveSettings();
+          }
+        },
+      ),
+    );
+  }
+
+  // ─── About section dialogs ────────────────────────────────────────────────
+
+  void _showPrivacyPolicy() {
+    _showInfoDialog(
+      title: 'سياسة الخصوصية',
+      icon: Icons.description,
+      content: 'يلتزم تطبيق ديبتي بحماية خصوصية مستخدميه على النحو التالي:\n\n'
+          '• جمع البيانات: يجمع التطبيق بيانات العملاء والأقساط التي تُدخلها أنت '
+          'فقط، ولا يجمع أي بيانات شخصية دون إذنك.\n\n'
+          '• تخزين البيانات: تُحفظ جميع البيانات بشكل مشفّر على خوادم Supabase '
+          'الآمنة.\n\n'
+          '• مشاركة البيانات: لا يتم مشاركة أي بيانات مع أطراف ثالثة بأي حال.\n\n'
+          '• الإشعارات: تُستخدم بيانات FCM فقط لإرسال تذكيرات الأقساط لك.\n\n'
+          '• للتواصل: karar.haider@debity.app',
+    );
+  }
+
+  void _showTermsOfService() {
+    _showInfoDialog(
+      title: 'شروط الاستخدام',
+      icon: Icons.gavel,
+      content: 'باستخدامك لتطبيق ديبتي، فإنك توافق على الشروط التالية:\n\n'
+          '• الاستخدام المسموح: يُستخدم التطبيق لأغراض تتبع الأقساط والديون '
+          'الشخصية أو التجارية المشروعة فقط.\n\n'
+          '• المسؤولية: المطوّر غير مسؤول عن أي قرارات مالية تُتخذ بناءً على '
+          'بيانات التطبيق.\n\n'
+          '• الملكية الفكرية: جميع حقوق التطبيق محفوظة لـ Karar Haider © 2026.\n\n'
+          '• التعديلات: يحق للمطوّر تعديل هذه الشروط في أي وقت مع إشعار المستخدمين.\n\n'
+          '• إنهاء الخدمة: يحق لنا إنهاء الخدمة في حالة إساءة الاستخدام.',
+    );
+  }
+
+  void _showHelpAndSupport() {
+    _showInfoDialog(
+      title: 'المساعدة والدعم',
+      icon: Icons.help_outline,
+      content: 'هل تحتاج إلى مساعدة؟ إليك كيفية التواصل معنا:\n\n'
+          '📧 البريد الإلكتروني:\nkarar.haider@debity.app\n\n'
+          '💡 الأسئلة الشائعة:\n'
+          '• كيف أضيف عميلاً جديداً؟ اضغط على + في شاشة العملاء.\n'
+          '• كيف أسجّل دفعة قسط؟ افتح تفاصيل الدين ثم اضغط على القسط.\n'
+          '• هل يمكن استخدام التطبيق بدون إنترنت؟ البيانات تتطلب اتصالاً '
+          'بالإنترنت للمزامنة.\n\n'
+          '⏱ وقت الاستجابة: خلال 24 ساعة عمل.\n\n'
+          'الإصدار الحالي: 1.0.0\nالمطوّر: Karar Haider',
+    );
+  }
+
+  void _showRateApp() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: [
+            Icon(Icons.star, color: Colors.amber.shade600),
+            const SizedBox(width: 8),
+            const Text('تقييم التطبيق'),
+          ],
+        ),
+        content: const Text(
+          'هل تستمتع باستخدام ديبتي؟\n\nتقييمك يساعدنا على تحسين التطبيق وتطويره باستمرار.\n\nشكراً لدعمك! 🙏',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('لاحقاً'),
+          ),
+          ElevatedButton.icon(
+            icon: const Icon(Icons.star, size: 16),
+            label: const Text('تقييم الآن'),
+            onPressed: () {
+              Navigator.pop(ctx);
+              _showSnack('شكراً لك! سيتوفر التقييم عند نشر التطبيق في المتجر ✓',
+                  isSuccess: true);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showInfoDialog({
+    required String title,
+    required IconData icon,
+    required String content,
+  }) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: [
+            Icon(icon, color: AppColors.primaryColor, size: 22),
+            const SizedBox(width: 8),
+            Text(title),
+          ],
+        ),
+        content: SingleChildScrollView(
+          child: Text(content, style: const TextStyle(height: 1.6)),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('إغلاق'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ─── Notification permission toggle ──────────────────────────────────────
+  Future<void> _onNotificationsToggled(bool value) async {
+    if (value) {
+      final granted = await FCMService.requestPermission();
+      if (!granted && mounted) {
+        _showSnack('لم يتم منح إذن الإشعارات. فعّلها من إعدادات الهاتف.', isError: true);
+        return;
+      }
+    } else {
+      if (mounted) {
+        _showSnack('يمكن إيقاف الإشعارات من إعدادات الهاتف ← التطبيقات ← ديبتي');
+      }
+    }
+    setState(() => _notificationsEnabled = value);
+    _saveSettings();
+  }
+
+  // ─── Send test local notification ───────────────────────────────────
+  Future<void> _sendTestNotification() async {
+    setState(() => _testingNotification = true);
+    try {
+      await FCMService.showTestNotification();
+      if (mounted) _showSnack('تم إرسال الإشعار التجريبي ✓', isSuccess: true);
+    } catch (e) {
+      if (mounted) _showSnack('خطأ: $e', isError: true);
+    } finally {
+      if (mounted) setState(() => _testingNotification = false);
+    }
+  }
+
+  // ─── Trigger notify-upcoming-due edge function ──────────────────────
+  Future<void> _triggerUpcomingReminders() async {
+    setState(() => _triggeringReminders = true);
+    try {
+      final result = await _apiService.notifyUpcomingDue(
+        daysBefore: _reminderDaysBefore,
+      );
+      if (mounted) {
+        _showSnack(
+          'تم إرسال ${result.processed} إشعار — التذكير قبل $_reminderDaysBefore يوم ✓',
+          isSuccess: true,
+        );
+      }
+    } catch (e) {
+      if (mounted) _showSnack('خطأ في إرسال الإشعارات: $e', isError: true);
+    } finally {
+      if (mounted) setState(() => _triggeringReminders = false);
+    }
+  }
+
+  // ─── Show FCM token dialog ─────────────────────────────────────────
+  void _showFcmTokenDialog() {
+    final token = _fcmToken ?? 'جاري التحميل...';
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('رمز FCM للجهاز'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'استخدم هذا الرمز لاختبار الإشعارات من Firebase Console أو Postman:',
+              style: TextStyle(fontSize: 12),
+            ),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade100,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: SelectableText(
+                token,
+                style: const TextStyle(fontSize: 11, fontFamily: 'monospace'),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton.icon(
+            icon: const Icon(Icons.copy, size: 16),
+            label: const Text('نسخ'),
+            onPressed: () {
+              Clipboard.setData(ClipboardData(text: token));
+              Navigator.pop(ctx);
+              _showSnack('تم نسخ الرمز ✓', isSuccess: true);
+            },
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('إغلاق'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showSnack(String msg, {bool isSuccess = false, bool isError = false}) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(msg),
+        backgroundColor: isSuccess
+            ? AppColors.success
+            : isError
+                ? AppColors.error
+                : null,
+      ),
+    );
+  }
+
+  Future<void> _syncData() async {
+    try {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(child: CircularProgressIndicator()),
+      );
+      await _apiService.getStatistics();
+      if (mounted) {
+        Navigator.pop(context);
+        _showSnack('تمت المزامنة بنجاح ✓', isSuccess: true);
+      }
+    } catch (e) {
+      if (mounted) {
+        Navigator.pop(context);
+        _showSnack('خطأ في المزامنة: $e', isError: true);
+      }
+    }
+  }
+
+  Future<void> _checkOverdue() async {
+    try {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(child: CircularProgressIndicator()),
+      );
+      final response = await _apiService.checkOverdueInstallments();
+      if (mounted) {
+        Navigator.pop(context);
+        _showSnack(
+          'تم تحديث ${response.newlyOverdue} قسط متأخر',
+          isSuccess: response.newlyOverdue == 0,
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        Navigator.pop(context);
+        _showSnack('خطأ: $e', isError: true);
+      }
+    }
+  }
+
+  Future<void> _handleLogout() async {
+    // Show confirmation dialog
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('تسجيل الخروج'),
+        content: const Text('هل تريد فعلاً تسجيل الخروج من حسابك؟'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('إلغاء'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(
+              foregroundColor: AppColors.error,
+            ),
+            child: const Text('تسجيل الخروج'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    if (!mounted) return;
+
+    // Show loading dialog
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
+
+    try {
+      print('Starting logout process...');
+      await FCMService.deactivateToken();
+      await _apiService.logout();
+
+      if (mounted) {
+        Navigator.pop(context);
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => const AuthScreen()),
+          (route) => false,
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        Navigator.pop(context);
+        _showSnack('خطأ في تسجيل الخروج: $e', isError: true);
+        await Future.delayed(const Duration(seconds: 1));
+        if (mounted) {
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (context) => const AuthScreen()),
+            (route) => false,
+          );
+        }
+      }
+    }
+  }
+}
