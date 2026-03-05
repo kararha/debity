@@ -97,7 +97,7 @@ class DebityApp extends StatelessWidget {
             Locale('ar', 'IQ'),
             Locale('ar'),
             Locale('en'),
-          ],
+          ], 
 
           // RTL / LTR based on locale
           builder: (context, child) {
