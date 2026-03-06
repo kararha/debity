@@ -103,7 +103,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       } else if (err.contains('network') ||
           err.contains('Connection') ||
           err.contains('SocketException')) {
-        message = AppLocalizations.of(context).noInternet + ' — تحقق من الإنترنت';
+        message = AppLocalizations.of(context).noInternet;
       } else {
         message = err.isNotEmpty ? err : 'خطأ في التسجيل';
       }
