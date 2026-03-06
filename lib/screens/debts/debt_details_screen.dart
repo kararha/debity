@@ -63,7 +63,7 @@ class _DebtDetailsScreenState extends State<DebtDetailsScreen> {
       if (mounted) {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('خطأ في تحميل تفاصيل الدين: $e'),
+          content: Text('${AppLocalizations.of(context).failedLoadDebts}: $e'),
           backgroundColor: AppColors.danger,
         ));
       }
@@ -75,19 +75,19 @@ class _DebtDetailsScreenState extends State<DebtDetailsScreen> {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: AppColors.surface1,
-        title: Text('حذف الدين', style: AppTextStyles.lg.copyWith(fontWeight: FontWeight.bold)),
+        title: Text(AppLocalizations.of(context).deleteDebtTitle, style: AppTextStyles.lg.copyWith(fontWeight: FontWeight.bold)),
         content: Text(
-          'هل أنت متأكد من حذف هذا الدين المرتبط بـ "${_debt.customerName ?? 'العميل'}"؟\nسيتم حذف جميع الأقساط المرتبطة.',
+          AppLocalizations.of(context).deleteDebtConfirm.replaceAll('{name}', _debt.customerName ?? AppLocalizations.of(context).customerLabel),
           style: AppTextStyles.base,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text('إلغاء', style: AppTextStyles.base.copyWith(color: AppColors.textPrimary)),
+            child: Text(AppLocalizations.of(context).cancel, style: AppTextStyles.base.copyWith(color: AppColors.textPrimary)),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: Text('حذف', style: AppTextStyles.base.copyWith(color: AppColors.danger)),
+            child: Text(AppLocalizations.of(context).delete, style: AppTextStyles.base.copyWith(color: AppColors.danger)),
           ),
         ],
       ),
@@ -100,13 +100,13 @@ class _DebtDetailsScreenState extends State<DebtDetailsScreen> {
       if (mounted) {
         Navigator.pop(context, true);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('تم حذف الدين بنجاح')),
+          SnackBar(content: Text(AppLocalizations.of(context).deleteDebtSuccess)),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('خطأ في حذف الدين: $e'),
+          content: Text('${AppLocalizations.of(context).deleteDebtError}: $e'),
           backgroundColor: AppColors.danger,
         ));
       }
@@ -118,7 +118,7 @@ class _DebtDetailsScreenState extends State<DebtDetailsScreen> {
     return Scaffold(
       backgroundColor: AppColors.surface0,
       appBar: AppBar(
-        title: Text('تفاصيل الدين', style: AppTextStyles.sectionTitle),
+        title: Text(AppLocalizations.of(context).debtsTitle, style: AppTextStyles.sectionTitle),
         backgroundColor: AppColors.surface1,
         foregroundColor: AppColors.textPrimary,
         elevation: 0,
@@ -184,7 +184,7 @@ class _DebtDetailsScreenState extends State<DebtDetailsScreen> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text('نسبة السداد', style: AppTextStyles.sm.copyWith(color: AppColors.textSecondary)),
+                              Text(AppLocalizations.of(context).progressLabel, style: AppTextStyles.sm.copyWith(color: AppColors.textSecondary)),
                               Text('${_debt.progressPercentage.toStringAsFixed(0)}%', style: AppTextStyles.statLabel),
                             ],
                           ),
@@ -215,24 +215,24 @@ class _DebtDetailsScreenState extends State<DebtDetailsScreen> {
                       crossAxisSpacing: AppSpacing.sp16,
                       children: [
                         StatCard(
-                          label: 'سعر البيع',
+                          label: AppLocalizations.of(context).sellingPrice,
                           value: NumberFormatter.formatCurrency(_debt.sellingPrice),
                           icon: Icons.payments_rounded,
                         ),
                         StatCard(
-                          label: 'المبلغ المدفوع',
+                          label: AppLocalizations.of(context).totalPaid,
                           value: NumberFormatter.formatCurrency(_debt.paidAmount),
                           valueColor: AppColors.success,
                           icon: Icons.check_circle_rounded,
                         ),
                         StatCard(
-                          label: 'المتبقي',
+                          label: AppLocalizations.of(context).remaining,
                           value: NumberFormatter.formatCurrency(_debt.remainingAmount),
                           valueColor: _debt.remainingAmount > 0 ? AppColors.danger : AppColors.textPrimary,
                           icon: Icons.money_off_rounded,
                         ),
                         StatCard(
-                          label: 'عدد الأقساط',
+                          label: AppLocalizations.of(context).installmentsLabel,
                           value: '${_debt.numberOfInstallments}',
                           icon: Icons.format_list_numbered_rounded,
                         ),
@@ -242,7 +242,7 @@ class _DebtDetailsScreenState extends State<DebtDetailsScreen> {
 
                     // Installments
                     SectionPanel(
-                      title: 'الأقساط',
+                      title: AppLocalizations.of(context).installmentsLabel,
                       trailing: _installments.any((i) => i.status == InstallmentStatus.overdue)
                           ? StatusBadge.fromString('overdue')
                           : null,
@@ -295,7 +295,7 @@ class _DebtDetailsScreenState extends State<DebtDetailsScreen> {
                                             Text(NumberFormatter.formatCurrency(installment.amount), style: AppTextStyles.lg.copyWith(fontWeight: FontWeight.bold)),
                                             const SizedBox(height: AppSpacing.sp4),
                                             Text(
-                                              'تاريخ الاستحقاق: ${DateFormatter.formatDate(installment.dueDate)}',
+                                              '${AppLocalizations.of(context).dueDateLabel}: ${DateFormatter.formatDate(installment.dueDate)}',
                                               style: AppTextStyles.xs.copyWith(color: AppColors.textSecondary),
                                             ),
                                           ],

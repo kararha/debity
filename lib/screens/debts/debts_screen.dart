@@ -341,10 +341,10 @@ class _DebtsScreenState extends State<DebtsScreen>
     final progress = debt.progressPercentage / 100;
     final statusColor = StatusColors.getDebtStatusColor(debt.status.name);
     final statusLabel = debt.status == DebtStatus.active
-        ? 'نشط'
-        : debt.status == DebtStatus.completed
-        ? 'مكتمل'
-        : 'ملغي';
+      ? AppLocalizations.of(context).statusActive
+      : debt.status == DebtStatus.completed
+      ? AppLocalizations.of(context).statusCompleted
+      : AppLocalizations.of(context).statusCancelled;
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Container(
@@ -456,7 +456,7 @@ class _DebtsScreenState extends State<DebtsScreen>
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'التقدم',
+                        AppLocalizations.of(context).progressLabel,
                         style: TextStyle(
                           fontSize: 11,
                           color: AppColors.textSecondary,
@@ -494,21 +494,21 @@ class _DebtsScreenState extends State<DebtsScreen>
                   Row(
                     children: [
                       _buildAmountChip(
-                        'مدفوع',
+                        AppLocalizations.of(context).paidLabel,
                         NumberFormatter.formatCurrency(debt.paidAmount),
                         AppColors.success,
                         isDark,
                       ),
                       const SizedBox(width: 8),
                       _buildAmountChip(
-                        'متبقي',
+                        AppLocalizations.of(context).remainingLabel,
                         NumberFormatter.formatCurrency(debt.remainingAmount),
                         AppColors.warning,
                         isDark,
                       ),
                       const SizedBox(width: 8),
                       _buildAmountChip(
-                        'إجمالي',
+                        AppLocalizations.of(context).totalLabel,
                         NumberFormatter.formatCurrency(debt.totalAmount),
                         AppColors.primaryColor,
                         isDark,
