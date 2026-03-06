@@ -222,7 +222,7 @@ class _SplashScreenState extends State<SplashScreen>
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w400,
-                          color: Colors.white.withOpacity(0.85),
+                          color: Color.fromRGBO(255, 255, 255, 0.85),
                           letterSpacing: 0.5,
                         ),
                       ),
@@ -243,7 +243,7 @@ class _SplashScreenState extends State<SplashScreen>
                             angle: _shimmerController.value * 6.283,
                             child: CustomPaint(
                               painter: _ArcPainter(
-                                color: Colors.white.withOpacity(0.85),
+                                color: Color.fromRGBO(255, 255, 255, 0.85),
                                 strokeWidth: 3,
                               ),
                             ),
@@ -268,9 +268,9 @@ class _SplashScreenState extends State<SplashScreen>
                 child: Text(
                   AppLocalizations.of(context).versionLabel,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                    style: TextStyle(
                     fontSize: 12,
-                    color: Colors.white.withOpacity(0.4),
+                    color: Color.fromRGBO(255, 255, 255, 0.4),
                   ),
                 ),
               ),
@@ -285,9 +285,9 @@ class _SplashScreenState extends State<SplashScreen>
     return Container(
       width: size,
       height: size,
-      decoration: BoxDecoration(
+        decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: Colors.white.withOpacity(opacity),
+        color: Color.fromRGBO(255, 255, 255, opacity),
       ),
     );
   }
