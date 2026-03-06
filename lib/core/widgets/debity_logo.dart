@@ -41,7 +41,7 @@ class DebityLogo extends StatelessWidget {
             borderRadius: BorderRadius.circular(radius),
             boxShadow: [
               BoxShadow(
-                color: AppColors.brand500.withOpacity(0.20),
+                color: Color.fromRGBO(AppColors.brand500.red, AppColors.brand500.green, AppColors.brand500.blue, 0.20),
                 blurRadius: 12,
                 offset: const Offset(0, 2),
               ),
@@ -142,7 +142,7 @@ class _DIconPainter extends CustomPainter {
 
     // Accent circle: center(32,32), r=4, fill white/40%
     final accentPaint = Paint()
-      ..color = Colors.white.withOpacity(0.40)
+      ..color = Color.fromRGBO(255, 255, 255, 0.40)
       ..style = PaintingStyle.fill;
     canvas.drawCircle(const Offset(32, 32), 4, accentPaint);
   }

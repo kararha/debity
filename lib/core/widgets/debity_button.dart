@@ -28,7 +28,7 @@ class DebityPrimaryButton extends StatelessWidget {
         onPressed: isLoading ? null : onPressed,
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.brand500,
-          disabledBackgroundColor: AppColors.brand500.withOpacity(0.7),
+          disabledBackgroundColor: Color.fromRGBO(AppColors.brand500.red, AppColors.brand500.green, AppColors.brand500.blue, 0.7),
           foregroundColor: Colors.white,
           elevation: 0,
           padding: const EdgeInsets.symmetric(vertical: 14),
@@ -83,7 +83,7 @@ class DebityGhostButton extends StatelessWidget {
       width: double.infinity,
       child: OutlinedButton(
         onPressed: onPressed,
-        style: OutlinedButton.styleFrom(
+          style: OutlinedButton.styleFrom(
           foregroundColor: AppColors.textSecondary,
           side: const BorderSide(color: AppColors.borderLight, width: 1),
           padding: const EdgeInsets.symmetric(vertical: 14),
@@ -129,7 +129,7 @@ class DebityDestructiveButton extends StatelessWidget {
       width: double.infinity,
       child: OutlinedButton(
         onPressed: onPressed,
-        style: OutlinedButton.styleFrom(
+          style: OutlinedButton.styleFrom(
           backgroundColor: const Color(0x1AEF4444), // red-500/10
           foregroundColor: AppColors.danger,
           side: const BorderSide(color: Color(0x33EF4444), width: 1),
