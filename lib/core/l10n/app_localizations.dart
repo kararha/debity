@@ -247,6 +247,123 @@ class AppLocalizations {
       'ar': 'جرّب كلمات بحث مختلفة',
       'en': 'Try different search terms',
     },
+    // Add / Edit customer
+    'add_customer_success': {
+      'ar': 'تم إضافة العميل بنجاح',
+      'en': 'Customer added',
+    },
+    'update_customer_success': {
+      'ar': 'تم تحديث العميل بنجاح',
+      'en': 'Customer updated',
+    },
+    'basic_info': {
+      'ar': 'المعلومات الأساسية',
+      'en': 'Basic information',
+    },
+    'extra_info': {
+      'ar': 'معلومات إضافية',
+      'en': 'Extra information',
+    },
+    'name_label': {
+      'ar': 'اسم العميل',
+      'en': 'Customer name',
+    },
+    'name_required': {
+      'ar': 'الرجاء إدخال اسم العميل',
+      'en': 'Please enter a name',
+    },
+    'name_too_short': {
+      'ar': 'الاسم يجب أن يكون حرفين على الأقل',
+      'en': 'Name must be at least 2 characters',
+    },
+    'phone_invalid': {
+      'ar': 'رقم الهاتف غير صحيح',
+      'en': 'Phone number is invalid',
+    },
+    'address_label': {
+      'ar': 'العنوان',
+      'en': 'Address',
+    },
+    'address_hint': {
+      'ar': 'أدخل عنوان العميل (اختياري)',
+      'en': 'Enter address (optional)',
+    },
+    'notes_label': {
+      'ar': 'ملاحظات',
+      'en': 'Notes',
+    },
+    'save_changes': {
+      'ar': 'حفظ التغييرات',
+      'en': 'Save changes',
+    },
+    'add_customer_button': {
+      'ar': 'إضافة العميل',
+      'en': 'Add customer',
+    },
+    'delete_customer_title': {
+      'ar': 'حذف العميل',
+      'en': 'Delete customer',
+    },
+    'delete_customer_confirm': {
+      'ar': 'هل أنت متأكد من حذف "{name}"؟\nسيتم حذف جميع الديون والأقساط المرتبطة به.',
+      'en': 'Are you sure you want to delete "{name}"?\nAll debts and installments will be removed.',
+    },
+    'cancel': {
+      'ar': 'إلغاء',
+      'en': 'Cancel',
+    },
+    'delete': {
+      'ar': 'حذف',
+      'en': 'Delete',
+    },
+    'delete_success': {
+      'ar': 'تم حذف العميل بنجاح',
+      'en': 'Customer deleted',
+    },
+    'delete_error': {
+      'ar': 'خطأ في حذف العميل',
+      'en': 'Failed to delete customer',
+    },
+    'failed_load_debts': {
+      'ar': 'خطأ في تحميل الديون',
+      'en': 'Failed to load debts',
+    },
+    'call': {
+      'ar': 'اتصال',
+      'en': 'Call',
+    },
+    'message': {
+      'ar': 'رسالة',
+      'en': 'Message',
+    },
+    'whatsapp': {
+      'ar': 'واتساب',
+      'en': 'WhatsApp',
+    },
+    'total_debts': {
+      'ar': 'إجمالي الديون',
+      'en': 'Total debts',
+    },
+    'total_paid': {
+      'ar': 'إجمالي المدفوع',
+      'en': 'Total paid',
+    },
+    'remaining': {
+      'ar': 'المتبقي',
+      'en': 'Remaining',
+    },
+    'active_debts': {
+      'ar': 'الديون النشطة',
+      'en': 'Active debts',
+    },
+    'debts_title': {
+      'ar': 'الديون',
+      'en': 'Debts',
+    },
+    'no_debts_for_customer': {
+      'ar': 'لا توجد ديون لهذا العميل',
+      'en': 'No debts for this customer',
+    },
     'greeting_morning': {
       'ar': 'صباح الخير ☀️',
       'en': 'Good morning ☀️',
