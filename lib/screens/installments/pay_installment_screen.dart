@@ -441,8 +441,8 @@ class _PayInstallmentScreenState extends State<PayInstallmentScreen> {
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    AppColors.primaryColor.withOpacity(0.15),
-                    AppColors.primaryColor.withOpacity(0.05),
+                    Color.fromRGBO((AppColors.primaryColor.toARGB32() >> 16) & 0xFF, (AppColors.primaryColor.toARGB32() >> 8) & 0xFF, AppColors.primaryColor.toARGB32() & 0xFF, 0.15),
+                    Color.fromRGBO((AppColors.primaryColor.toARGB32() >> 16) & 0xFF, (AppColors.primaryColor.toARGB32() >> 8) & 0xFF, AppColors.primaryColor.toARGB32() & 0xFF, 0.05),
                   ],
                 )
               : null,
@@ -455,7 +455,7 @@ class _PayInstallmentScreenState extends State<PayInstallmentScreen> {
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: AppColors.primaryColor.withOpacity(0.15),
+                    color: Color.fromRGBO((AppColors.primaryColor.toARGB32() >> 16) & 0xFF, (AppColors.primaryColor.toARGB32() >> 8) & 0xFF, AppColors.primaryColor.toARGB32() & 0xFF, 0.15),
                     blurRadius: 8,
                     offset: const Offset(0, 4),
                   )

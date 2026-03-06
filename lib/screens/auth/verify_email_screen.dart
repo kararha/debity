@@ -190,12 +190,12 @@ class VerifyEmailScreen extends StatelessWidget {
   Widget _step({required IconData icon, required String text}) {
     return Row(
       children: [
-        Container(
+          Container(
           width: 36,
           height: 36,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: Colors.white.withOpacity(0.1),
+            color: Color.fromRGBO(255, 255, 255, 0.1),
           ),
           child: Icon(icon, size: 18, color: Colors.white70),
         ),
@@ -203,9 +203,9 @@ class VerifyEmailScreen extends StatelessWidget {
         Expanded(
           child: Text(
             text,
-            style: TextStyle(
+              style: TextStyle(
               fontSize: 14,
-              color: Colors.white.withOpacity(0.85),
+              color: Color.fromRGBO(255, 255, 255, 0.85),
               height: 1.4,
             ),
           ),

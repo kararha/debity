@@ -124,7 +124,7 @@ class _LoginScreenState extends State<LoginScreen> {
               height: 300,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppColors.primaryColor.withOpacity(0.4),
+                color: Color.fromRGBO((AppColors.primaryColor.toARGB32() >> 16) & 0xFF, (AppColors.primaryColor.toARGB32() >> 8) & 0xFF, AppColors.primaryColor.toARGB32() & 0xFF, 0.4),
               ),
             ),
           ),
@@ -136,7 +136,7 @@ class _LoginScreenState extends State<LoginScreen> {
               height: 200,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppColors.secondaryColor.withOpacity(0.4),
+                color: Color.fromRGBO((AppColors.secondaryColor.toARGB32() >> 16) & 0xFF, (AppColors.secondaryColor.toARGB32() >> 8) & 0xFF, AppColors.secondaryColor.toARGB32() & 0xFF, 0.4),
               ),
             ),
           ),
@@ -176,8 +176,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       Text(
                         AppLocalizations.of(context).loginPrompt,
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: Colors.white.withOpacity(0.9),
-                        ),
+                            color: Color.fromRGBO(255, 255, 255, 0.9),
+                          ),
                       ),
                       const SizedBox(height: 48),
 
@@ -194,16 +194,16 @@ class _LoginScreenState extends State<LoginScreen> {
                               decoration: InputDecoration(
                                 labelText: AppLocalizations.of(context).emailLabel,
                                 labelStyle: TextStyle(
-                                  color: Colors.white.withOpacity(0.8),
+                                  color: Color.fromRGBO(255, 255, 255, 0.8),
                                 ),
                                 prefixIcon: Icon(
                                   Icons.email_outlined,
-                                  color: Colors.white.withOpacity(0.8),
+                                  color: Color.fromRGBO(255, 255, 255, 0.8),
                                 ),
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
                                   borderSide: BorderSide(
-                                    color: Colors.white.withOpacity(0.3),
+                                    color: Color.fromRGBO(255, 255, 255, 0.3),
                                   ),
                                 ),
                                 focusedBorder: OutlineInputBorder(
@@ -233,19 +233,19 @@ class _LoginScreenState extends State<LoginScreen> {
                               style: const TextStyle(color: Colors.white),
                               decoration: InputDecoration(
                                 labelText: AppLocalizations.of(context).passwordLabel,
-                                labelStyle: TextStyle(
-                                  color: Colors.white.withOpacity(0.8),
+                                  labelStyle: TextStyle(
+                                  color: Color.fromRGBO(255, 255, 255, 0.8),
                                 ),
                                 prefixIcon: Icon(
                                   Icons.lock_outline,
-                                  color: Colors.white.withOpacity(0.8),
+                                  color: Color.fromRGBO(255, 255, 255, 0.8),
                                 ),
                                 suffixIcon: IconButton(
                                   icon: Icon(
                                     _obscurePassword
                                         ? Icons.visibility_off
                                         : Icons.visibility,
-                                    color: Colors.white.withOpacity(0.8),
+                                    color: Color.fromRGBO(255, 255, 255, 0.8),
                                   ),
                                   onPressed: () {
                                     setState(() {
@@ -256,7 +256,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
                                   borderSide: BorderSide(
-                                    color: Colors.white.withOpacity(0.3),
+                                    color: Color.fromRGBO(255, 255, 255, 0.3),
                                   ),
                                 ),
                                 focusedBorder: OutlineInputBorder(

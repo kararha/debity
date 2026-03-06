@@ -146,7 +146,7 @@ class _DebtsScreenState extends State<DebtsScreen>
                     borderRadius: BorderRadius.circular(14),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.12),
+                        color: Color.fromRGBO(0, 0, 0, 0.12),
                         blurRadius: 12,
                         offset: const Offset(0, 4),
                       ),
@@ -298,13 +298,13 @@ class _DebtsScreenState extends State<DebtsScreen>
               Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: AppColors.primaryColor.withOpacity(0.08),
+                  color: Color.fromRGBO((AppColors.primaryColor.toARGB32() >> 16) & 0xFF, (AppColors.primaryColor.toARGB32() >> 8) & 0xFF, AppColors.primaryColor.toARGB32() & 0xFF, 0.08),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   Icons.account_balance_wallet_outlined,
                   size: 52,
-                  color: AppColors.primaryColor.withOpacity(0.5),
+                  color: Color.fromRGBO((AppColors.primaryColor.toARGB32() >> 16) & 0xFF, (AppColors.primaryColor.toARGB32() >> 8) & 0xFF, AppColors.primaryColor.toARGB32() & 0xFF, 0.5),
                 ),
               ),
               const SizedBox(height: 20),
@@ -567,7 +567,7 @@ class _DebtsScreenState extends State<DebtsScreen>
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 8),
         decoration: BoxDecoration(
-          color: color.withOpacity(isDark ? 0.12 : 0.08),
+          color: Color.fromRGBO((color.toARGB32() >> 16) & 0xFF, (color.toARGB32() >> 8) & 0xFF, color.toARGB32() & 0xFF, isDark ? 0.12 : 0.08),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Column(

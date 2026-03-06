@@ -152,12 +152,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
           Positioned(
             top: -100,
             right: -100,
-            child: _blob(AppColors.primaryColor.withOpacity(0.4), 300),
+            child: _blob(Color.fromRGBO((AppColors.primaryColor.toARGB32() >> 16) & 0xFF, (AppColors.primaryColor.toARGB32() >> 8) & 0xFF, AppColors.primaryColor.toARGB32() & 0xFF, 0.4), 300),
           ),
           Positioned(
             bottom: -50,
             left: -50,
-            child: _blob(AppColors.secondaryColor.withOpacity(0.4), 200),
+            child: _blob(Color.fromRGBO((AppColors.secondaryColor.toARGB32() >> 16) & 0xFF, (AppColors.secondaryColor.toARGB32() >> 8) & 0xFF, AppColors.secondaryColor.toARGB32() & 0xFF, 0.4), 200),
           ),
 
           SafeArea(
@@ -180,7 +180,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       const SizedBox(height: 8),
                       Text(
                         AppLocalizations.of(context).register_subtitle,
-                        style: TextStyle(color: Colors.white.withOpacity(0.9)),
+                        style: TextStyle(color: Color.fromRGBO(255, 255, 255, 0.9)),
                       ),
                       const SizedBox(height: 32),
 
@@ -367,13 +367,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return InputDecoration(
       labelText: label,
       hintText: hint,
-      labelStyle: TextStyle(color: Colors.white.withOpacity(0.8)),
-      hintStyle: TextStyle(color: Colors.white.withOpacity(0.5)),
-      prefixIcon: Icon(icon, color: Colors.white.withOpacity(0.8)),
+      labelStyle: TextStyle(color: Color.fromRGBO(255, 255, 255, 0.8)),
+      hintStyle: TextStyle(color: Color.fromRGBO(255, 255, 255, 0.5)),
+      prefixIcon: Icon(icon, color: Color.fromRGBO(255, 255, 255, 0.8)),
       suffixIcon: suffix,
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: Colors.white.withOpacity(0.3)),
+        borderSide: BorderSide(color: Color.fromRGBO(255, 255, 255, 0.3)),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),

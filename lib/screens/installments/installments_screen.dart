@@ -317,7 +317,7 @@ class _InstallmentsScreenState extends State<InstallmentsScreen>
     final daysUntil = DateFormatter.daysUntil(installment.dueDate);
     final isPaid = installment.status == InstallmentStatus.paid;
     final isOverdue = !isPaid && daysUntil < 0;
-    final borderColor = isPaid ? Colors.transparent : isOverdue ? AppColors.error.withOpacity(0.3) : daysUntil == 0 ? AppColors.warning.withOpacity(0.35) : Colors.transparent;
+    final borderColor = isPaid ? Colors.transparent : isOverdue ? Color.fromRGBO((AppColors.error.toARGB32() >> 16) & 0xFF, (AppColors.error.toARGB32() >> 8) & 0xFF, AppColors.error.toARGB32() & 0xFF, 0.3) : daysUntil == 0 ? Color.fromRGBO((AppColors.warning.toARGB32() >> 16) & 0xFF, (AppColors.warning.toARGB32() >> 8) & 0xFF, AppColors.warning.toARGB32() & 0xFF, 0.35) : Colors.transparent;
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
