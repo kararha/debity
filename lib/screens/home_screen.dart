@@ -92,12 +92,13 @@ class _DebityBottomNav extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int> onTap;
 
-  static const _items = [
-    _NavItem(icon: Icons.home_outlined,       label: 'الرئيسية'),
-    _NavItem(icon: Icons.people_outline,      label: 'العملاء'),
-    _NavItem(icon: Icons.receipt_long_outlined, label: 'الديون'),
-    _NavItem(icon: Icons.settings_outlined,   label: 'الإعدادات'),
-  ];
+  // Items are built dynamically to allow localization
+  static List<_NavItem> _itemsFor(BuildContext context) => [
+        _NavItem(icon: Icons.home_outlined, label: AppLocalizations.of(context).navHome),
+        _NavItem(icon: Icons.people_outline, label: AppLocalizations.of(context).navCustomers),
+        _NavItem(icon: Icons.receipt_long_outlined, label: AppLocalizations.of(context).navDebts),
+        _NavItem(icon: Icons.settings_outlined, label: AppLocalizations.of(context).navSettings),
+      ];
 
   @override
   Widget build(BuildContext context) {
@@ -111,8 +112,8 @@ class _DebityBottomNav extends StatelessWidget {
         child: SizedBox(
           height: AppSpacing.bottomNavH,
           child: Row(
-            children: List.generate(_items.length, (i) {
-              final item = _items[i];
+            children: List.generate(_itemsFor(context).length, (i) {
+              final item = _itemsFor(context)[i];
               final selected = i == currentIndex;
               return Expanded(
                 child: GestureDetector(
@@ -266,7 +267,7 @@ class _DashboardViewState extends State<DashboardView> {
         children: [
           ErrorBanner(message: _error!, onDismiss: _loadStatistics),
           DebityPrimaryButton(
-            label: 'إعادة المحاولة',
+            label: AppLocalizations.of(context).retry,
             onPressed: _loadStatistics,
           ),
         ],
