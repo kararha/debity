@@ -210,6 +210,43 @@ class AppLocalizations {
       'ar': 'لا توجد بيانات',
       'en': 'No data',
     },
+    // Customers
+    'customers_title': {
+      'ar': 'العملاء',
+      'en': 'Customers',
+    },
+    'customers_count': {
+      'ar': '{count} عميل',
+      'en': '{count} customers',
+    },
+    'customers_search_hint': {
+      'ar': 'بحث عن عميل...',
+      'en': 'Search customers...',
+    },
+    'add_customer': {
+      'ar': 'إضافة عميل',
+      'en': 'Add customer',
+    },
+    'load_failed': {
+      'ar': 'تعذّر التحميل',
+      'en': 'Failed to load',
+    },
+    'no_customers_yet': {
+      'ar': 'لا يوجد عملاء بعد',
+      'en': 'No customers yet',
+    },
+    'no_results': {
+      'ar': 'لا توجد نتائج',
+      'en': 'No results',
+    },
+    'add_first_customer_note': {
+      'ar': 'أضف عميلك الأول بالضغط على +',
+      'en': 'Add your first customer by tapping +',
+    },
+    'try_different_search': {
+      'ar': 'جرّب كلمات بحث مختلفة',
+      'en': 'Try different search terms',
+    },
     'greeting_morning': {
       'ar': 'صباح الخير ☀️',
       'en': 'Good morning ☀️',
@@ -300,6 +337,16 @@ class AppLocalizations {
   String get overdueAlert => _t('overdue_alert')!;
   String get customerLabel => _t('customer_label')!;
   String get remainingAmountLabel => _t('remaining_amount_label')!;
+  // Customers
+  String get customersTitle => _t('customers_title')!;
+  String get customersCount => _t('customers_count')!;
+  String get customersSearchHint => _t('customers_search_hint')!;
+  String get addCustomer => _t('add_customer')!;
+  String get loadFailed => _t('load_failed')!;
+  String get noCustomersYet => _t('no_customers_yet')!;
+  String get noResults => _t('no_results')!;
+  String get addFirstCustomerNote => _t('add_first_customer_note')!;
+  String get tryDifferentSearch => _t('try_different_search')!;
 
   // Backwards-compatible snake_case getters used across the app
   String get register_title => _t('register_title')!;

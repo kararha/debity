@@ -112,7 +112,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
                   children: [
                     Expanded(
                       child: Text(
-                        'العملاء',
+                        AppLocalizations.of(context).customersTitle,
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 22,
@@ -130,7 +130,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
-                        '${_filteredCustomers.length} عميل',
+                        AppLocalizations.of(context).customersCount.replaceAll('{count}', '${_filteredCustomers.length}'),
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 12,
@@ -169,8 +169,8 @@ class _CustomersScreenState extends State<CustomersScreen> {
                     style: TextStyle(
                       color: isDark ? Colors.white : AppColors.textPrimary,
                     ),
-                    decoration: InputDecoration(
-                      hintText: 'بحث عن عميل...',
+                      decoration: InputDecoration(
+                      hintText: AppLocalizations.of(context).customersSearchHint,
                       hintStyle: TextStyle(
                         color: AppColors.textSecondary,
                         fontSize: 13,
@@ -220,7 +220,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
           if (result == true) _loadCustomers();
         },
         icon: const Icon(Icons.person_add_rounded),
-        label: const Text('إضافة عميل'),
+        label: Text(AppLocalizations.of(context).addCustomer),
         elevation: 4,
       ),
     );
@@ -247,7 +247,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
             ),
             const SizedBox(height: 20),
             Text(
-              'تعذّر التحميل',
+              AppLocalizations.of(context).loadFailed,
               style: Theme.of(
                 context,
               ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
@@ -264,7 +264,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
             FilledButton.icon(
               onPressed: _loadCustomers,
               icon: const Icon(Icons.refresh_rounded),
-              label: const Text('إعادة المحاولة'),
+              label: Text(AppLocalizations.of(context).retry),
               style: FilledButton.styleFrom(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14),
@@ -301,7 +301,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
             ),
             const SizedBox(height: 20),
             Text(
-              isEmpty ? 'لا يوجد عملاء بعد' : 'لا توجد نتائج',
+              isEmpty ? AppLocalizations.of(context).noCustomersYet : AppLocalizations.of(context).noResults,
               style: Theme.of(
                 context,
               ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
@@ -309,8 +309,8 @@ class _CustomersScreenState extends State<CustomersScreen> {
             const SizedBox(height: 8),
             Text(
               isEmpty
-                  ? 'أضف عميلك الأول بالضغط على +'
-                  : 'جرّب كلمات بحث مختلفة',
+                  ? AppLocalizations.of(context).addFirstCustomerNote
+                  : AppLocalizations.of(context).tryDifferentSearch,
               style: Theme.of(
                 context,
               ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
