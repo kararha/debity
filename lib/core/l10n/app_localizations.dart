@@ -210,6 +210,30 @@ class AppLocalizations {
       'ar': 'لا توجد بيانات',
       'en': 'No data',
     },
+    'greeting_morning': {
+      'ar': 'صباح الخير ☀️',
+      'en': 'Good morning ☀️',
+    },
+    'greeting_afternoon': {
+      'ar': 'مساء الخير 🌤️',
+      'en': 'Good afternoon 🌤️',
+    },
+    'greeting_evening': {
+      'ar': 'مساء النور 🌙',
+      'en': 'Good evening 🌙',
+    },
+    'overdue_alert': {
+      'ar': '{count} قسط متأخر — تحتاج إلى مراجعة',
+      'en': '{count} overdue installment — please review',
+    },
+    'customer_label': {
+      'ar': 'عميل',
+      'en': 'Customer',
+    },
+    'remaining_amount_label': {
+      'ar': 'المبلغ المتبقي',
+      'en': 'Remaining amount',
+    },
   };
 
   String _t(String key) {
@@ -270,6 +294,12 @@ class AppLocalizations {
   String get sectionTopDebtors => _t('section_top_debtors')!;
   String get noOverdueInstallments => _t('no_overdue_installments')!;
   String get noData => _t('no_data')!;
+  String get greetingMorning => _t('greeting_morning')!;
+  String get greetingAfternoon => _t('greeting_afternoon')!;
+  String get greetingEvening => _t('greeting_evening')!;
+  String get overdueAlert => _t('overdue_alert')!;
+  String get customerLabel => _t('customer_label')!;
+  String get remainingAmountLabel => _t('remaining_amount_label')!;
 
   // Backwards-compatible snake_case getters used across the app
   String get register_title => _t('register_title')!;
