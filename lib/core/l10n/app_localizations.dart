@@ -91,6 +91,10 @@ class AppLocalizations {
       'ar': 'كلمة المرور لا تستوفي الشروط',
       'en': 'Password does not meet requirements',
     },
+    'password_required': {
+      'ar': 'الرجاء إدخال كلمة المرور',
+      'en': 'Please enter a password',
+    },
     'register_button': {
       'ar': 'إنشاء حساب',
       'en': 'Create account',
@@ -102,6 +106,35 @@ class AppLocalizations {
     'sign_in': {
       'ar': 'تسجيل الدخول',
       'en': 'Sign in',
+    },
+    // Verify email screen
+    'verify_email_title': {
+      'ar': 'تحقق من بريدك الإلكتروني',
+      'en': 'Check your email',
+    },
+    'verify_email_sent_to': {
+      'ar': 'تم إرسال رسالة تأكيد إلى',
+      'en': 'A confirmation email was sent to',
+    },
+    'open_confirmation_email': {
+      'ar': 'افتح رسالة التأكيد في بريدك',
+      'en': 'Open the confirmation email',
+    },
+    'click_activation_link': {
+      'ar': 'انقر على رابط التفعيل في الرسالة',
+      'en': 'Tap the activation link in the message',
+    },
+    'return_to_app_and_login': {
+      'ar': 'ارجع إلى التطبيق وسجّل دخولك',
+      'en': 'Return to the app and sign in',
+    },
+    'go_to_login': {
+      'ar': 'الذهاب إلى تسجيل الدخول',
+      'en': 'Go to sign in',
+    },
+    'check_spam_note': {
+      'ar': 'لم تصلك الرسالة؟ تحقق من مجلد الرسائل المزعجة (Spam)',
+      'en': 'Didn\'t receive the email? Check your Spam folder',
     },
   };
 
@@ -134,6 +167,16 @@ class AppLocalizations {
   String get register_button => _t('register_button')!;
   String get already_have_account => _t('already_have_account')!;
   String get sign_in => _t('sign_in')!;
+  String get passwordRequired => _t('password_required')!;
+
+  // Verify email
+  String get verifyEmailTitle => _t('verify_email_title')!;
+  String get verifyEmailSentTo => _t('verify_email_sent_to')!;
+  String get openConfirmationEmail => _t('open_confirmation_email')!;
+  String get clickActivationLink => _t('click_activation_link')!;
+  String get returnToAppAndLogin => _t('return_to_app_and_login')!;
+  String get goToLogin => _t('go_to_login')!;
+  String get checkSpamNote => _t('check_spam_note')!;
 
   // Backwards-compatible snake_case getters used across the app
   String get register_title => _t('register_title')!;

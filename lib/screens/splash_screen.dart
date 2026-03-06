@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../core/services/auth_service.dart';
+import '../core/l10n/app_localizations.dart';
 import '../core/theme/app_colors.dart';
 import 'auth/auth_screen.dart';
 import 'home_screen.dart';

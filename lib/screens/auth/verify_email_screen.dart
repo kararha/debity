@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/l10n/app_localizations.dart';
 
 import '../auth/auth_screen.dart';
 
@@ -76,10 +77,10 @@ class VerifyEmailScreen extends StatelessWidget {
                           ),
                           child: Column(
                             children: [
-                              const Text(
-                                'تحقق من بريدك الإلكتروني',
+                              Text(
+                                AppLocalizations.of(context).verifyEmailTitle,
                                 textAlign: TextAlign.center,
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontSize: 24,
                                   fontWeight: FontWeight.w800,
                                   color: Colors.white,
@@ -88,7 +89,7 @@ class VerifyEmailScreen extends StatelessWidget {
                               ),
                               const SizedBox(height: 14),
                               Text(
-                                'تم إرسال رسالة تأكيد إلى',
+                                AppLocalizations.of(context).verifyEmailSentTo,
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontSize: 15,
@@ -113,17 +114,17 @@ class VerifyEmailScreen extends StatelessWidget {
                               // Steps
                               _step(
                                 icon: Icons.email_outlined,
-                                text: 'افتح رسالة التأكيد في بريدك',
+                                text: AppLocalizations.of(context).openConfirmationEmail,
                               ),
                               const SizedBox(height: 12),
                               _step(
                                 icon: Icons.touch_app_outlined,
-                                text: 'انقر على رابط التفعيل في الرسالة',
+                                text: AppLocalizations.of(context).clickActivationLink,
                               ),
                               const SizedBox(height: 12),
                               _step(
                                 icon: Icons.login_outlined,
-                                text: 'ارجع إلى التطبيق وسجّل دخولك',
+                                text: AppLocalizations.of(context).returnToAppAndLogin,
                               ),
                             ],
                           ),
@@ -154,9 +155,9 @@ class VerifyEmailScreen extends StatelessWidget {
                           ),
                           elevation: 0,
                         ),
-                        child: const Text(
-                          'الذهاب إلى تسجيل الدخول',
-                          style: TextStyle(
+                        child: Text(
+                          AppLocalizations.of(context).goToLogin,
+                          style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
                           ),
@@ -167,7 +168,7 @@ class VerifyEmailScreen extends StatelessWidget {
 
                     // Note
                     Text(
-                      'لم تصلك الرسالة؟ تحقق من مجلد الرسائل المزعجة (Spam)',
+                      AppLocalizations.of(context).checkSpamNote,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 12,

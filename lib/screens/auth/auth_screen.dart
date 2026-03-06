@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../core/services/auth_service.dart';
+import '../../core/l10n/app_localizations.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_text_styles.dart';
@@ -38,7 +39,7 @@ class AuthScreen extends StatelessWidget {
 
                   // ── Subtitle ─────────────────────────────────────
                   Text(
-                    'إدارة أقساطك وديونك بسهولة',
+                    AppLocalizations.of(context).tagline,
                     textAlign: TextAlign.center,
                     style: AppTextStyles.base.copyWith(
                       color: AppColors.textSecondary,
@@ -184,9 +185,9 @@ class _EmbeddedLoginFormState extends State<_EmbeddedLoginForm> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Title
-          Text('تسجيل الدخول', style: AppTextStyles.xl2.copyWith(color: AppColors.textPrimary)),
+          Text(AppLocalizations.of(context).loginButton, style: AppTextStyles.xl2.copyWith(color: AppColors.textPrimary)),
           const SizedBox(height: AppSpacing.sp4),
-          Text('أدخل بياناتك للمتابعة', style: AppTextStyles.sm.copyWith(color: AppColors.textSecondary)),
+          Text(AppLocalizations.of(context).loginPrompt, style: AppTextStyles.sm.copyWith(color: AppColors.textSecondary)),
           const SizedBox(height: AppSpacing.sp20),
 
           // Error banner
@@ -196,7 +197,7 @@ class _EmbeddedLoginFormState extends State<_EmbeddedLoginForm> {
           // Email
           DebityTextField(
             controller: _emailCtrl,
-            label: 'البريد الإلكتروني',
+            label: AppLocalizations.of(context).emailLabel,
             hintText: 'example@mail.com',
             keyboardType: TextInputType.emailAddress,
             textInputAction: TextInputAction.next,
@@ -208,7 +209,7 @@ class _EmbeddedLoginFormState extends State<_EmbeddedLoginForm> {
           // Password
           DebityTextField(
             controller: _passwordCtrl,
-            label: 'كلمة المرور',
+            label: AppLocalizations.of(context).passwordLabel,
             hintText: '••••••••',
             obscureText: true,
             showPasswordToggle: true,
@@ -216,13 +217,13 @@ class _EmbeddedLoginFormState extends State<_EmbeddedLoginForm> {
             textInputAction: TextInputAction.done,
             onSubmitted: (_) => _submit(),
             validator: (v) =>
-                (v == null || v.isEmpty) ? 'الرجاء إدخال كلمة المرور' : null,
+                (v == null || v.isEmpty) ? AppLocalizations.of(context).passwordRequired : null,
           ),
           const SizedBox(height: AppSpacing.sp20),
 
           // Submit
           DebityPrimaryButton(
-            label: 'تسجيل الدخول',
+            label: AppLocalizations.of(context).loginButton,
             onPressed: _submit,
             isLoading: _loading,
           ),
@@ -235,11 +236,11 @@ class _EmbeddedLoginFormState extends State<_EmbeddedLoginForm> {
               child: RichText(
                 text: TextSpan(children: [
                   TextSpan(
-                    text: 'ليس لديك حساب؟  ',
+                    text: AppLocalizations.of(context).noAccount + '  ',
                     style: AppTextStyles.base.copyWith(color: AppColors.textSecondary),
                   ),
                   TextSpan(
-                    text: 'إنشاء حساب',
+                    text: AppLocalizations.of(context).createAccount,
                     style: AppTextStyles.base.copyWith(
                       color: AppColors.brand400,
                       fontWeight: FontWeight.w600,
