@@ -154,14 +154,14 @@ class _PayInstallmentScreenState extends State<PayInstallmentScreen> {
                   colors: [
                     daysUntil < 0
                         ? AppColors.error
-                        : daysUntil == 0
+                          : daysUntil == 0
                             ? AppColors.warning
                             : AppColors.primaryColor,
-                    daysUntil < 0
-                        ? AppColors.error.withOpacity(0.8)
-                        : daysUntil == 0
-                            ? AppColors.warning.withOpacity(0.8)
-                            : AppColors.primaryColor.withOpacity(0.8),
+                        daysUntil < 0
+                          ? Color.fromRGBO((AppColors.error.toARGB32() >> 16) & 0xFF, (AppColors.error.toARGB32() >> 8) & 0xFF, AppColors.error.toARGB32() & 0xFF, 0.8)
+                          : daysUntil == 0
+                            ? Color.fromRGBO((AppColors.warning.toARGB32() >> 16) & 0xFF, (AppColors.warning.toARGB32() >> 8) & 0xFF, AppColors.warning.toARGB32() & 0xFF, 0.8)
+                            : Color.fromRGBO((AppColors.primaryColor.toARGB32() >> 16) & 0xFF, (AppColors.primaryColor.toARGB32() >> 8) & 0xFF, AppColors.primaryColor.toARGB32() & 0xFF, 0.8),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(20),
@@ -174,7 +174,7 @@ class _PayInstallmentScreenState extends State<PayInstallmentScreen> {
                         width: 56,
                         height: 56,
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
+                          color: Color.fromRGBO(255, 255, 255, 0.2),
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: Center(
@@ -235,7 +235,7 @@ class _PayInstallmentScreenState extends State<PayInstallmentScreen> {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
+                      color: Color.fromRGBO(255, 255, 255, 0.2),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Row(
@@ -327,8 +327,8 @@ class _PayInstallmentScreenState extends State<PayInstallmentScreen> {
                 prefixIcon: const Icon(Icons.payments),
                 filled: true,
                 fillColor: _payFull
-                    ? AppColors.primaryColor.withOpacity(0.05)
-                    : null,
+                  ? Color.fromRGBO((AppColors.primaryColor.toARGB32() >> 16) & 0xFF, (AppColors.primaryColor.toARGB32() >> 8) & 0xFF, AppColors.primaryColor.toARGB32() & 0xFF, 0.05)
+                  : null,
               ),
               keyboardType: TextInputType.number,
               style: const TextStyle(
@@ -360,7 +360,7 @@ class _PayInstallmentScreenState extends State<PayInstallmentScreen> {
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.success.withOpacity(0.4),
+                    color: Color.fromRGBO((AppColors.success.toARGB32() >> 16) & 0xFF, (AppColors.success.toARGB32() >> 8) & 0xFF, AppColors.success.toARGB32() & 0xFF, 0.4),
                     blurRadius: 12,
                     offset: const Offset(0, 6),
                   ),

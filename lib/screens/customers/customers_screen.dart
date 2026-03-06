@@ -126,7 +126,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
                         vertical: 6,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.15),
+                        color: Color.fromRGBO(255, 255, 255, 0.15),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
@@ -156,9 +156,9 @@ class _CustomersScreenState extends State<CustomersScreen> {
                   decoration: BoxDecoration(
                     color: surfaceColor,
                     borderRadius: BorderRadius.circular(14),
-                    boxShadow: [
+                      boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
+                        color: Color.fromRGBO(0, 0, 0, 0.1),
                         blurRadius: 12,
                         offset: const Offset(0, 4),
                       ),
@@ -235,10 +235,10 @@ class _CustomersScreenState extends State<CustomersScreen> {
           children: [
             Container(
               padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: AppColors.error.withOpacity(0.1),
-                shape: BoxShape.circle,
-              ),
+                    decoration: BoxDecoration(
+                      color: Color.fromRGBO((AppColors.error.toARGB32() >> 16) & 0xFF, (AppColors.error.toARGB32() >> 8) & 0xFF, AppColors.error.toARGB32() & 0xFF, 0.1),
+                      shape: BoxShape.circle,
+                    ),
               child: const Icon(
                 Icons.error_outline_rounded,
                 size: 48,
@@ -287,17 +287,17 @@ class _CustomersScreenState extends State<CustomersScreen> {
           children: [
             Container(
               padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: AppColors.primaryColor.withOpacity(0.08),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                isEmpty
-                    ? Icons.people_outline_rounded
-                    : Icons.search_off_rounded,
-                size: 56,
-                color: AppColors.primaryColor.withOpacity(0.5),
-              ),
+                      decoration: BoxDecoration(
+                      color: Color.fromRGBO((AppColors.primaryColor.toARGB32() >> 16) & 0xFF, (AppColors.primaryColor.toARGB32() >> 8) & 0xFF, AppColors.primaryColor.toARGB32() & 0xFF, 0.08),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      isEmpty
+                          ? Icons.people_outline_rounded
+                          : Icons.search_off_rounded,
+                      size: 56,
+                      color: Color.fromRGBO((AppColors.primaryColor.toARGB32() >> 16) & 0xFF, (AppColors.primaryColor.toARGB32() >> 8) & 0xFF, AppColors.primaryColor.toARGB32() & 0xFF, 0.5),
+                    ),
             ),
             const SizedBox(height: 20),
             Text(
@@ -356,7 +356,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
           borderRadius: BorderRadius.circular(18),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(isDark ? 0.25 : 0.06),
+              color: Color.fromRGBO(0, 0, 0, isDark ? 0.25 : 0.06),
               blurRadius: 16,
               offset: const Offset(0, 4),
             ),
@@ -384,7 +384,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
                     width: 52,
                     height: 52,
                     decoration: BoxDecoration(
-                      color: avatarColor.withOpacity(0.15),
+                      color: Color.fromRGBO((avatarColor.toARGB32() >> 16) & 0xFF, (avatarColor.toARGB32() >> 8) & 0xFF, avatarColor.toARGB32() & 0xFF, 0.15),
                       borderRadius: BorderRadius.circular(14),
                     ),
                     child: Center(

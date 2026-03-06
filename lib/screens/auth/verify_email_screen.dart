@@ -45,9 +45,9 @@ class VerifyEmailScreen extends StatelessWidget {
                       height: 100,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: Colors.white.withOpacity(0.12),
+                        color: Color.fromRGBO(255, 255, 255, 0.12),
                         border: Border.all(
-                          color: Colors.white.withOpacity(0.25),
+                          color: Color.fromRGBO(255, 255, 255, 0.25),
                           width: 1.5,
                         ),
                       ),
@@ -67,11 +67,11 @@ class VerifyEmailScreen extends StatelessWidget {
                         child: Container(
                           width: double.infinity,
                           padding: const EdgeInsets.all(28),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.08),
+                            decoration: BoxDecoration(
+                            color: Color.fromRGBO(255, 255, 255, 0.08),
                             borderRadius: BorderRadius.circular(24),
                             border: Border.all(
-                              color: Colors.white.withOpacity(0.15),
+                              color: Color.fromRGBO(255, 255, 255, 0.15),
                               width: 1,
                             ),
                           ),
@@ -93,7 +93,7 @@ class VerifyEmailScreen extends StatelessWidget {
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontSize: 15,
-                                  color: Colors.white.withOpacity(0.75),
+                                  color: Color.fromRGBO(255, 255, 255, 0.75),
                                 ),
                               ),
                               const SizedBox(height: 6),
@@ -171,10 +171,10 @@ class VerifyEmailScreen extends StatelessWidget {
                       AppLocalizations.of(context).checkSpamNote,
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.white.withOpacity(0.5),
-                        height: 1.5,
-                      ),
+                          fontSize: 12,
+                          color: Color.fromRGBO(255, 255, 255, 0.5),
+                          height: 1.5,
+                        ),
                     ),
                     const Spacer(flex: 1),
                   ],
@@ -218,10 +218,10 @@ class VerifyEmailScreen extends StatelessWidget {
     return Container(
       width: size,
       height: size,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: Colors.white.withOpacity(opacity),
-      ),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Color.fromRGBO(255, 255, 255, opacity),
+          ),
     );
   }
 }

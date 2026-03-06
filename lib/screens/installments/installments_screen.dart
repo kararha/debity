@@ -186,8 +186,8 @@ class _InstallmentsScreenState extends State<InstallmentsScreen>
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 200),
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-              decoration: BoxDecoration(
-                color: isSelected ? Colors.white : Colors.white.withOpacity(0.15),
+                decoration: BoxDecoration(
+                color: isSelected ? Colors.white : Color.fromRGBO(255, 255, 255, 0.15),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(f.$2,
@@ -206,7 +206,7 @@ class _InstallmentsScreenState extends State<InstallmentsScreen>
   Widget _buildErrorView() {
     final loc = AppLocalizations.of(context);
     return Center(child: Padding(padding: const EdgeInsets.all(32), child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-      Container(padding: const EdgeInsets.all(20), decoration: BoxDecoration(color: AppColors.error.withOpacity(0.1), shape: BoxShape.circle),
+      Container(padding: const EdgeInsets.all(20), decoration: BoxDecoration(color: Color.fromRGBO((AppColors.error.toARGB32() >> 16) & 0xFF, (AppColors.error.toARGB32() >> 8) & 0xFF, AppColors.error.toARGB32() & 0xFF, 0.1), shape: BoxShape.circle),
         child: const Icon(Icons.error_outline_rounded, size: 48, color: AppColors.error)),
       const SizedBox(height: 20),
       Text(loc.loadFailed, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
@@ -229,7 +229,7 @@ class _InstallmentsScreenState extends State<InstallmentsScreen>
               Icon(
                 Icons.event_note,
                 size: 80,
-                color: AppColors.textSecondary.withOpacity(0.5),
+                color: Color.fromRGBO((AppColors.textSecondary.toARGB32() >> 16) & 0xFF, (AppColors.textSecondary.toARGB32() >> 8) & 0xFF, AppColors.textSecondary.toARGB32() & 0xFF, 0.5),
               ),
               const SizedBox(height: 16),
               Text(AppLocalizations.of(context).noInstallments,
@@ -288,8 +288,8 @@ class _InstallmentsScreenState extends State<InstallmentsScreen>
       Padding(padding: const EdgeInsets.fromLTRB(0, 14, 0, 8), child: Row(children: [
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-          decoration: BoxDecoration(
-            color: groupColor.withOpacity(isDark ? 0.2 : 0.1),
+            decoration: BoxDecoration(
+            color: Color.fromRGBO((groupColor.toARGB32() >> 16) & 0xFF, (groupColor.toARGB32() >> 8) & 0xFF, groupColor.toARGB32() & 0xFF, isDark ? 0.2 : 0.1),
             borderRadius: BorderRadius.circular(20),
           ),
           child: Row(mainAxisSize: MainAxisSize.min, children: [
@@ -323,7 +323,7 @@ class _InstallmentsScreenState extends State<InstallmentsScreen>
       decoration: BoxDecoration(
         color: surface, borderRadius: BorderRadius.circular(16),
         border: Border.all(color: borderColor, width: 1.5),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(isDark ? 0.2 : 0.05), blurRadius: 12, offset: const Offset(0, 3))],
+        boxShadow: [BoxShadow(color: Color.fromRGBO(0, 0, 0, isDark ? 0.2 : 0.05), blurRadius: 12, offset: const Offset(0, 3))],
       ),
       child: Material(color: Colors.transparent, borderRadius: BorderRadius.circular(16),
         child: InkWell(
@@ -336,10 +336,10 @@ class _InstallmentsScreenState extends State<InstallmentsScreen>
             // Date circle
             Container(
               width: 52, height: 52,
-              decoration: BoxDecoration(
-                color: statusColor.withOpacity(isPaid ? 0.08 : 0.12),
-                borderRadius: BorderRadius.circular(14),
-              ),
+                decoration: BoxDecoration(
+                  color: Color.fromRGBO((statusColor.toARGB32() >> 16) & 0xFF, (statusColor.toARGB32() >> 8) & 0xFF, statusColor.toARGB32() & 0xFF, isPaid ? 0.08 : 0.12),
+                  borderRadius: BorderRadius.circular(14),
+                ),
               child: Center(child: isPaid
                 ? Icon(Icons.check_circle_rounded, color: statusColor, size: 24)
                 : Column(mainAxisAlignment: MainAxisAlignment.center, children: [
@@ -358,7 +358,7 @@ class _InstallmentsScreenState extends State<InstallmentsScreen>
               Row(children: [
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                  decoration: BoxDecoration(color: statusColor.withOpacity(0.1), borderRadius: BorderRadius.circular(20)),
+                  decoration: BoxDecoration(color: Color.fromRGBO((statusColor.toARGB32() >> 16) & 0xFF, (statusColor.toARGB32() >> 8) & 0xFF, statusColor.toARGB32() & 0xFF, 0.1), borderRadius: BorderRadius.circular(20)),
                   child: Text('قسط ${installment.installmentNumber}', style: TextStyle(color: statusColor, fontSize: 10, fontWeight: FontWeight.w600)),
                 ),
                 if (!isPaid && daysUntil != 0) ...[              

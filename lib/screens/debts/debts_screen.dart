@@ -354,7 +354,7 @@ class _DebtsScreenState extends State<DebtsScreen>
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(isDark ? 0.3 : 0.06),
+              color: Color.fromRGBO(0, 0, 0, isDark ? 0.3 : 0.06),
               blurRadius: 18,
               offset: const Offset(0, 5),
             ),
@@ -385,7 +385,7 @@ class _DebtsScreenState extends State<DebtsScreen>
                         width: 46,
                         height: 46,
                         decoration: BoxDecoration(
-                          color: AppColors.primaryColor.withOpacity(0.1),
+                          color: Color.fromRGBO((AppColors.primaryColor.toARGB32() >> 16) & 0xFF, (AppColors.primaryColor.toARGB32() >> 8) & 0xFF, AppColors.primaryColor.toARGB32() & 0xFF, 0.1),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: const Icon(
@@ -437,8 +437,8 @@ class _DebtsScreenState extends State<DebtsScreen>
                           horizontal: 10,
                           vertical: 4,
                         ),
-                        decoration: BoxDecoration(
-                          color: statusColor.withOpacity(0.12),
+                          decoration: BoxDecoration(
+                          color: Color.fromRGBO((statusColor.toARGB32() >> 16) & 0xFF, (statusColor.toARGB32() >> 8) & 0xFF, statusColor.toARGB32() & 0xFF, 0.12),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
