@@ -145,6 +145,71 @@ class AppLocalizations {
       'ar': 'غير صحيحة',
       'en': 'is invalid',
     },
+    // Home / Dashboard
+    'nav_home': {
+      'ar': 'الرئيسية',
+      'en': 'Home',
+    },
+    'nav_customers': {
+      'ar': 'العملاء',
+      'en': 'Customers',
+    },
+    'nav_debts': {
+      'ar': 'الديون',
+      'en': 'Debts',
+    },
+    'nav_settings': {
+      'ar': 'الإعدادات',
+      'en': 'Settings',
+    },
+    'dashboard_title': {
+      'ar': 'لوحة التحكم',
+      'en': 'Dashboard',
+    },
+    'retry': {
+      'ar': 'إعادة المحاولة',
+      'en': 'Retry',
+    },
+    'stat_total_debts': {
+      'ar': 'إجمالي الديون',
+      'en': 'Total debts',
+    },
+    'stat_total_remaining': {
+      'ar': 'المبلغ المتبقي',
+      'en': 'Remaining amount',
+    },
+    'stat_total_paid': {
+      'ar': 'المبلغ المدفوع',
+      'en': 'Paid amount',
+    },
+    'stat_overdue_installments': {
+      'ar': 'أقساط متأخرة',
+      'en': 'Overdue installments',
+    },
+    'mini_active_debts': {
+      'ar': 'ديون نشطة',
+      'en': 'Active debts',
+    },
+    'mini_completed_debts': {
+      'ar': 'ديون مكتملة',
+      'en': 'Completed debts',
+    },
+    'section_overdue_installments': {
+      'ar': 'الأقساط المتأخرة',
+      'en': 'Overdue installments',
+    },
+    'section_top_debtors': {
+      'ar': 'أعلى العملاء مديونية',
+      'en': 'Top debtors',
+    },
+    'no_overdue_installments': {
+      'ar': 'لا توجد أقساط متأخرة',
+      'en': 'No overdue installments',
+    },
+    'no_data': {
+      'ar': 'لا توجد بيانات',
+      'en': 'No data',
+    },
   };
 
   String _t(String key) {
@@ -188,6 +253,23 @@ class AppLocalizations {
   String get checkSpamNote => _t('check_spam_note')!;
   String get requiredSuffix => _t('required_suffix')!;
   String get invalidSuffix => _t('invalid_suffix')!;
+  // Home / Dashboard
+  String get navHome => _t('nav_home')!;
+  String get navCustomers => _t('nav_customers')!;
+  String get navDebts => _t('nav_debts')!;
+  String get navSettings => _t('nav_settings')!;
+  String get dashboardTitle => _t('dashboard_title')!;
+  String get retry => _t('retry')!;
+  String get statTotalDebts => _t('stat_total_debts')!;
+  String get statTotalRemaining => _t('stat_total_remaining')!;
+  String get statTotalPaid => _t('stat_total_paid')!;
+  String get statOverdueInstallments => _t('stat_overdue_installments')!;
+  String get miniActiveDebts => _t('mini_active_debts')!;
+  String get miniCompletedDebts => _t('mini_completed_debts')!;
+  String get sectionOverdueInstallments => _t('section_overdue_installments')!;
+  String get sectionTopDebtors => _t('section_top_debtors')!;
+  String get noOverdueInstallments => _t('no_overdue_installments')!;
+  String get noData => _t('no_data')!;
 
   // Backwards-compatible snake_case getters used across the app
   String get register_title => _t('register_title')!;
