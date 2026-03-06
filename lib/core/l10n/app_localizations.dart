@@ -364,6 +364,91 @@ class AppLocalizations {
       'ar': 'لا توجد ديون لهذا العميل',
       'en': 'No debts for this customer',
     },
+    // Debts
+    'debts_search_hint': {
+      'ar': 'بحث عن دين...',
+      'en': 'Search debts...',
+    },
+    'add_debt': {
+      'ar': 'إضافة دين',
+      'en': 'Add debt',
+    },
+    'no_debts': {
+      'ar': 'لا توجد ديون',
+      'en': 'No debts',
+    },
+    'press_plus_add_debt': {
+      'ar': 'اضغط + لإضافة دين جديد',
+      'en': 'Press + to add a new debt',
+    },
+    'tab_all': {
+      'ar': 'الكل ({count})',
+      'en': 'All ({count})',
+    },
+    'tab_active': {
+      'ar': 'نشط ({count})',
+      'en': 'Active ({count})',
+    },
+    'tab_completed': {
+      'ar': 'مكتمل ({count})',
+      'en': 'Completed ({count})',
+    },
+    'status_active': {
+      'ar': 'نشط',
+      'en': 'Active',
+    },
+    'status_completed': {
+      'ar': 'مكتمل',
+      'en': 'Completed',
+    },
+    'status_cancelled': {
+      'ar': 'ملغي',
+      'en': 'Cancelled',
+    },
+    'progress_label': {
+      'ar': 'التقدم',
+      'en': 'Progress',
+    },
+    'paid_label': {
+      'ar': 'مدفوع',
+      'en': 'Paid',
+    },
+    'remaining_label': {
+      'ar': 'متبقي',
+      'en': 'Remaining',
+    },
+    'total_label': {
+      'ar': 'إجمالي',
+      'en': 'Total',
+    },
+    'installments_label': {
+      'ar': 'الأقساط',
+      'en': 'Installments',
+    },
+    'due_date_label': {
+      'ar': 'تاريخ الاستحقاق',
+      'en': 'Due date',
+    },
+    'selling_price': {
+      'ar': 'سعر البيع',
+      'en': 'Selling price',
+    },
+    'delete_debt_title': {
+      'ar': 'حذف الدين',
+      'en': 'Delete debt',
+    },
+    'delete_debt_confirm': {
+      'ar': 'هل أنت متأكد من حذف هذا الدين المرتبط بـ "{name}"؟\nسيتم حذف جميع الأقساط المرتبطة.',
+      'en': 'Are you sure you want to delete this debt linked to "{name}"?\nAll installments will be removed.',
+    },
+    'delete_debt_success': {
+      'ar': 'تم حذف الدين بنجاح',
+      'en': 'Debt deleted',
+    },
+    'delete_debt_error': {
+      'ar': 'خطأ في حذف الدين',
+      'en': 'Failed to delete debt',
+    },
     'greeting_morning': {
       'ar': 'صباح الخير ☀️',
       'en': 'Good morning ☀️',
@@ -494,6 +579,26 @@ class AppLocalizations {
   String get activeDebts => _t('active_debts')!;
   String get debtsTitle => _t('debts_title')!;
   String get noDebtsForCustomer => _t('no_debts_for_customer')!;
+  // Debts
+  String get debtsSearchHint => _t('debts_search_hint')!;
+  String get addDebt => _t('add_debt')!;
+  String get noDebts => _t('no_debts')!;
+  String get pressPlusAddDebt => _t('press_plus_add_debt')!;
+  String tabLabel(String key, int count) => _t(key).replaceAll('{count}', '$count');
+  String get statusActive => _t('status_active')!;
+  String get statusCompleted => _t('status_completed')!;
+  String get statusCancelled => _t('status_cancelled')!;
+  String get progressLabel => _t('progress_label')!;
+  String get paidLabel => _t('paid_label')!;
+  String get remainingLabel => _t('remaining_label')!;
+  String get totalLabel => _t('total_label')!;
+  String get installmentsLabel => _t('installments_label')!;
+  String get dueDateLabel => _t('due_date_label')!;
+  String get sellingPrice => _t('selling_price')!;
+  String get deleteDebtTitle => _t('delete_debt_title')!;
+  String get deleteDebtConfirm => _t('delete_debt_confirm')!;
+  String get deleteDebtSuccess => _t('delete_debt_success')!;
+  String get deleteDebtError => _t('delete_debt_error')!;
 
   // Backwards-compatible snake_case getters used across the app
   String get register_title => _t('register_title')!;
