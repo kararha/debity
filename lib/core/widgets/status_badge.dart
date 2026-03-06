@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_text_styles.dart';
+import '../l10n/app_localizations.dart';
 
 /// All supported debt/installment status values.
 enum DebtStatus { paid, partial, overdue, pending, active, completed, cancelled }
@@ -18,6 +19,16 @@ class StatusBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cfg = _config[status]!;
+    final loc = AppLocalizations.of(context);
+    final label = switch (status) {
+      DebtStatus.paid => loc.statusPaid,
+      DebtStatus.partial => loc.statusPartial,
+      DebtStatus.overdue => loc.statusOverdue,
+      DebtStatus.pending => loc.statusPending,
+      DebtStatus.active => loc.statusActive,
+      DebtStatus.completed => loc.statusCompleted,
+      DebtStatus.cancelled => loc.statusCancelled,
+    };
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
@@ -25,7 +36,7 @@ class StatusBadge extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppRadius.pill),
       ),
       child: Text(
-        cfg.label,
+        label.toUpperCase(),
         style: AppTextStyles.badgeText.copyWith(color: cfg.fg),
       ),
     );
@@ -52,47 +63,39 @@ class StatusBadge extends StatelessWidget {
 
 // ── Config ─────────────────────────────────────────────────────────────
 class _BadgeCfg {
-  const _BadgeCfg(this.fg, this.bg, this.label);
+  const _BadgeCfg(this.fg, this.bg);
   final Color fg;
   final Color bg;
-  final String label;
 }
 
 const _config = <DebtStatus, _BadgeCfg>{
   DebtStatus.paid: _BadgeCfg(
     AppColors.success,
     Color(0x1A34D399), // success/10
-    'PAID',
   ),
   DebtStatus.partial: _BadgeCfg(
     AppColors.warning,
     Color(0x1AFBBF24), // warning/10
-    'PARTIAL',
   ),
   DebtStatus.overdue: _BadgeCfg(
     AppColors.danger,
     Color(0x1AF87171), // danger/10
-    'OVERDUE',
   ),
   DebtStatus.pending: _BadgeCfg(
     AppColors.textSecondary,
     Color(0x1A94A3B8), // slate-400/10
-    'PENDING',
   ),
   DebtStatus.active: _BadgeCfg(
     AppColors.success,
     Color(0x1A34D399),
-    'ACTIVE',
   ),
   DebtStatus.completed: _BadgeCfg(
     AppColors.brand400,
     Color(0x1A8B9EDD), // brand-400/10
-    'COMPLETED',
   ),
   DebtStatus.cancelled: _BadgeCfg(
     AppColors.textSecondary,
     Color(0x1A94A3B8),
-    'CANCELLED',
   ),
 };
 
