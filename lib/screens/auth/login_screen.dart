@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/services/auth_service.dart';
+import '../../core/services/connectivity_service.dart';
+import '../../core/widgets/offline_banner.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/widgets/glass_card.dart';
 import '../home_screen.dart';
@@ -28,6 +30,18 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _login() async {
     if (!_formKey.currentState!.validate()) return;
+    // quick connectivity check to inform user if wifi/data is off
+    final online = await ConnectivityService.instance.checkConnectivity();
+    if (!online) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('لا يوجد اتصال بالإنترنت — تحقق من الواي فاي أو بيانات الجوال'),
+          backgroundColor: AppColors.error,
+          duration: const Duration(seconds: 4),
+        ),
+      );
+      return;
+    }
 
     setState(() => _isLoading = true);
 
@@ -62,7 +76,7 @@ class _LoginScreenState extends State<LoginScreen> {
             errorStr.contains('SocketException')) {
           errorMessage = 'خطأ في الاتصال — تحقق من الإنترنت';
         } else if (errorStr.isNotEmpty) {
-          errorMessage = errorStr;
+          errorMessage = errorStr.length > 150 ? '${errorStr.substring(0, 147)}...' : errorStr;
         }
 
         ScaffoldMessenger.of(context).showSnackBar(
@@ -83,6 +97,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       body: Stack(
         children: [
+          const OfflineBanner(),
           // Vibrant Background
           Container(
             decoration: const BoxDecoration(
