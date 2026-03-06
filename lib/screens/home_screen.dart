@@ -383,8 +383,8 @@ class _DashboardViewState extends State<DashboardView> {
                         itemBuilder: (_, i) {
                           final c = stats.topCustomers[i];
                           return DebtListItem(
-                            primaryText: 'عميل ...${c.customerId.length >= 8 ? c.customerId.substring(0, 8) : c.customerId}',
-                            secondaryText: 'متبقي',
+                              primaryText: '${AppLocalizations.of(context).customerLabel} ...${c.customerId.length >= 8 ? c.customerId.substring(0, 8) : c.customerId}',
+                              secondaryText: AppLocalizations.of(context).remainingAmountLabel,
                             amount: NumberFormatter.formatCurrency(c.remainingAmount),
                             amountColor: AppColors.danger,
                             trailing: StatusBadge.fromString('overdue'),
@@ -405,8 +405,8 @@ class _DashboardViewState extends State<DashboardView> {
                       itemBuilder: (_, i) {
                         final c = stats.topCustomers[i];
                         return DebtListItem(
-                          primaryText: 'عميل #${i + 1}',
-                          secondaryText: 'المبلغ المتبقي',
+                          primaryText: '${AppLocalizations.of(context).customerLabel} #${i + 1}',
+                          secondaryText: AppLocalizations.of(context).remainingAmountLabel,
                           amount: NumberFormatter.formatCurrency(c.remainingAmount),
                           amountColor: AppColors.warning,
                         );
@@ -430,9 +430,9 @@ class _DashboardViewState extends State<DashboardView> {
 
   String _greeting() {
     final h = DateTime.now().hour;
-    if (h < 12) return 'صباح الخير ☀️';
-    if (h < 17) return 'مساء الخير 🌤️';
-    return 'مساء النور 🌙';
+    if (h < 12) return AppLocalizations.of(context).greetingMorning;
+    if (h < 17) return AppLocalizations.of(context).greetingAfternoon;
+    return AppLocalizations.of(context).greetingEvening;
   }
 }
 
@@ -459,7 +459,7 @@ class _OverdueAlert extends StatelessWidget {
           const SizedBox(width: AppSpacing.sp12),
           Expanded(
             child: Text(
-              '$count قسط متأخر — تحتاج إلى مراجعة',
+              AppLocalizations.of(context).overdueAlert.replaceAll('{count}', '$count'),
               style: AppTextStyles.base.copyWith(color: AppColors.danger),
             ),
           ),
