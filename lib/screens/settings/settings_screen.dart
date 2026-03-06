@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../api/api_service.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/l10n/app_localizations.dart';
+import '../../main.dart';
 import '../../core/theme/theme_controller.dart';
 import '../../core/services/fcm_service.dart';
 import '../auth/auth_screen.dart';
