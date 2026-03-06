@@ -443,13 +443,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
             Text(AppLocalizations.of(context).rateApp),
           ],
         ),
-        content: const Text(
-          'هل تستمتع باستخدام ديبتي؟\n\nتقييمك يساعدنا على تحسين التطبيق وتطويره باستمرار.\n\nشكراً لدعمك! 🙏',
-        ),
+        content: Text(AppLocalizations.of(context).rateAppContent),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: Text(AppLocalizations.of(context).cancel),
+            child: Text(AppLocalizations.of(ctx).cancel),
           ),
           ElevatedButton.icon(
             icon: const Icon(Icons.star, size: 16),
@@ -487,7 +485,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: Text(loc.cancel),
+            child: Text(AppLocalizations.of(ctx).cancel),
           ),
         ],
       ),
