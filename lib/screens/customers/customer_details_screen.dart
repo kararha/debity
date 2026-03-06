@@ -9,6 +9,7 @@ import '../../core/widgets/app_card.dart';
 import '../../core/widgets/list_item_tile.dart';
 import '../../core/widgets/skeleton_widget.dart';
 import '../../core/widgets/status_badge.dart';
+import '../../core/l10n/app_localizations.dart';
 import '../../models/customer.dart';
 import '../../models/debt.dart';
 import '../debts/add_debt_screen.dart';
@@ -271,10 +272,10 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
               child: _isLoading 
                   ? buildListSkeleton(count: 3)
                   : _debts.isEmpty
-                      ? const Center(
+                      ? Center(
                           child: Padding(
-                            padding: EdgeInsets.all(AppSpacing.sp32),
-                              child: Text(AppLocalizations.of(context).noDebtsForCustomer, style: TextStyle(color: AppColors.textMuted)),
+                            padding: const EdgeInsets.all(AppSpacing.sp32),
+                              child: Text(AppLocalizations.of(context).noDebtsForCustomer, style: const TextStyle(color: AppColors.textMuted)),
                           ),
                         )
                       : DebtListView(
