@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import '../services/connectivity_service.dart';
 import '../../core/theme/app_colors.dart';
+import '../l10n/app_localizations.dart';
 
 class OfflineBanner extends StatefulWidget {
   const OfflineBanner({super.key});
@@ -45,10 +46,10 @@ class _OfflineBannerState extends State<OfflineBanner> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Expanded(
+            Expanded(
               child: Text(
-                'لا يوجد اتصال بالإنترنت — الرجاء التحقق من الواي فاي أو بيانات الجوال',
-                style: TextStyle(color: Colors.white),
+                AppLocalizations.of(context).noInternet,
+                style: const TextStyle(color: Colors.white),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -58,9 +59,9 @@ class _OfflineBannerState extends State<OfflineBanner> {
                 final ok = await ConnectivityService.instance.checkConnectivity();
                 if (ok && mounted) setState(() => _online = true);
               },
-              child: const Text(
-                'إعادة المحاولة',
-                style: TextStyle(color: Colors.white),
+              child: Text(
+                AppLocalizations.of(context).retry,
+                style: const TextStyle(color: Colors.white),
               ),
             ),
           ],
