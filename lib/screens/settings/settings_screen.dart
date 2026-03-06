@@ -26,6 +26,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   String? _fcmToken;
   bool _testingNotification = false;
   bool _triggeringReminders = false;
+  String _selectedLocale = AppLocale.instance.locale.languageCode;
 
   @override
   void initState() {
@@ -48,6 +49,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
       _reminderDaysBefore = prefs.getInt('reminder_days_before') ?? 1;
       // Sync local state with the global ThemeController.
       _themeMode = ThemeController.themeMode.value;
+      // Load saved locale if present
+      final saved = prefs.getString('locale');
+      if (saved != null) {
+        _selectedLocale = saved;
+        AppLocale.instance.setLocale(saved == 'ar' ? const Locale('ar', 'IQ') : const Locale('en'));
+      }
     });
   }
 
@@ -57,7 +64,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
     await prefs.setBool('daily_reminder', _dailyReminder);
     await prefs.setBool('overdue_alerts', _overdueAlerts);
     await prefs.setInt('reminder_days_before', _reminderDaysBefore);
+    await prefs.setString('locale', _selectedLocale);
     // Theme is persisted by ThemeController — no need to save here.
+  }
+
+  void _onLocaleChanged(String code) async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() => _selectedLocale = code);
+    await prefs.setString('locale', code);
+    AppLocale.instance.setLocale(code == 'ar' ? const Locale('ar', 'IQ') : const Locale('en'));
   }
 
   @override
@@ -112,7 +127,31 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 _buildInfoTile(icon: Icons.code, title: 'المطور', subtitle: 'Karar Haider'),
               ]),
               const SizedBox(height: 20),
-              _buildSection(title: loc.appearanceSection, isDark: isDark, children: [_buildThemeTile()]),
+              _buildSection(title: loc.appearanceSection, isDark: isDark, children: [
+                _buildThemeTile(),
+                ListTile(
+                  leading: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: AppColors.primaryColor.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Icon(Icons.language, color: AppColors.primaryColor, size: 20),
+                  ),
+                  title: Text(loc.languageLabel),
+                  trailing: DropdownButton<String>(
+                    value: _selectedLocale,
+                    underline: const SizedBox.shrink(),
+                    items: [
+                      DropdownMenuItem(value: 'ar', child: Text(loc.languageAr)),
+                      DropdownMenuItem(value: 'en', child: Text(loc.languageEn)),
+                    ],
+                    onChanged: (v) {
+                      if (v != null) _onLocaleChanged(v);
+                    },
+                  ),
+                ),
+              ]),
               const SizedBox(height: 20),
               _buildSection(title: loc.notificationsSection, isDark: isDark, children: [
                 _buildSwitchTile(

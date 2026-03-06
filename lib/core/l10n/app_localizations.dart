@@ -479,6 +479,19 @@ class AppLocalizations {
       'ar': 'بعد {n} يوم',
       'en': 'in {n} days',
     },
+    // Language
+    'language_label': {
+      'ar': 'اللغة',
+      'en': 'Language',
+    },
+    'language_ar': {
+      'ar': 'العربية',
+      'en': 'Arabic',
+    },
+    'language_en': {
+      'ar': 'الإنجليزية',
+      'en': 'English',
+    },
     // Settings & Notifications
     'settings_title': {
       'ar': 'الإعدادات',
@@ -812,6 +825,10 @@ class AppLocalizations {
   String get installmentLabel => _t('installment_label')!;
   String get daysOverdue => _t('days_overdue')!;
   String get daysInFuture => _t('days_in_future')!;
+  // Language
+  String get languageLabel => _t('language_label')!;
+  String get languageAr => _t('language_ar')!;
+  String get languageEn => _t('language_en')!;
   // Settings & Notifications getters
   String get settingsTitle => _t('settings_title')!;
   String get appInfoSection => _t('app_info_section')!;
