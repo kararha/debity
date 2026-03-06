@@ -364,6 +364,115 @@ class AppLocalizations {
       'ar': 'لا توجد ديون لهذا العميل',
       'en': 'No debts for this customer',
     },
+    // Installments
+    'installments_title': {
+      'ar': 'الأقساط',
+      'en': 'Installments',
+    },
+    'installments_tab_all': {
+      'ar': 'الكل ({count})',
+      'en': 'All ({count})',
+    },
+    'installments_tab_pending': {
+      'ar': 'معلقة ({count})',
+      'en': 'Pending ({count})',
+    },
+    'installments_tab_overdue': {
+      'ar': 'متأخرة ({count})',
+      'en': 'Overdue ({count})',
+    },
+    'installments_tab_paid': {
+      'ar': 'مدفوعة ({count})',
+      'en': 'Paid ({count})',
+    },
+    'filter_all': {
+      'ar': 'الكل',
+      'en': 'All',
+    },
+    'filter_today': {
+      'ar': 'اليوم',
+      'en': 'Today',
+    },
+    'filter_week': {
+      'ar': 'الأسبوع',
+      'en': 'Week',
+    },
+    'filter_month': {
+      'ar': 'الشهر',
+      'en': 'Month',
+    },
+    'no_installments': {
+      'ar': 'لا توجد أقساط',
+      'en': 'No installments',
+    },
+    'enter_valid_amount': {
+      'ar': 'الرجاء إدخال مبلغ صحيح',
+      'en': 'Please enter a valid amount',
+    },
+    'amount_greater_than_remaining': {
+      'ar': 'المبلغ أكبر من المتبقي',
+      'en': 'Amount is greater than remaining',
+    },
+    'payment_full_success': {
+      'ar': 'تم دفع القسط بالكامل',
+      'en': 'Installment fully paid',
+    },
+    'payment_partial_success': {
+      'ar': 'تم تسجيل الدفعة الجزئية',
+      'en': 'Partial payment recorded',
+    },
+    'payment_error': {
+      'ar': 'خطأ في الدفع',
+      'en': 'Payment failed',
+    },
+    'payment_title': {
+      'ar': 'دفع القسط',
+      'en': 'Pay installment',
+    },
+    'payment_options': {
+      'ar': 'خيارات الدفع',
+      'en': 'Payment options',
+    },
+    'pay_full': {
+      'ar': 'دفع كامل',
+      'en': 'Pay full',
+    },
+    'pay_partial': {
+      'ar': 'دفع جزئي',
+      'en': 'Pay partial',
+    },
+    'enter_amount': {
+      'ar': 'حدد المبلغ',
+      'en': 'Enter amount',
+    },
+    'amount_label': {
+      'ar': 'المبلغ',
+      'en': 'Amount',
+    },
+    'amount_paid_label': {
+      'ar': 'المبلغ المدفوع',
+      'en': 'Amount paid',
+    },
+    'notes_optional': {
+      'ar': 'ملاحظات (اختياري)',
+      'en': 'Notes (optional)',
+    },
+    'confirm_payment': {
+      'ar': 'تأكيد الدفع',
+      'en': 'Confirm payment',
+    },
+    'installment_label': {
+      'ar': 'قسط {num}',
+      'en': 'Installment {num}',
+    },
+    'days_overdue': {
+      'ar': 'متأخر {n} يوم',
+      'en': '{n} days overdue',
+    },
+    'days_in_future': {
+      'ar': 'بعد {n} يوم',
+      'en': 'in {n} days',
+    },
     // Debts
     'debts_search_hint': {
       'ar': 'بحث عن دين...',
