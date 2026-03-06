@@ -5,7 +5,8 @@ class AppLocalizations {
   AppLocalizations(this.locale);
 
   static AppLocalizations of(BuildContext context) {
-    return Localizations.of<AppLocalizations>(context, AppLocalizations)!;
+    final loc = Localizations.of<AppLocalizations>(context, AppLocalizations);
+    return loc ?? AppLocalizations(const Locale('en'));
   }
 
   static const Map<String, Map<String, String>> _localizedValues = {
@@ -138,9 +139,9 @@ class AppLocalizations {
     },
   };
 
-  String? _t(String key) {
+  String _t(String key) {
     final code = locale.languageCode;
-    return _localizedValues[key]?[code] ?? _localizedValues[key]?['en'];
+    return _localizedValues[key]?[code] ?? _localizedValues[key]?['en'] ?? key;
   }
 
   String get appName => _t('appName')!;
