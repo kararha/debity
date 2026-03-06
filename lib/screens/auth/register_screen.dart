@@ -95,11 +95,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
           err.contains('already exists')) {
         message = AppLocalizations.of(context).already_have_account;
       } else if (err.contains('invalid email') || err.contains('Invalid email')) {
-        message = AppLocalizations.of(context).emailLabel + ' غير صحيحة';
+        message = '${AppLocalizations.of(context).emailLabel} ${AppLocalizations.of(context).invalidSuffix}';
       } else if (err.contains('password') || err.contains('Password')) {
         message = AppLocalizations.of(context).password_requirements;
       } else if (err.contains('phone')) {
-        message = AppLocalizations.of(context).phone_label + ' غير صحيح';
+        message = '${AppLocalizations.of(context).phone_label} ${AppLocalizations.of(context).invalidSuffix}';
       } else if (err.contains('network') ||
           err.contains('Connection') ||
           err.contains('SocketException')) {
@@ -229,10 +229,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               keyboardType: TextInputType.emailAddress,
                               validator: (v) {
                                 if (v == null || v.trim().isEmpty) {
-                                  return AppLocalizations.of(context).emailLabel + ' مطلوب';
+                                  return '${AppLocalizations.of(context).emailLabel} ${AppLocalizations.of(context).requiredSuffix}';
                                 }
                                 if (!v.contains('@') || !v.contains('.')) {
-                                  return AppLocalizations.of(context).emailLabel + ' غير صحيحة';
+                                  return '${AppLocalizations.of(context).emailLabel} ${AppLocalizations.of(context).invalidSuffix}';
                                 }
                                 return null;
                               },

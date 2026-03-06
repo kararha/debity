@@ -137,6 +137,14 @@ class AppLocalizations {
       'ar': 'لم تصلك الرسالة؟ تحقق من مجلد الرسائل المزعجة (Spam)',
       'en': 'Didn\'t receive the email? Check your Spam folder',
     },
+    'required_suffix': {
+      'ar': 'مطلوب',
+      'en': 'required',
+    },
+    'invalid_suffix': {
+      'ar': 'غير صحيحة',
+      'en': 'is invalid',
+    },
   };
 
   String _t(String key) {
@@ -178,6 +186,8 @@ class AppLocalizations {
   String get returnToAppAndLogin => _t('return_to_app_and_login')!;
   String get goToLogin => _t('go_to_login')!;
   String get checkSpamNote => _t('check_spam_note')!;
+  String get requiredSuffix => _t('required_suffix')!;
+  String get invalidSuffix => _t('invalid_suffix')!;
 
   // Backwards-compatible snake_case getters used across the app
   String get register_title => _t('register_title')!;
