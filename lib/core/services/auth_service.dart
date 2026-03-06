@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -78,13 +79,7 @@ class AuthService {
       },
     };
 
-    final response = await http.post(
-      Uri.parse('$_functionsBaseUrl/create-user'),
-      headers: _baseHeaders,
-      body: jsonEncode(body),
-    );
-
-    final data = _parseResponse(response, context: 'create-user');
+    final data = await _postJson('create-user', body, context: 'create-user');
 
     // Server returns { user } — no tokens, user must verify email first.
     if (data['user'] == null) {
@@ -100,13 +95,7 @@ class AuthService {
     required String email,
     required String password,
   }) async {
-    final response = await http.post(
-      Uri.parse('$_functionsBaseUrl/login'),
-      headers: _baseHeaders,
-      body: jsonEncode({'email': email, 'password': password}),
-    );
-
-    final data = _parseResponse(response, context: 'login');
+    final data = await _postJson('login', {'email': email, 'password': password}, context: 'login');
 
     // Edge function wraps result as { data: { user, session: { access_token, refresh_token } } }
     final inner = data['data'] as Map<String, dynamic>?;
@@ -134,13 +123,7 @@ class AuthService {
       throw Exception('لا يوجد refresh token محفوظ');
     }
 
-    final response = await http.post(
-      Uri.parse('$_functionsBaseUrl/refresh-token'),
-      headers: _baseHeaders,
-      body: jsonEncode({'refresh_token': storedRefresh}),
-    );
-
-    final data = _parseResponse(response, context: 'refresh-token');
+    final data = await _postJson('refresh-token', {'refresh_token': storedRefresh}, context: 'refresh-token');
 
     final accessToken = data['access_token'] as String?;
     final refreshToken = data['refresh_token'] as String?;
@@ -241,5 +224,29 @@ class AuthService {
       throw Exception(message);
     }
     return body;
+  }
+
+  /// Helper to POST JSON to functions and convert network-level errors to a
+  /// short, consistent message so callers can detect network failures.
+  Future<Map<String, dynamic>> _postJson(String path, Map<String, dynamic> body,
+      {required String context}) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$_functionsBaseUrl/$path'),
+        headers: _baseHeaders,
+        body: jsonEncode(body),
+      );
+
+      return _parseResponse(response, context: context);
+    } on SocketException catch (_) {
+      // Map socket failures to a concise token that UI recognizes.
+      throw Exception('network');
+    } on http.ClientException catch (_) {
+      throw Exception('network');
+    } catch (e) {
+      // For any other unexpected errors, rethrow as-is to preserve details
+      // for debugging while allowing UI to show a fallback message.
+      throw Exception(e.toString());
+    }
   }
 }

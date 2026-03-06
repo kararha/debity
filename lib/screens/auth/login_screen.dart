@@ -32,6 +32,7 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!_formKey.currentState!.validate()) return;
     // quick connectivity check to inform user if wifi/data is off
     final online = await ConnectivityService.instance.checkConnectivity();
+    if (!mounted) return;
     if (!online) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -43,6 +44,7 @@ class _LoginScreenState extends State<LoginScreen> {
       return;
     }
 
+    if (!mounted) return;
     setState(() => _isLoading = true);
 
     try {
