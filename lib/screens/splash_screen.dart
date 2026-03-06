@@ -111,6 +111,8 @@ class _SplashScreenState extends State<SplashScreen>
     final restored = await AuthService().tryRestoreSession();
     final next = restored ? const HomeScreen() : const AuthScreen();
 
+    if (!mounted) return;
+
     Navigator.of(context).pushReplacement(
       PageRouteBuilder(
         pageBuilder: (_, __, ___) => next,
