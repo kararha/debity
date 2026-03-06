@@ -294,7 +294,7 @@ class _DashboardViewState extends State<DashboardView> {
           children: [
             // ── Page title ──────────────────────────────────────────
             Text(
-              'لوحة التحكم',
+              AppLocalizations.of(context).dashboardTitle,
               style: AppTextStyles.xl2.copyWith(color: AppColors.textPrimary),
             ),
             const SizedBox(height: AppSpacing.sp4),
@@ -320,25 +320,25 @@ class _DashboardViewState extends State<DashboardView> {
               childAspectRatio: 1.45,
               children: [
                 StatCard(
-                  label: 'إجمالي الديون',
+                  label: AppLocalizations.of(context).statTotalDebts,
                   value: NumberFormatter.formatCurrency(stats.totalDebts),
                   icon: Icons.account_balance_wallet_outlined,
                   valueColor: AppColors.brand400,
                 ),
                 StatCard(
-                  label: 'المبلغ المتبقي',
+                  label: AppLocalizations.of(context).statTotalRemaining,
                   value: NumberFormatter.formatCurrency(stats.totalRemaining),
                   icon: Icons.pending_actions_outlined,
                   valueColor: AppColors.warning,
                 ),
                 StatCard(
-                  label: 'المبلغ المدفوع',
+                  label: AppLocalizations.of(context).statTotalPaid,
                   value: NumberFormatter.formatCurrency(stats.totalPaid),
                   icon: Icons.check_circle_outline,
                   valueColor: AppColors.success,
                 ),
                 StatCard(
-                  label: 'أقساط متأخرة',
+                  label: AppLocalizations.of(context).statOverdueInstallments,
                   value: '${stats.overdueCount}',
                   icon: Icons.schedule_outlined,
                   valueColor: stats.overdueCount > 0
