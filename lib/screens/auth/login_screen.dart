@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../core/services/auth_service.dart';
 import '../../core/services/connectivity_service.dart';
 import '../../core/widgets/offline_banner.dart';
+import '../../core/l10n/app_localizations.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/widgets/glass_card.dart';
 import '../home_screen.dart';
@@ -36,7 +37,7 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!online) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('لا يوجد اتصال بالإنترنت — تحقق من الواي فاي أو بيانات الجوال'),
+          content: Text(AppLocalizations.of(context).noInternet + ' — تحقق من الواي فاي أو بيانات الجوال'),
           backgroundColor: AppColors.error,
           duration: const Duration(seconds: 4),
         ),
@@ -164,7 +165,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       const SizedBox(height: 24),
 
                       Text(
-                        'أهلاً بك في ديبتي',
+                        AppLocalizations.of(context).welcomeTitle,
                         style: Theme.of(context).textTheme.headlineMedium
                             ?.copyWith(
                               color: Colors.white,
@@ -173,7 +174,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'سجل دخولك للمتابعة',
+                        AppLocalizations.of(context).loginPrompt,
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                           color: Colors.white.withOpacity(0.9),
                         ),
@@ -191,7 +192,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               keyboardType: TextInputType.emailAddress,
                               style: const TextStyle(color: Colors.white),
                               decoration: InputDecoration(
-                                labelText: 'البريد الإلكتروني',
+                                labelText: AppLocalizations.of(context).emailLabel,
                                 labelStyle: TextStyle(
                                   color: Colors.white.withOpacity(0.8),
                                 ),
@@ -231,7 +232,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               obscureText: _obscurePassword,
                               style: const TextStyle(color: Colors.white),
                               decoration: InputDecoration(
-                                labelText: 'كلمة المرور',
+                                labelText: AppLocalizations.of(context).passwordLabel,
                                 labelStyle: TextStyle(
                                   color: Colors.white.withOpacity(0.8),
                                 ),
@@ -298,9 +299,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                           color: Colors.white,
                                         ),
                                       )
-                                    : const Text(
-                                        'تسجيل الدخول',
-                                        style: TextStyle(
+                                    : Text(
+                                        AppLocalizations.of(context).loginButton,
+                                        style: const TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.bold,
                                         ),
@@ -316,9 +317,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Text(
-                            'ليس لديك حساب؟',
-                            style: TextStyle(color: AppColors.textSecondary),
+                          Text(
+                            AppLocalizations.of(context).noAccount,
+                            style: const TextStyle(color: AppColors.textSecondary),
                           ),
                           TextButton(
                             onPressed: () {
@@ -329,7 +330,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                               );
                             },
-                            child: const Text('إنشاء حساب جديد'),
+                            child: Text(AppLocalizations.of(context).createAccount),
                           ),
                         ],
                       ),

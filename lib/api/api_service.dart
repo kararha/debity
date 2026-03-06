@@ -100,7 +100,7 @@ class ApiService {
           'Error ${e.status}';
       return ApiResponse.error(message.toString(), statusCode: e.status);
     } on SocketException {
-      return ApiResponse.error('No Internet Connection');
+      return ApiResponse.error('لا يوجد اتصال بالإنترنت');
     } catch (e) {
       debugPrint('API Error [$endpoint]: $e');
       return ApiResponse.error(e.toString());
@@ -126,7 +126,7 @@ class ApiService {
           'Error ${e.status}';
       return ApiResponse.error(message.toString(), statusCode: e.status);
     } on SocketException {
-      return ApiResponse.error('No Internet Connection');
+      return ApiResponse.error('لا يوجد اتصال بالإنترنت');
     } catch (e) {
       debugPrint('API Error [$endpoint]: $e');
       return ApiResponse.error(e.toString());

@@ -3,6 +3,7 @@ import '../../core/services/auth_service.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/password_validator.dart';
 import '../../core/widgets/glass_card.dart';
+import '../../core/l10n/app_localizations.dart';
 import 'login_screen.dart';
 import 'verify_email_screen.dart';
 
@@ -50,8 +51,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final pwd = _passwordController.text;
     if (!PasswordValidator.isValid(pwd)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ± Ù„Ø§ ØªØ³ØªÙˆÙÙŠ Ø§Ù„Ø´Ø±ÙˆØ· Ø§Ù„Ù…Ø·Ù„ÙˆØ¨Ø©'),
+        SnackBar(
+          content: Text(AppLocalizations.of(context).password_requirements),
           backgroundColor: AppColors.error,
         ),
       );
@@ -87,26 +88,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
       }
     } catch (e) {
       if (!mounted) return;
-
       final err = e.toString().replaceAll('Exception: ', '');
       String message;
-
       if (err.contains('already registered') ||
           err.contains('User already exists') ||
           err.contains('already exists')) {
-        message = 'Ù‡Ø°Ø§ Ø§Ù„Ø¨Ø±ÙŠØ¯ Ø§Ù„Ø¥Ù„ÙƒØªØ±ÙˆÙ†ÙŠ Ù…Ø³Ø¬Ù„ Ø¨Ø§Ù„ÙØ¹Ù„';
+        message = AppLocalizations.of(context).already_have_account;
       } else if (err.contains('invalid email') || err.contains('Invalid email')) {
-        message = 'ØµÙŠØºØ© Ø§Ù„Ø¨Ø±ÙŠØ¯ Ø§Ù„Ø¥Ù„ÙƒØªØ±ÙˆÙ†ÙŠ ØºÙŠØ± ØµØ­ÙŠØ­Ø©';
+        message = AppLocalizations.of(context).emailLabel + ' غير صحيحة';
       } else if (err.contains('password') || err.contains('Password')) {
-        message = 'ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ± Ù„Ø§ ØªØ³ØªÙˆÙÙŠ Ø§Ù„Ø´Ø±ÙˆØ·';
+        message = AppLocalizations.of(context).password_requirements;
       } else if (err.contains('phone')) {
-        message = 'Ø±Ù‚Ù… Ø§Ù„Ù‡Ø§ØªÙ ØºÙŠØ± ØµØ­ÙŠØ­';
+        message = AppLocalizations.of(context).phone_label + ' غير صحيح';
       } else if (err.contains('network') ||
           err.contains('Connection') ||
           err.contains('SocketException')) {
-        message = 'Ø®Ø·Ø£ ÙÙŠ Ø§Ù„Ø§ØªØµØ§Ù„ â€” ØªØ­Ù‚Ù‚ Ù…Ù† Ø§Ù„Ø¥Ù†ØªØ±Ù†Øª';
+        message = AppLocalizations.of(context).noInternet + ' — تحقق من الإنترنت';
       } else {
-        message = err.isNotEmpty ? err : 'Ø®Ø·Ø£ ÙÙŠ Ø§Ù„ØªØ³Ø¬ÙŠÙ„';
+        message = err.isNotEmpty ? err : 'خطأ في التسجيل';
       }
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -170,9 +169,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text(
-                        'Ø¥Ù†Ø´Ø§Ø¡ Ø­Ø³Ø§Ø¨ Ø¬Ø¯ÙŠØ¯',
-                        style: TextStyle(
+                      Text(
+                        AppLocalizations.of(context).register_title,
+                        style: const TextStyle(
                           fontSize: 28,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
@@ -180,7 +179,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Ø£Ø¯Ø®Ù„ Ø¨ÙŠØ§Ù†Ø§ØªÙƒ Ù„Ø¥Ù†Ø´Ø§Ø¡ Ø­Ø³Ø§Ø¨',
+                        AppLocalizations.of(context).register_subtitle,
                         style: TextStyle(color: Colors.white.withOpacity(0.9)),
                       ),
                       const SizedBox(height: 32),
@@ -194,11 +193,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             // Full name
                             _field(
                               controller: _nameController,
-                              label: 'Ø§Ù„Ø§Ø³Ù… Ø§Ù„ÙƒØ§Ù…Ù„',
+                              label: AppLocalizations.of(context).fullName_label,
                               icon: Icons.person_outline,
                               validator: (v) =>
                                   (v == null || v.trim().isEmpty)
-                                      ? 'Ø§Ù„Ø±Ø¬Ø§Ø¡ Ø¥Ø¯Ø®Ø§Ù„ Ø§Ù„Ø§Ø³Ù…'
+                                      ? AppLocalizations.of(context).full_name_required
                                       : null,
                             ),
                             const SizedBox(height: 16),
@@ -206,16 +205,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             // Phone
                             _field(
                               controller: _phoneController,
-                              label: 'Ø±Ù‚Ù… Ø§Ù„Ù‡Ø§ØªÙ',
+                              label: AppLocalizations.of(context).phone_label,
                               icon: Icons.phone_outlined,
-                              hint: '07xxxxxxxxx Ø£Ùˆ +9647xxxxxxxxx',
+                              hint: AppLocalizations.of(context).phone_hint,
                               keyboardType: TextInputType.phone,
                               validator: (v) {
                                 if (v == null || v.trim().isEmpty) {
-                                  return 'Ø§Ù„Ø±Ø¬Ø§Ø¡ Ø¥Ø¯Ø®Ø§Ù„ Ø±Ù‚Ù… Ø§Ù„Ù‡Ø§ØªÙ';
+                                  return AppLocalizations.of(context).phone_required;
                                 }
                                 if (v.trim().length < 10) {
-                                  return 'Ø±Ù‚Ù… Ø§Ù„Ù‡Ø§ØªÙ ÙŠØ¬Ø¨ Ø£Ù† ÙŠÙƒÙˆÙ† 10 Ø£Ø±Ù‚Ø§Ù… Ø¹Ù„Ù‰ Ø§Ù„Ø£Ù‚Ù„';
+                                  return AppLocalizations.of(context).phone_too_short;
                                 }
                                 return null;
                               },
@@ -225,15 +224,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             // Email
                             _field(
                               controller: _emailController,
-                              label: 'Ø§Ù„Ø¨Ø±ÙŠØ¯ Ø§Ù„Ø¥Ù„ÙƒØªØ±ÙˆÙ†ÙŠ',
+                              label: AppLocalizations.of(context).emailLabel,
                               icon: Icons.email_outlined,
                               keyboardType: TextInputType.emailAddress,
                               validator: (v) {
                                 if (v == null || v.trim().isEmpty) {
-                                  return 'Ø§Ù„Ø±Ø¬Ø§Ø¡ Ø¥Ø¯Ø®Ø§Ù„ Ø§Ù„Ø¨Ø±ÙŠØ¯ Ø§Ù„Ø¥Ù„ÙƒØªØ±ÙˆÙ†ÙŠ';
+                                  return AppLocalizations.of(context).emailLabel + ' مطلوب';
                                 }
                                 if (!v.contains('@') || !v.contains('.')) {
-                                  return 'Ø¨Ø±ÙŠØ¯ Ø¥Ù„ÙƒØªØ±ÙˆÙ†ÙŠ ØºÙŠØ± ØµØ­ÙŠØ­';
+                                  return AppLocalizations.of(context).emailLabel + ' غير صحيحة';
                                 }
                                 return null;
                               },
@@ -246,7 +245,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               obscureText: _obscurePassword,
                               style: const TextStyle(color: Colors.white),
                               decoration: _inputDecoration(
-                                label: 'ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ±',
+                                label: AppLocalizations.of(context).password_label,
                                 icon: Icons.lock_outline,
                                 suffix: IconButton(
                                   icon: Icon(
@@ -292,9 +291,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                           color: Colors.white,
                                         ),
                                       )
-                                    : const Text(
-                                        'Ø¥Ù†Ø´Ø§Ø¡ Ø­Ø³Ø§Ø¨',
-                                        style: TextStyle(
+                                    : Text(
+                                        AppLocalizations.of(context).register_button,
+                                        style: const TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.bold,
                                         ),
@@ -311,9 +310,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Text(
-                            'Ù„Ø¯ÙŠÙƒ Ø­Ø³Ø§Ø¨ Ø¨Ø§Ù„ÙØ¹Ù„ØŸ',
-                            style: TextStyle(color: AppColors.textSecondary),
+                          Text(
+                            AppLocalizations.of(context).already_have_account,
+                            style: const TextStyle(color: AppColors.textSecondary),
                           ),
                           TextButton(
                             onPressed: _isLoading
@@ -325,7 +324,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   ),
                                   (route) => false,
                                 ),
-                            child: const Text('ØªØ³Ø¬ÙŠÙ„ Ø§Ù„Ø¯Ø®ÙˆÙ„'),
+                            child: Text(AppLocalizations.of(context).sign_in),
                           ),
                         ],
                       ),

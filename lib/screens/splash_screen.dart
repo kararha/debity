@@ -185,9 +185,9 @@ class _SplashScreenState extends State<SplashScreen>
                         position: _titleSlide,
                         child: Opacity(opacity: _titleFade.value, child: child),
                       ),
-                      child: const Text(
-                        'ديبتي',
-                        style: TextStyle(
+                      child: Text(
+                        AppLocalizations.of(context).appName,
+                        style: const TextStyle(
                           fontSize: 44,
                           fontWeight: FontWeight.w800,
                           color: Colors.white,
@@ -215,7 +215,7 @@ class _SplashScreenState extends State<SplashScreen>
                         ),
                       ),
                       child: Text(
-                        'إدارة الأقساط والديون بذكاء',
+                        AppLocalizations.of(context).tagline,
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w400,
@@ -263,7 +263,7 @@ class _SplashScreenState extends State<SplashScreen>
                 builder: (context, child) =>
                     Opacity(opacity: _loaderFade.value, child: child),
                 child: Text(
-                  'v1.0.0',
+                  AppLocalizations.of(context).versionLabel,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 12,
