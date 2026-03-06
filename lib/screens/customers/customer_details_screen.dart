@@ -57,7 +57,7 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
       if (mounted) {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('خطأ في تحميل الديون: $e'),
+          content: Text('${AppLocalizations.of(context).failedLoadDebts}: ${e.toString()}'),
           backgroundColor: AppColors.danger,
         ));
       }
@@ -69,20 +69,19 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: AppColors.surface1,
-        title: Text('حذف العميل', style: AppTextStyles.lg.copyWith(fontWeight: FontWeight.bold)),
+        title: Text(AppLocalizations.of(context).deleteCustomerTitle, style: AppTextStyles.lg.copyWith(fontWeight: FontWeight.bold)),
         content: Text(
-          'هل أنت متأكد من حذف "${_customer.name}"؟\\n'
-          'سيتم حذف جميع الديون والأقساط المرتبطة به.',
+          AppLocalizations.of(context).deleteCustomerConfirm.replaceAll('{name}', _customer.name),
           style: AppTextStyles.base,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text('إلغاء', style: AppTextStyles.base.copyWith(color: AppColors.textPrimary)),
+            child: Text(AppLocalizations.of(context).cancel, style: AppTextStyles.base.copyWith(color: AppColors.textPrimary)),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: Text('حذف', style: AppTextStyles.base.copyWith(color: AppColors.danger)),
+            child: Text(AppLocalizations.of(context).delete, style: AppTextStyles.base.copyWith(color: AppColors.danger)),
           ),
         ],
       ),
@@ -94,12 +93,12 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
       await _supabase.from('customers').delete().eq('id', _customer.id!);
       if (mounted) {
         Navigator.pop(context, true);
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم حذف العميل بنجاح')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context).deleteSuccess)));
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('خطأ في حذف العميل: $e'),
+          content: Text('${AppLocalizations.of(context).deleteError}: $e'),
           backgroundColor: AppColors.danger,
         ));
       }
@@ -219,11 +218,11 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      _buildQuickAction(Icons.call_rounded, 'اتصال', _callCustomer),
+                      _buildQuickAction(Icons.call_rounded, AppLocalizations.of(context).call, _callCustomer),
                       const SizedBox(width: AppSpacing.sp16),
-                      _buildQuickAction(Icons.message_rounded, 'رسالة', _messageCustomer),
+                      _buildQuickAction(Icons.message_rounded, AppLocalizations.of(context).message, _messageCustomer),
                       const SizedBox(width: AppSpacing.sp16),
-                      _buildQuickAction(Icons.chat_rounded, 'واتساب', _whatsappCustomer),
+                      _buildQuickAction(Icons.chat_rounded, AppLocalizations.of(context).whatsapp, _whatsappCustomer),
                     ],
                   ),
                 ],
@@ -241,24 +240,24 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
               crossAxisSpacing: AppSpacing.sp16,
               children: [
                 StatCard(
-                  label: 'إجمالي الديون',
+                  label: AppLocalizations.of(context).totalDebts,
                   value: NumberFormatter.formatCurrency(totalDebt),
                   icon: Icons.account_balance_wallet_rounded,
                 ),
                 StatCard(
-                  label: 'إجمالي المدفوع',
+                  label: AppLocalizations.of(context).totalPaid,
                   value: NumberFormatter.formatCurrency(totalPaid),
                   valueColor: AppColors.success,
                   icon: Icons.payments_rounded,
                 ),
                 StatCard(
-                  label: 'المتبقي',
+                  label: AppLocalizations.of(context).remaining,
                   value: NumberFormatter.formatCurrency(totalRemaining),
                   valueColor: totalRemaining > 0 ? AppColors.danger : AppColors.textPrimary,
                   icon: Icons.timeline_rounded,
                 ),
                 StatCard(
-                  label: 'الديون النشطة',
+                  label: AppLocalizations.of(context).activeDebts,
                   value: '$activeDebts',
                   icon: Icons.pending_actions_rounded,
                 ),
@@ -268,14 +267,14 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
 
             // Debts List
             SectionPanel(
-              title: 'الديون',
+              title: AppLocalizations.of(context).debtsTitle,
               child: _isLoading 
                   ? buildListSkeleton(count: 3)
                   : _debts.isEmpty
                       ? const Center(
                           child: Padding(
                             padding: EdgeInsets.all(AppSpacing.sp32),
-                            child: Text('لا توجد ديون لهذا العميل', style: TextStyle(color: AppColors.textMuted)),
+                              child: Text(AppLocalizations.of(context).noDebtsForCustomer, style: TextStyle(color: AppColors.textMuted)),
                           ),
                         )
                       : DebtListView(
