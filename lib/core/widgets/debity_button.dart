@@ -28,7 +28,7 @@ class DebityPrimaryButton extends StatelessWidget {
         onPressed: isLoading ? null : onPressed,
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.brand500,
-          disabledBackgroundColor: Color.fromRGBO(AppColors.brand500.red, AppColors.brand500.green, AppColors.brand500.blue, 0.7),
+          disabledBackgroundColor: Color.fromRGBO((AppColors.brand500.value >> 16) & 0xFF, (AppColors.brand500.value >> 8) & 0xFF, AppColors.brand500.value & 0xFF, 0.7),
           foregroundColor: Colors.white,
           elevation: 0,
           padding: const EdgeInsets.symmetric(vertical: 14),

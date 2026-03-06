@@ -41,7 +41,7 @@ class DebityLogo extends StatelessWidget {
             borderRadius: BorderRadius.circular(radius),
             boxShadow: [
               BoxShadow(
-                color: Color.fromRGBO(AppColors.brand500.red, AppColors.brand500.green, AppColors.brand500.blue, 0.20),
+                color: Color.fromRGBO((AppColors.brand500.value >> 16) & 0xFF, (AppColors.brand500.value >> 8) & 0xFF, AppColors.brand500.value & 0xFF, 0.20),
                 blurRadius: 12,
                 offset: const Offset(0, 2),
               ),
