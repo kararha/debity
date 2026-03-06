@@ -252,7 +252,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     _obscurePassword
                                         ? Icons.visibility_off
                                         : Icons.visibility,
-                                    color: Colors.white.withOpacity(0.8),
+                                    color: Color.fromRGBO(255, 255, 255, 0.8),
                                   ),
                                   onPressed: () => setState(
                                       () => _obscurePassword = !_obscurePassword),
