@@ -719,6 +719,23 @@ class AppLocalizations {
       'ar': 'ملغي',
       'en': 'Cancelled',
     },
+    // Status badges
+    'status_paid': {
+      'ar': 'مدفوع',
+      'en': 'Paid',
+    },
+    'status_partial': {
+      'ar': 'جزئي',
+      'en': 'Partial',
+    },
+    'status_overdue': {
+      'ar': 'متأخر',
+      'en': 'Overdue',
+    },
+    'status_pending': {
+      'ar': 'قيد الانتظار',
+      'en': 'Pending',
+    },
     'progress_label': {
       'ar': 'التقدم',
       'en': 'Progress',
@@ -979,6 +996,10 @@ class AppLocalizations {
   String get statusActive => _t('status_active')!;
   String get statusCompleted => _t('status_completed')!;
   String get statusCancelled => _t('status_cancelled')!;
+  String get statusPaid => _t('status_paid')!;
+  String get statusPartial => _t('status_partial')!;
+  String get statusOverdue => _t('status_overdue')!;
+  String get statusPending => _t('status_pending')!;
   String get progressLabel => _t('progress_label')!;
   String get paidLabel => _t('paid_label')!;
   String get remainingLabel => _t('remaining_label')!;
