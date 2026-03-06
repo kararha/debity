@@ -464,6 +464,36 @@ class AppLocalizations {
   String get noResults => _t('no_results')!;
   String get addFirstCustomerNote => _t('add_first_customer_note')!;
   String get tryDifferentSearch => _t('try_different_search')!;
+  // Add / Edit customer
+  String get addCustomerSuccess => _t('add_customer_success')!;
+  String get updateCustomerSuccess => _t('update_customer_success')!;
+  String get basicInfo => _t('basic_info')!;
+  String get extraInfo => _t('extra_info')!;
+  String get nameLabel => _t('name_label')!;
+  String get nameRequired => _t('name_required')!;
+  String get nameTooShort => _t('name_too_short')!;
+  String get phoneInvalid => _t('phone_invalid')!;
+  String get addressLabel => _t('address_label')!;
+  String get addressHint => _t('address_hint')!;
+  String get notesLabel => _t('notes_label')!;
+  String get saveChanges => _t('save_changes')!;
+  String get addCustomerButton => _t('add_customer_button')!;
+  String get deleteCustomerTitle => _t('delete_customer_title')!;
+  String get deleteCustomerConfirm => _t('delete_customer_confirm')!;
+  String get cancel => _t('cancel')!;
+  String get delete => _t('delete')!;
+  String get deleteSuccess => _t('delete_success')!;
+  String get deleteError => _t('delete_error')!;
+  String get failedLoadDebts => _t('failed_load_debts')!;
+  String get call => _t('call')!;
+  String get message => _t('message')!;
+  String get whatsapp => _t('whatsapp')!;
+  String get totalDebts => _t('total_debts')!;
+  String get totalPaid => _t('total_paid')!;
+  String get remaining => _t('remaining')!;
+  String get activeDebts => _t('active_debts')!;
+  String get debtsTitle => _t('debts_title')!;
+  String get noDebtsForCustomer => _t('no_debts_for_customer')!;
 
   // Backwards-compatible snake_case getters used across the app
   String get register_title => _t('register_title')!;

@@ -73,7 +73,7 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
         if (mounted) {
           Navigator.pop(context, updatedCustomer);
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('تم تحديث العميل بنجاح')),
+            SnackBar(content: Text(AppLocalizations.of(context).updateCustomerSuccess)),
           );
         }
       } else {
@@ -83,7 +83,7 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
         if (mounted) {
           Navigator.pop(context, true);
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('تم إضافة العميل بنجاح')),
+            SnackBar(content: Text(AppLocalizations.of(context).addCustomerSuccess)),
           );
         }
       }
@@ -92,7 +92,7 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('خطأ: ${e.toString().replaceAll('Exception: ', '')}'),
+            content: Text('${AppLocalizations.of(context).deleteError}: ${e.toString().replaceAll('Exception: ', '')}'),
             backgroundColor: AppColors.danger,
           ),
         );
@@ -106,7 +106,7 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
       backgroundColor: AppColors.surface0,
       appBar: AppBar(
         title: Text(
-          _isEditing ? 'تعديل العميل' : 'إضافة عميل جديد',
+          _isEditing ? AppLocalizations.of(context).saveChanges : AppLocalizations.of(context).addCustomerButton,
           style: AppTextStyles.sectionTitle,
         ),
         backgroundColor: AppColors.surface1,
@@ -150,21 +150,21 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
             const SizedBox(height: AppSpacing.sp32),
 
             // Basic Info Card
-            SectionPanel(
-              title: 'المعلومات الأساسية',
+                SectionPanel(
+              title: AppLocalizations.of(context).basicInfo,
               child: Column(
                 children: [
                   DebityTextField(
                     controller: _nameController,
-                    label: 'اسم العميل *',
-                    hintText: 'أدخل اسم العميل',
+                    label: '${AppLocalizations.of(context).nameLabel} *',
+                    hintText: AppLocalizations.of(context).nameLabel,
                     prefixIcon: const Icon(Icons.badge_rounded, color: AppColors.textMuted),
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return 'الرجاء إدخال اسم العميل';
+                        return AppLocalizations.of(context).nameRequired;
                       }
                       if (value.trim().length < 2) {
-                        return 'الاسم يجب أن يكون حرفين على الأقل';
+                        return AppLocalizations.of(context).nameTooShort;
                       }
                       return null;
                     },
@@ -173,13 +173,13 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
                   const SizedBox(height: AppSpacing.sp16),
                   DebityTextField(
                     controller: _phoneController,
-                    label: 'رقم الهاتف *',
+                    label: AppLocalizations.of(context).phone_label + ' *',
                     hintText: '07xxxxxxxxx',
                     prefixIcon: const Icon(Icons.phone_rounded, color: AppColors.textMuted),
                     keyboardType: TextInputType.phone,
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return 'الرجاء إدخال رقم الهاتف';
+                        return AppLocalizations.of(context).phone_required;
                       }
                       if (value.trim().length < 10) return 'رقم الهاتف غير صحيح';
                       return null;
@@ -192,20 +192,20 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
 
             // Extra Info Card
             SectionPanel(
-              title: 'معلومات إضافية',
+              title: AppLocalizations.of(context).extraInfo,
               child: Column(
                 children: [
                   DebityTextField(
                     controller: _addressController,
-                    label: 'العنوان',
-                    hintText: 'أدخل عنوان العميل (اختياري)',
+                    label: AppLocalizations.of(context).addressLabel,
+                    hintText: AppLocalizations.of(context).addressHint,
                     prefixIcon: const Icon(Icons.location_on_rounded, color: AppColors.textMuted),
                   ),
                   const SizedBox(height: AppSpacing.sp16),
                   DebityTextField(
                     controller: _notesController,
-                    label: 'ملاحظات',
-                    hintText: 'أي ملاحظات إضافية (اختياري)',
+                    label: AppLocalizations.of(context).notesLabel,
+                    hintText: AppLocalizations.of(context).notesLabel,
                     prefixIcon: const Icon(Icons.note_rounded, color: AppColors.textMuted),
                   ),
                 ],
@@ -215,7 +215,7 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
 
             // Save Button
             DebityPrimaryButton(
-              label: _isEditing ? 'حفظ التغييرات' : 'إضافة العميل',
+              label: _isEditing ? AppLocalizations.of(context).saveChanges : AppLocalizations.of(context).addCustomerButton,
               isLoading: _isLoading,
               onPressed: _saveCustomer,
             ),
