@@ -198,22 +198,31 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
       debugPrint(
         '[AddDebtScreen] _saveDebt → STEP 4: inserting debt record into Supabase',
       );
-      final debtResponse = await _supabase
+        final double totalAmount = sellingPrice - downPaymentVal;
+        final double installmentAmount = numInstallments > 0
+          ? (totalAmount / numInstallments)
+          : totalAmount;
+
+        final debtResponse = await _supabase
           .from('debts')
           .insert({
-            'customer_id': _selectedCustomer!.id,
-            'item_name': _itemNameController.text.trim(),
-            'item_description': _itemDescController.text.trim().isEmpty
-                ? null
-                : _itemDescController.text.trim(),
-            'original_price': originalPrice,
-            'selling_price': sellingPrice,
-            'down_payment': downPaymentVal,
-            'number_of_installments': numInstallments,
-            'notes': _notesController.text.trim().isEmpty
-                ? null
-                : _notesController.text.trim(),
-            'status': 'active',
+          'customer_id': _selectedCustomer!.id,
+          'item_name': _itemNameController.text.trim(),
+          'item_description': _itemDescController.text.trim().isEmpty
+            ? null
+            : _itemDescController.text.trim(),
+          'original_price': originalPrice,
+          'selling_price': sellingPrice,
+          'down_payment': downPaymentVal,
+          'total_amount': totalAmount,
+          'remaining_amount': totalAmount,
+          'installment_amount': installmentAmount,
+          'number_of_installments': numInstallments,
+          'start_date': _startDate.toIso8601String().split('T')[0],
+          'notes': _notesController.text.trim().isEmpty
+            ? null
+            : _notesController.text.trim(),
+          'status': 'active',
           })
           .select()
           .single();
@@ -227,8 +236,7 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
       debugPrint(
         '[AddDebtScreen] _saveDebt → STEP 5: building $numInstallments installment records',
       );
-      final double remainingAmount = sellingPrice - downPaymentVal;
-      final double installmentAmount = remainingAmount / numInstallments;
+      final double remainingAmount = totalAmount;
       debugPrint(
         '[AddDebtScreen] _saveDebt → remaining=$remainingAmount, per installment=$installmentAmount',
       );
