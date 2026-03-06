@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_text_styles.dart';
+import '../l10n/app_localizations.dart';
 
 /// Size variants for the Debity logo.
 enum LogoSize { sm, md, lg }
@@ -54,31 +55,47 @@ class DebityLogo extends StatelessWidget {
 
         if (showWordmark) ...[
           SizedBox(width: gap),
-          // ── Wordmark ─────────────────────────────────────────────
-          RichText(
-            text: TextSpan(
-              children: [
-                TextSpan(
-                  text: 'Debi',
-                  style: AppTextStyles.xl2.copyWith(
-                    fontSize: fontSize,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.brand400,
-                    letterSpacing: -0.5,
-                  ),
+          // ── Wordmark (localized) ─────────────────────────────────
+          Builder(builder: (ctx) {
+            final loc = AppLocalizations.of(ctx);
+            // For English keep the branded split wordmark, otherwise render localized app name.
+            if (loc.locale.languageCode == 'en') {
+              return RichText(
+                text: TextSpan(
+                  children: [
+                    TextSpan(
+                      text: 'Debi',
+                      style: AppTextStyles.xl2.copyWith(
+                        fontSize: fontSize,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.brand400,
+                        letterSpacing: -0.5,
+                      ),
+                    ),
+                    TextSpan(
+                      text: 'ty',
+                      style: AppTextStyles.xl2.copyWith(
+                        fontSize: fontSize,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.textPrimary,
+                        letterSpacing: -0.5,
+                      ),
+                    ),
+                  ],
                 ),
-                TextSpan(
-                  text: 'ty',
-                  style: AppTextStyles.xl2.copyWith(
-                    fontSize: fontSize,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary,
-                    letterSpacing: -0.5,
-                  ),
-                ),
-              ],
-            ),
-          ),
+              );
+            }
+
+            return Text(
+              loc.appName,
+              style: AppTextStyles.xl2.copyWith(
+                fontSize: fontSize,
+                fontWeight: FontWeight.w700,
+                color: AppColors.textPrimary,
+                letterSpacing: -0.5,
+              ),
+            );
+          }),
         ],
       ],
     );
