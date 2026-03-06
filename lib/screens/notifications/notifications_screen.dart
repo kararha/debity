@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../api/api_service.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/l10n/app_localizations.dart';
 import '../../core/utils/formatters.dart';
 
 class NotificationsScreen extends StatefulWidget {
@@ -49,22 +50,23 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   Future<void> _runDailyCheck() async {
     try {
+      final messenger = ScaffoldMessenger.of(context);
+      final loc = AppLocalizations.of(context);
       setState(() => _isLoading = true);
-      
+
       final response = await _apiService.runDailyReminderCheck();
-      
-      ScaffoldMessenger.of(context).showSnackBar(
+
+      messenger.showSnackBar(
         SnackBar(
-          content: Text(
-            'تم إنشاء ${response.summary.totalNotifications} إشعار جديد',
-          ),
+          content: Text(loc.newNotificationsCreated(response.summary.totalNotifications)),
           backgroundColor: AppColors.success,
         ),
       );
-      
+
       _loadNotifications();
     } catch (e) {
       setState(() => _isLoading = false);
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('خطأ: $e')),
       );
@@ -73,25 +75,25 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   Future<void> _checkOverdue() async {
     try {
+      final messenger = ScaffoldMessenger.of(context);
+      final loc = AppLocalizations.of(context);
       setState(() => _isLoading = true);
-      
+
       final response = await _apiService.checkOverdueInstallments();
-      
-      ScaffoldMessenger.of(context).showSnackBar(
+
+      messenger.showSnackBar(
         SnackBar(
-          content: Text(
-            'تم تحديث ${response.newlyOverdue} قسط متأخر\n'
-            'إجمالي المتأخرات: ${response.totalOverdue}',
-          ),
+          content: Text(loc.updatedOverdueSummary(response.newlyOverdue, response.totalOverdue)),
           backgroundColor: response.newlyOverdue > 0
               ? AppColors.warning
               : AppColors.success,
         ),
       );
-      
+
       _loadNotifications();
     } catch (e) {
       setState(() => _isLoading = false);
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('خطأ: $e')),
       );
@@ -100,9 +102,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('الإشعارات'),
+        title: Text(loc.notificationsTitle),
         centerTitle: true,
         actions: [
           PopupMenuButton(
@@ -139,7 +142,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           ),
         ],
       ),
-      body: _isLoading
+        body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
               ? _buildErrorView()
@@ -158,7 +161,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           children: [
             const Icon(Icons.error_outline, size: 64, color: AppColors.error),
             const SizedBox(height: 16),
-            Text('حدث خطأ', style: Theme.of(context).textTheme.titleMedium),
+            Text(AppLocalizations.of(context).loadFailed, style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 8),
             Text(
               _error ?? '',
@@ -172,7 +175,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             ElevatedButton.icon(
               onPressed: _loadNotifications,
               icon: const Icon(Icons.refresh),
-              label: const Text('إعادة المحاولة'),
+              label: Text(AppLocalizations.of(context).retry),
             ),
           ],
         ),
@@ -201,14 +204,14 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             ),
             const SizedBox(height: 24),
             Text(
-              'لا توجد إشعارات',
+              AppLocalizations.of(context).noNotifications,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
             ),
             const SizedBox(height: 8),
             Text(
-              'جميع الأقساط تحت السيطرة!',
+              AppLocalizations.of(context).allClearMessage,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: AppColors.textSecondary,
                   ),
@@ -217,7 +220,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             OutlinedButton.icon(
               onPressed: _runDailyCheck,
               icon: const Icon(Icons.refresh),
-              label: const Text('تحديث التذكيرات'),
+              label: Text(AppLocalizations.of(context).refreshReminders),
             ),
           ],
         ),

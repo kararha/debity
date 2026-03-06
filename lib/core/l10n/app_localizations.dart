@@ -1,5 +1,11 @@
 import 'package:flutter/widgets.dart';
 
+// Ignore noisy lints created during incremental i18n migration.
+// The file intentionally includes snake_case getters for backwards compatibility
+// and some unnecessary '!' assertions that are harmless because _t() always
+// returns a non-null String. Suppress those analyzer warnings here.
+// ignore_for_file: unnecessary_non_null_assertion, non_constant_identifier_names
+
 class AppLocalizations {
   final Locale locale;
   AppLocalizations(this.locale);
@@ -473,6 +479,140 @@ class AppLocalizations {
       'ar': 'بعد {n} يوم',
       'en': 'in {n} days',
     },
+    // Settings & Notifications
+    'settings_title': {
+      'ar': 'الإعدادات',
+      'en': 'Settings',
+    },
+    'app_info_section': {
+      'ar': 'معلومات التطبيق',
+      'en': 'App info',
+    },
+    'appearance_section': {
+      'ar': 'المظهر',
+      'en': 'Appearance',
+    },
+    'notifications_section': {
+      'ar': 'الإشعارات',
+      'en': 'Notifications',
+    },
+    'enable_notifications': {
+      'ar': 'تفعيل الإشعارات',
+      'en': 'Enable notifications',
+    },
+    'enable_notifications_sub': {
+      'ar': 'استلام إشعارات التذكير',
+      'en': 'Receive reminder notifications',
+    },
+    'daily_reminder': {
+      'ar': 'تذكير يومي',
+      'en': 'Daily reminder',
+    },
+    'daily_reminder_sub': {
+      'ar': 'تذكير بالأقساط المستحقة',
+      'en': 'Remind about due installments',
+    },
+    'overdue_alerts': {
+      'ar': 'تنبيه المتأخرات',
+      'en': 'Overdue alerts',
+    },
+    'overdue_alerts_sub': {
+      'ar': 'تنبيه عند تأخر الأقساط',
+      'en': 'Notify when installments are overdue',
+    },
+    'reminder_before_label': {
+      'ar': 'التذكير قبل',
+      'en': 'Reminder before',
+    },
+    'test_notifications_section': {
+      'ar': 'اختبار الإشعارات',
+      'en': 'Test notifications',
+    },
+    'test_notification_now': {
+      'ar': 'إشعار تجريبي فوري',
+      'en': 'Send instant test notification',
+    },
+    'send_due_notifications': {
+      'ar': 'إرسال إشعارات المستحقات',
+      'en': 'Send due notifications',
+    },
+    'show_fcm_token': {
+      'ar': 'عرض رمز FCM',
+      'en': 'Show FCM token',
+    },
+    'data_section': {
+      'ar': 'البيانات',
+      'en': 'Data',
+    },
+    'sync_data': {
+      'ar': 'مزامنة البيانات',
+      'en': 'Sync data',
+    },
+    'update_overdues': {
+      'ar': 'تحديث المتأخرات',
+      'en': 'Update overdue',
+    },
+    'about_section': {
+      'ar': 'حول',
+      'en': 'About',
+    },
+    'privacy_policy': {
+      'ar': 'سياسة الخصوصية',
+      'en': 'Privacy policy',
+    },
+    'terms_of_service': {
+      'ar': 'شروط الاستخدام',
+      'en': 'Terms of service',
+    },
+    'help_and_support': {
+      'ar': 'المساعدة والدعم',
+      'en': 'Help & support',
+    },
+    'rate_app': {
+      'ar': 'تقييم التطبيق',
+      'en': 'Rate app',
+    },
+    'logout': {
+      'ar': 'تسجيل الخروج',
+      'en': 'Log out',
+    },
+    'confirm_logout': {
+      'ar': 'هل تريد فعلاً تسجيل الخروج من حسابك؟',
+      'en': 'Do you really want to log out?',
+    },
+    'copied': {
+      'ar': 'تم النسخ',
+      'en': 'Copied',
+    },
+    // Notifications
+    'notifications_title': {
+      'ar': 'الإشعارات',
+      'en': 'Notifications',
+    },
+    'refresh_reminders': {
+      'ar': 'تحديث التذكيرات',
+      'en': 'Refresh reminders',
+    },
+    'check_overdue': {
+      'ar': 'فحص المتأخرات',
+      'en': 'Check overdue',
+    },
+    'no_notifications': {
+      'ar': 'لا توجد إشعارات',
+      'en': 'No notifications',
+    },
+    'all_clear_message': {
+      'ar': 'جميع الأقساط تحت السيطرة!',
+      'en': 'All installments are under control!',
+    },
+    'new_notifications_created': {
+      'ar': 'تم إنشاء {count} إشعار جديد',
+      'en': '{count} new notification(s) created',
+    },
+    'updated_overdue_summary': {
+      'ar': 'تم تحديث {new} قسط متأخر\nإجمالي المتأخرات: {total}',
+      'en': '{new} overdue installment(s) updated\nTotal overdue: {total}',
+    },
     // Debts
     'debts_search_hint': {
       'ar': 'بحث عن دين...',
@@ -648,6 +788,65 @@ class AppLocalizations {
   String get overdueAlert => _t('overdue_alert')!;
   String get customerLabel => _t('customer_label')!;
   String get remainingAmountLabel => _t('remaining_amount_label')!;
+  // Installments
+  String get installmentsTitle => _t('installments_title')!;
+  String get filterAll => _t('filter_all')!;
+  String get filterToday => _t('filter_today')!;
+  String get filterWeek => _t('filter_week')!;
+  String get filterMonth => _t('filter_month')!;
+  String get noInstallments => _t('no_installments')!;
+  String get enterValidAmount => _t('enter_valid_amount')!;
+  String get amountGreaterThanRemaining => _t('amount_greater_than_remaining')!;
+  String get paymentFullSuccess => _t('payment_full_success')!;
+  String get paymentPartialSuccess => _t('payment_partial_success')!;
+  String get paymentError => _t('payment_error')!;
+  String get paymentTitle => _t('payment_title')!;
+  String get paymentOptions => _t('payment_options')!;
+  String get payFull => _t('pay_full')!;
+  String get payPartial => _t('pay_partial')!;
+  String get enterAmount => _t('enter_amount')!;
+  String get amountLabel => _t('amount_label')!;
+  String get amountPaidLabel => _t('amount_paid_label')!;
+  String get notesOptional => _t('notes_optional')!;
+  String get confirmPayment => _t('confirm_payment')!;
+  String get installmentLabel => _t('installment_label')!;
+  String get daysOverdue => _t('days_overdue')!;
+  String get daysInFuture => _t('days_in_future')!;
+  // Settings & Notifications getters
+  String get settingsTitle => _t('settings_title')!;
+  String get appInfoSection => _t('app_info_section')!;
+  String get appearanceSection => _t('appearance_section')!;
+  String get notificationsSection => _t('notifications_section')!;
+  String get enableNotifications => _t('enable_notifications')!;
+  String get enableNotificationsSub => _t('enable_notifications_sub')!;
+  String get dailyReminder => _t('daily_reminder')!;
+  String get dailyReminderSub => _t('daily_reminder_sub')!;
+  String get overdueAlerts => _t('overdue_alerts')!;
+  String get overdueAlertsSub => _t('overdue_alerts_sub')!;
+  String get reminderBeforeLabel => _t('reminder_before_label')!;
+  String get testNotificationsSection => _t('test_notifications_section')!;
+  String get testNotificationNow => _t('test_notification_now')!;
+  String get sendDueNotifications => _t('send_due_notifications')!;
+  String get showFcmToken => _t('show_fcm_token')!;
+  String get dataSection => _t('data_section')!;
+  String get syncData => _t('sync_data')!;
+  String get updateOverdues => _t('update_overdues')!;
+  String get aboutSection => _t('about_section')!;
+  String get privacyPolicy => _t('privacy_policy')!;
+  String get termsOfService => _t('terms_of_service')!;
+  String get helpAndSupport => _t('help_and_support')!;
+  String get rateApp => _t('rate_app')!;
+  String get logoutLabel => _t('logout')!;
+  String get confirmLogout => _t('confirm_logout')!;
+  String get copied => _t('copied')!;
+  // Notifications
+  String get notificationsTitle => _t('notifications_title')!;
+  String get refreshReminders => _t('refresh_reminders')!;
+  String get checkOverdue => _t('check_overdue')!;
+  String get noNotifications => _t('no_notifications')!;
+  String get allClearMessage => _t('all_clear_message')!;
+  String newNotificationsCreated(int count) => _t('new_notifications_created').replaceAll('{count}', '$count');
+  String updatedOverdueSummary(int newly, int total) => _t('updated_overdue_summary').replaceAll('{new}', '$newly').replaceAll('{total}', '$total');
   // Customers
   String get customersTitle => _t('customers_title')!;
   String get customersCount => _t('customers_count')!;

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../api/api_service.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/l10n/app_localizations.dart';
 import '../../core/theme/theme_controller.dart';
 import '../../core/services/fcm_service.dart';
 import '../auth/auth_screen.dart';
@@ -63,6 +64,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bgColor = isDark ? const Color(0xFF0F0F1A) : const Color(0xFFF4F6FB);
+    final loc = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: bgColor,
       body: CustomScrollView(
@@ -92,46 +94,46 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                     const SizedBox(width: 16),
                     Column(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      const Text('ديبتي', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
-                      Text('إدارة الأقساط والديون', style: TextStyle(color: Colors.white70, fontSize: 12)),
+                      Text(loc.appName, style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+                      Text(loc.tagline, style: const TextStyle(color: Colors.white70, fontSize: 12)),
                     ]),
                   ]),
                 ),
               ),
             ),
-            title: const Text('الإعدادات', style: TextStyle(color: Colors.white)),
+            title: Text(loc.settingsTitle, style: const TextStyle(color: Colors.white)),
             centerTitle: true,
           ),
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
             sliver: SliverList(delegate: SliverChildListDelegate([
-              _buildSection(title: 'معلومات التطبيق', isDark: isDark, children: [
-                _buildInfoTile(icon: Icons.info_outline, title: 'الإصدار', subtitle: '1.0.0'),
+              _buildSection(title: loc.appInfoSection, isDark: isDark, children: [
+                _buildInfoTile(icon: Icons.info_outline, title: loc.versionLabel, subtitle: '1.0.0'),
                 _buildInfoTile(icon: Icons.code, title: 'المطور', subtitle: 'Karar Haider'),
               ]),
               const SizedBox(height: 20),
-              _buildSection(title: 'المظهر', isDark: isDark, children: [_buildThemeTile()]),
+              _buildSection(title: loc.appearanceSection, isDark: isDark, children: [_buildThemeTile()]),
               const SizedBox(height: 20),
-              _buildSection(title: 'الإشعارات', isDark: isDark, children: [
+              _buildSection(title: loc.notificationsSection, isDark: isDark, children: [
                 _buildSwitchTile(
                   icon: Icons.notifications_rounded,
-                  title: 'تفعيل الإشعارات',
-                  subtitle: 'استلام إشعارات التذكير',
+                  title: loc.enableNotifications,
+                  subtitle: loc.enableNotificationsSub,
                   value: _notificationsEnabled,
                   onChanged: _onNotificationsToggled,
                 ),
                 if (_notificationsEnabled) ...[
                   _buildSwitchTile(
                     icon: Icons.today_rounded,
-                    title: 'تذكير يومي',
-                    subtitle: 'تذكير بالأقساط المستحقة',
+                    title: loc.dailyReminder,
+                    subtitle: loc.dailyReminderSub,
                     value: _dailyReminder,
                     onChanged: (v) { setState(() => _dailyReminder = v); _saveSettings(); },
                   ),
                   _buildSwitchTile(
                     icon: Icons.warning_amber_rounded,
-                    title: 'تنبيه المتأخرات',
-                    subtitle: 'تنبيه عند تأخر الأقساط',
+                    title: loc.overdueAlerts,
+                    subtitle: loc.overdueAlertsSub,
                     value: _overdueAlerts,
                     onChanged: (v) { setState(() => _overdueAlerts = v); _saveSettings(); },
                   ),
@@ -139,32 +141,32 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ],
               ]),
               const SizedBox(height: 20),
-              _buildSection(title: 'اختبار الإشعارات', isDark: isDark, children: [
-                _buildActionTile(icon: Icons.notifications_active_rounded, title: 'إشعار تجريبي فوري', subtitle: 'اختبر ظهور الإشعارات على جهازك', loading: _testingNotification, onTap: _sendTestNotification),
-                _buildActionTile(icon: Icons.send_rounded, title: 'إرسال إشعارات المستحقات', subtitle: 'إرسال FCM لأقساط غداً', loading: _triggeringReminders, onTap: _triggerUpcomingReminders),
-                _buildActionTile(icon: Icons.vpn_key_outlined, title: 'عرض رمز FCM', subtitle: 'رمز الجهاز لاختبار الإشعارات', onTap: _showFcmTokenDialog),
+              _buildSection(title: loc.testNotificationsSection, isDark: isDark, children: [
+                _buildActionTile(icon: Icons.notifications_active_rounded, title: loc.testNotificationNow, subtitle: 'اختبر ظهور الإشعارات على جهازك', loading: _testingNotification, onTap: _sendTestNotification),
+                _buildActionTile(icon: Icons.send_rounded, title: loc.sendDueNotifications, subtitle: 'إرسال FCM لأقساط غداً', loading: _triggeringReminders, onTap: _triggerUpcomingReminders),
+                _buildActionTile(icon: Icons.vpn_key_outlined, title: loc.showFcmToken, subtitle: 'رمز الجهاز لاختبار الإشعارات', onTap: _showFcmTokenDialog),
               ]),
               const SizedBox(height: 20),
-              _buildSection(title: 'البيانات', isDark: isDark, children: [
-                _buildActionTile(icon: Icons.sync_rounded, title: 'مزامنة البيانات', subtitle: 'تحديث البيانات من الخادم', onTap: _syncData),
-                _buildActionTile(icon: Icons.update_rounded, title: 'تحديث المتأخرات', subtitle: 'فحص وتحديث حالة الأقساط', onTap: _checkOverdue),
+              _buildSection(title: loc.dataSection, isDark: isDark, children: [
+                _buildActionTile(icon: Icons.sync_rounded, title: loc.syncData, subtitle: 'تحديث البيانات من الخادم', onTap: _syncData),
+                _buildActionTile(icon: Icons.update_rounded, title: loc.updateOverdues, subtitle: 'فحص وتحديث حالة الأقساط', onTap: _checkOverdue),
               ]),
               const SizedBox(height: 20),
-              _buildSection(title: 'حول', isDark: isDark, children: [
-                _buildActionTile(icon: Icons.description_outlined, title: 'سياسة الخصوصية', onTap: _showPrivacyPolicy),
-                _buildActionTile(icon: Icons.gavel_rounded, title: 'شروط الاستخدام', onTap: _showTermsOfService),
-                _buildActionTile(icon: Icons.help_outline_rounded, title: 'المساعدة والدعم', onTap: _showHelpAndSupport),
-                _buildActionTile(icon: Icons.star_outline_rounded, title: 'تقييم التطبيق', onTap: _showRateApp),
+              _buildSection(title: loc.aboutSection, isDark: isDark, children: [
+                _buildActionTile(icon: Icons.description_outlined, title: loc.privacyPolicy, onTap: _showPrivacyPolicy),
+                _buildActionTile(icon: Icons.gavel_rounded, title: loc.termsOfService, onTap: _showTermsOfService),
+                _buildActionTile(icon: Icons.help_outline_rounded, title: loc.helpAndSupport, onTap: _showHelpAndSupport),
+                _buildActionTile(icon: Icons.star_outline_rounded, title: loc.rateApp, onTap: _showRateApp),
               ]),
               const SizedBox(height: 20),
               _buildSection(title: 'حساب المستخدم', isDark: isDark, children: [
-                _buildActionTile(icon: Icons.logout_rounded, title: 'تسجيل الخروج', subtitle: 'تسجيل الخروج من حسابك', onTap: _handleLogout, isDestructive: true),
+                _buildActionTile(icon: Icons.logout_rounded, title: loc.logoutLabel, subtitle: 'تسجيل الخروج من حسابك', onTap: _handleLogout, isDestructive: true),
               ]),
               const SizedBox(height: 32),
               Center(child: Column(children: [
-                Text('ديبتي', style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.primaryColor, fontSize: 16)),
+                Text(loc.appName, style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.primaryColor, fontSize: 16)),
                 const SizedBox(height: 4),
-                Text('إدارة الأقساط والديون', style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                Text(loc.tagline, style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
                 const SizedBox(height: 4),
                 Text('© 2026 جميع الحقوق محفوظة', style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
               ])),
@@ -420,7 +422,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           children: [
             Icon(Icons.star, color: Colors.amber.shade600),
             const SizedBox(width: 8),
-            const Text('تقييم التطبيق'),
+            Text(AppLocalizations.of(context).rateApp),
           ],
         ),
         content: const Text(
@@ -429,11 +431,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('لاحقاً'),
+            child: Text(AppLocalizations.of(context).cancel),
           ),
           ElevatedButton.icon(
             icon: const Icon(Icons.star, size: 16),
-            label: const Text('تقييم الآن'),
+            label: Text(AppLocalizations.of(context).rateApp),
             onPressed: () {
               Navigator.pop(ctx);
               _showSnack('شكراً لك! سيتوفر التقييم عند نشر التطبيق في المتجر ✓',
@@ -512,10 +514,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         daysBefore: _reminderDaysBefore,
       );
       if (mounted) {
-        _showSnack(
-          'تم إرسال ${result.processed} إشعار — التذكير قبل $_reminderDaysBefore يوم ✓',
-          isSuccess: true,
-        );
+        _showSnack(AppLocalizations.of(context).newNotificationsCreated(result.processed), isSuccess: true);
       }
     } catch (e) {
       if (mounted) _showSnack('خطأ في إرسال الإشعارات: $e', isError: true);
@@ -560,7 +559,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             onPressed: () {
               Clipboard.setData(ClipboardData(text: token));
               Navigator.pop(ctx);
-              _showSnack('تم نسخ الرمز ✓', isSuccess: true);
+              _showSnack(AppLocalizations.of(context).copied, isSuccess: true);
             },
           ),
           TextButton(
@@ -634,19 +633,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('تسجيل الخروج'),
-        content: const Text('هل تريد فعلاً تسجيل الخروج من حسابك؟'),
+        title: Text(AppLocalizations.of(context).logoutLabel),
+        content: Text(AppLocalizations.of(context).confirmLogout),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('إلغاء'),
+            child: Text(AppLocalizations.of(context).cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             style: TextButton.styleFrom(
               foregroundColor: AppColors.error,
             ),
-            child: const Text('تسجيل الخروج'),
+            child: Text(AppLocalizations.of(context).logoutLabel),
           ),
         ],
       ),
@@ -666,7 +665,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
 
     try {
-      print('Starting logout process...');
+      debugPrint('Starting logout process...');
       await FCMService.deactivateToken();
       await _apiService.logout();
 

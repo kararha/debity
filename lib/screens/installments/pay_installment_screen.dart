@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/formatters.dart';
 import '../../models/installment.dart';
+import '../../core/l10n/app_localizations.dart';
 
 class PayInstallmentScreen extends StatefulWidget {
   final Installment installment;
@@ -41,14 +42,14 @@ class _PayInstallmentScreenState extends State<PayInstallmentScreen> {
     
     if (amount <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('الرجاء إدخال مبلغ صحيح')),
+        SnackBar(content: Text(AppLocalizations.of(context).enterValidAmount)),
       );
       return;
     }
 
     if (amount > _remainingAmount) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('المبلغ أكبر من المتبقي')),
+        SnackBar(content: Text(AppLocalizations.of(context).amountGreaterThanRemaining)),
       );
       return;
     }
@@ -101,11 +102,7 @@ class _PayInstallmentScreenState extends State<PayInstallmentScreen> {
         Navigator.pop(context, true);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-              isFullyPaid
-                  ? 'تم دفع القسط بالكامل'
-                  : 'تم تسجيل الدفعة الجزئية',
-            ),
+            content: Text(isFullyPaid ? AppLocalizations.of(context).paymentFullSuccess : AppLocalizations.of(context).paymentPartialSuccess),
             backgroundColor: AppColors.success,
           ),
         );
@@ -114,7 +111,7 @@ class _PayInstallmentScreenState extends State<PayInstallmentScreen> {
       setState(() => _isLoading = false);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('خطأ: $e')),
+          SnackBar(content: Text('${AppLocalizations.of(context).paymentError}: $e')),
         );
       }
     }
@@ -127,9 +124,9 @@ class _PayInstallmentScreenState extends State<PayInstallmentScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'دفع القسط',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        title: Text(
+          AppLocalizations.of(context).paymentTitle,
+          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.transparent,
         foregroundColor: Colors.white,
@@ -248,7 +245,7 @@ class _PayInstallmentScreenState extends State<PayInstallmentScreen> {
                             color: Colors.white, size: 16),
                         const SizedBox(width: 8),
                         Text(
-                          'تاريخ الاستحقاق: ${DateFormatter.formatDate(installment.dueDate)}',
+                          '${AppLocalizations.of(context).dueDateLabel}: ${DateFormatter.formatDate(installment.dueDate)}',
                           style: const TextStyle(color: Colors.white),
                         ),
                       ],
@@ -258,8 +255,8 @@ class _PayInstallmentScreenState extends State<PayInstallmentScreen> {
                     const SizedBox(height: 8),
                     Text(
                       daysUntil < 0
-                          ? 'متأخر ${-daysUntil} يوم'
-                          : 'متبقي $daysUntil يوم',
+                          ? AppLocalizations.of(context).daysOverdue.replaceAll('{n}', '${-daysUntil}')
+                          : AppLocalizations.of(context).daysInFuture.replaceAll('{n}', '$daysUntil'),
                       style: const TextStyle(
                         color: Colors.white70,
                         fontWeight: FontWeight.w500,
@@ -273,7 +270,7 @@ class _PayInstallmentScreenState extends State<PayInstallmentScreen> {
 
             // Payment Options
             Text(
-              'خيارات الدفع',
+              AppLocalizations.of(context).paymentOptions,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -283,7 +280,7 @@ class _PayInstallmentScreenState extends State<PayInstallmentScreen> {
               children: [
                 Expanded(
                   child: _buildPaymentOption(
-                    title: 'دفع كامل',
+                    title: AppLocalizations.of(context).payFull,
                     subtitle: NumberFormatter.formatCurrency(_remainingAmount),
                     isSelected: _payFull,
                     onTap: () {
@@ -298,8 +295,8 @@ class _PayInstallmentScreenState extends State<PayInstallmentScreen> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: _buildPaymentOption(
-                    title: 'دفع جزئي',
-                    subtitle: 'حدد المبلغ',
+                    title: AppLocalizations.of(context).payPartial,
+                    subtitle: AppLocalizations.of(context).enterAmount,
                     isSelected: !_payFull,
                     onTap: () {
                       setState(() {
@@ -315,7 +312,7 @@ class _PayInstallmentScreenState extends State<PayInstallmentScreen> {
 
             // Amount Field
             Text(
-              'المبلغ',
+              AppLocalizations.of(context).amountLabel,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -325,7 +322,7 @@ class _PayInstallmentScreenState extends State<PayInstallmentScreen> {
               controller: _amountController,
               enabled: !_payFull,
               decoration: InputDecoration(
-                labelText: 'المبلغ المدفوع',
+              labelText: AppLocalizations.of(context).amountPaidLabel,
                 suffixText: 'د.ع',
                 prefixIcon: const Icon(Icons.payments),
                 filled: true,
@@ -344,9 +341,9 @@ class _PayInstallmentScreenState extends State<PayInstallmentScreen> {
             // Notes
             TextFormField(
               controller: _notesController,
-              decoration: const InputDecoration(
-                labelText: 'ملاحظات (اختياري)',
-                prefixIcon: Icon(Icons.note),
+              decoration: InputDecoration(
+                labelText: AppLocalizations.of(context).notesOptional,
+                prefixIcon: const Icon(Icons.note),
               ),
               maxLines: 2,
             ),
@@ -384,14 +381,14 @@ class _PayInstallmentScreenState extends State<PayInstallmentScreen> {
                         height: 24,
                         child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                       )
-                    : const Row(
+                    : Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.check_circle_rounded, color: Colors.white, size: 22),
-                          SizedBox(width: 10),
+                          const Icon(Icons.check_circle_rounded, color: Colors.white, size: 22),
+                          const SizedBox(width: 10),
                           Text(
-                            'تأكيد الدفع',
-                            style: TextStyle(
+                            AppLocalizations.of(context).confirmPayment,
+                            style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                               color: Colors.white,

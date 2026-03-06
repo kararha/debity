@@ -4,6 +4,8 @@ import '../../core/theme/app_colors.dart';
 import '../../core/utils/formatters.dart';
 import '../../models/installment.dart';
 import 'pay_installment_screen.dart';
+import '../../core/l10n/app_localizations.dart';
+
 
 class InstallmentsScreen extends StatefulWidget {
   const InstallmentsScreen({super.key});
@@ -108,6 +110,7 @@ class _InstallmentsScreenState extends State<InstallmentsScreen>
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bgColor = isDark ? const Color(0xFF0F0F1A) : const Color(0xFFF4F6FB);
     final surfaceColor = isDark ? const Color(0xFF1C1C2E) : Colors.white;
+    final loc = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: bgColor,
       body: Column(
@@ -124,10 +127,10 @@ class _InstallmentsScreenState extends State<InstallmentsScreen>
             ),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Row(children: [
-                Expanded(child: const Text('الأقساط', style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold))),
+                Expanded(child: Text(loc.installmentsTitle, style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold))),
                 IconButton(icon: const Icon(Icons.refresh_rounded, color: Colors.white, size: 20), onPressed: _loadInstallments),
               ]),
-              const SizedBox(height: 10),
+              const SizedBox(height: 10), 
               _buildPeriodFilter(isDark, surfaceColor),
               const SizedBox(height: 10),
               TabBar(
@@ -141,11 +144,11 @@ class _InstallmentsScreenState extends State<InstallmentsScreen>
                 dividerColor: Colors.transparent,
                 tabAlignment: TabAlignment.start,
                 tabs: [
-                  Tab(text: 'الكل (${_filteredInstallments.length})'),
-                  Tab(text: 'معلقة (${_pendingInstallments.length})'),
-                  Tab(text: 'متأخرة (${_overdueInstallments.length})'),
-                  Tab(text: 'مدفوعة (${_paidInstallments.length})'),
-                ],
+                  Tab(text: loc.tabLabel('installments_tab_all', _filteredInstallments.length)),
+                  Tab(text: loc.tabLabel('installments_tab_pending', _pendingInstallments.length)),
+                  Tab(text: loc.tabLabel('installments_tab_overdue', _overdueInstallments.length)),
+                  Tab(text: loc.tabLabel('installments_tab_paid', _paidInstallments.length)),
+                  ],
               ),
             ]),
           ),
@@ -170,7 +173,8 @@ class _InstallmentsScreenState extends State<InstallmentsScreen>
   }
 
   Widget _buildPeriodFilter(bool isDark, Color surface) {
-    final filters = [('all', 'الكل'), ('today', 'اليوم'), ('week', 'الأسبوع'), ('month', 'الشهر')];
+    final loc = AppLocalizations.of(context);
+    final filters = [('all', loc.filterAll), ('today', loc.filterToday), ('week', loc.filterWeek), ('month', loc.filterMonth)];
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(children: filters.map((f) {
@@ -200,11 +204,12 @@ class _InstallmentsScreenState extends State<InstallmentsScreen>
   }
 
   Widget _buildErrorView() {
+    final loc = AppLocalizations.of(context);
     return Center(child: Padding(padding: const EdgeInsets.all(32), child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
       Container(padding: const EdgeInsets.all(20), decoration: BoxDecoration(color: AppColors.error.withOpacity(0.1), shape: BoxShape.circle),
         child: const Icon(Icons.error_outline_rounded, size: 48, color: AppColors.error)),
       const SizedBox(height: 20),
-      Text('تعذّر التحميل', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+      Text(loc.loadFailed, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
       const SizedBox(height: 8),
       Text(_error ?? '', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary), textAlign: TextAlign.center),
       const SizedBox(height: 24),
@@ -227,8 +232,7 @@ class _InstallmentsScreenState extends State<InstallmentsScreen>
                 color: AppColors.textSecondary.withOpacity(0.5),
               ),
               const SizedBox(height: 16),
-              Text(
-                'لا توجد أقساط',
+              Text(AppLocalizations.of(context).noInstallments,
                 style: Theme.of(context)
                     .textTheme
                     .titleMedium
@@ -374,7 +378,7 @@ class _InstallmentsScreenState extends State<InstallmentsScreen>
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(color: AppColors.primaryColor, borderRadius: BorderRadius.circular(10)),
-                  child: const Text('دفع', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+                  child: Text(AppLocalizations.of(context).payFull, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
                 )
               else
                 Icon(Icons.done_all_rounded, color: AppColors.success, size: 20),
