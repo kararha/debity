@@ -573,17 +573,33 @@ class AppLocalizations {
       'ar': 'سياسة الخصوصية',
       'en': 'Privacy policy',
     },
+    'privacy_policy_content': {
+      'ar': 'يلتزم تطبيق ديبتي بحماية خصوصية مستخدميه على النحو التالي:\n\n• جمع البيانات: يجمع التطبيق بيانات العملاء والأقساط التي تُدخلها أنت فقط، ولا يجمع أي بيانات شخصية دون إذنك.\n\n• تخزين البيانات: تُحفظ جميع البيانات بشكل مشفّر على خوادم Supabase الآمنة.\n\n• مشاركة البيانات: لا يتم مشاركة أي بيانات مع أطراف ثالثة بأي حال.\n\n• الإشعارات: تُستخدم بيانات FCM فقط لإرسال تذكيرات الأقساط لك.\n\n• للتواصل: karar.haider@debity.app',
+      'en': 'Debity is committed to protecting user privacy. We collect only the customer and installment data you enter. Data is stored securely on Supabase servers and is not shared with third parties. FCM tokens are used solely for reminders. Contact: karar.haider@debity.app',
+    },
     'terms_of_service': {
       'ar': 'شروط الاستخدام',
       'en': 'Terms of service',
+    },
+    'terms_of_service_content': {
+      'ar': 'باستخدامك لتطبيق ديبتي، فإنك توافق على الشروط التالية:\n\n• الاستخدام المسموح: يُستخدم التطبيق لأغراض تتبع الأقساط والديون الشخصية أو التجارية المشروعة فقط.\n\n• المسؤولية: المطوّر غير مسؤول عن أي قرارات مالية تُتخذ بناء على بيانات التطبيق.\n\n• الملكية الفكرية: جميع حقوق التطبيق محفوظة لـ Karar Haider © 2026.\n\n• التعديلات: يحق للمطوّر تعديل هذه الشروط في أي وقت مع إشعار المستخدمين.\n\n• إنهاء الخدمة: يحق لنا إنهاء الخدمة في حالة إساءة الاستخدام.',
+      'en': 'By using Debity you agree to the following terms: permitted use is for legitimate personal or business debt tracking; the developer is not responsible for financial decisions made using the app; intellectual property is owned by Karar Haider © 2026; terms may be modified and service may be terminated for abuse.',
     },
     'help_and_support': {
       'ar': 'المساعدة والدعم',
       'en': 'Help & support',
     },
+    'help_and_support_content': {
+      'ar': 'هل تحتاج إلى مساعدة؟ إليك كيفية التواصل معنا:\n\n📧 البريد الإلكتروني:\nkarar.haider@debity.app\n\n💡 الأسئلة الشائعة:\n• كيف أضيف عميلاً جديداً؟ اضغط على + في شاشة العملاء.\n• كيف أسجّل دفعة قسط؟ افتح تفاصيل الدين ثم اضغط على القسط.\n• هل يمكن استخدام التطبيق بدون إنترنت؟ البيانات تتطلب اتصالاً بالإنترنت للمزامنة.\n\n⏱ وقت الاستجابة: خلال 24 ساعة عمل.\n\nالإصدار الحالي: 1.0.0\nالمطوّر: Karar Haider',
+      'en': 'Need help? Contact: karar.haider@debity.app\nFAQ: Tap + on Customers to add a customer. Tap an installment to record payment. The app requires internet to sync. Response time: within 24 business hours. Version: 1.0.0',
+    },
     'rate_app': {
       'ar': 'تقييم التطبيق',
       'en': 'Rate app',
+    },
+    'rate_app_content': {
+      'ar': 'هل تستمتع باستخدام ديبتي؟\n\nتقييمك يساعدنا على تحسين التطبيق وتطويره باستمرار.\n\nشكراً لدعمك! 🙏',
+      'en': 'Enjoying Debity? Your rating helps us improve the app. Thank you for your support!',
     },
     'logout': {
       'ar': 'تسجيل الخروج',
@@ -596,6 +612,38 @@ class AppLocalizations {
     'copied': {
       'ar': 'تم النسخ',
       'en': 'Copied',
+    },
+    'developer_label': {
+      'ar': 'المطور',
+      'en': 'Developer',
+    },
+    'test_notification_sub': {
+      'ar': 'اختبر ظهور الإشعارات على جهازك',
+      'en': 'Test notifications on your device',
+    },
+    'send_due_notifications_sub': {
+      'ar': 'إرسال FCM لأقساط غداً',
+      'en': 'Send FCM for installments due tomorrow',
+    },
+    'fcm_token_subtitle': {
+      'ar': 'رمز الجهاز لاختبار الإشعارات',
+      'en': 'Device token for testing notifications',
+    },
+    'sync_data_sub': {
+      'ar': 'تحديث البيانات من الخادم',
+      'en': 'Refresh data from server',
+    },
+    'update_overdues_sub': {
+      'ar': 'فحص وتحديث حالة الأقساط',
+      'en': 'Check and update installment status',
+    },
+    'logout_sub': {
+      'ar': 'تسجيل الخروج من حسابك',
+      'en': 'Sign out of your account',
+    },
+    'copyright': {
+      'ar': '© 2026 جميع الحقوق محفوظة',
+      'en': '© 2026 All rights reserved',
     },
     'copy': {
       'ar': 'نسخ',
@@ -861,6 +909,19 @@ class AppLocalizations {
   String get confirmLogout => _t('confirm_logout')!;
   String get copied => _t('copied')!;
   String get copy => _t('copy')!;
+  String get developerLabel => _t('developer_label')!;
+  String get testNotificationSub => _t('test_notification_sub')!;
+  String get sendDueNotificationsSub => _t('send_due_notifications_sub')!;
+  String get fcmTokenSubtitle => _t('fcm_token_subtitle')!;
+  String get syncDataSub => _t('sync_data_sub')!;
+  String get updateOverduesSub => _t('update_overdues_sub')!;
+  String get logoutSub => _t('logout_sub')!;
+  String get copyrightLabel => _t('copyright')!;
+
+  String get privacyPolicyContent => _t('privacy_policy_content')!;
+  String get termsOfServiceContent => _t('terms_of_service_content')!;
+  String get helpAndSupportContent => _t('help_and_support_content')!;
+  String get rateAppContent => _t('rate_app_content')!;
   // Notifications
   String get notificationsTitle => _t('notifications_title')!;
   String get refreshReminders => _t('refresh_reminders')!;
