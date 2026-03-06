@@ -8,6 +8,8 @@ import '../../core/widgets/app_card.dart';
 import '../../core/widgets/status_badge.dart' hide DebtStatus;
 import '../../models/debt.dart';
 import '../../models/installment.dart';
+import '../../core/l10n/app_localizations.dart';
+
 
 // Assuming you have PayInstallmentScreen still using old navigation
 import '../installments/pay_installment_screen.dart';

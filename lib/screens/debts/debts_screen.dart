@@ -5,6 +5,7 @@ import '../../core/utils/formatters.dart';
 import '../../models/debt.dart';
 import 'debt_details_screen.dart';
 import 'add_debt_screen.dart';
+import '../../core/l10n/app_localizations.dart';
 
 class DebtsScreen extends StatefulWidget {
   const DebtsScreen({super.key});
