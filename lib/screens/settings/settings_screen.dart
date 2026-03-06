@@ -182,14 +182,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ]),
               const SizedBox(height: 20),
               _buildSection(title: loc.testNotificationsSection, isDark: isDark, children: [
-                _buildActionTile(icon: Icons.notifications_active_rounded, title: loc.testNotificationNow, subtitle: 'اختبر ظهور الإشعارات على جهازك', loading: _testingNotification, onTap: _sendTestNotification),
-                _buildActionTile(icon: Icons.send_rounded, title: loc.sendDueNotifications, subtitle: 'إرسال FCM لأقساط غداً', loading: _triggeringReminders, onTap: _triggerUpcomingReminders),
-                _buildActionTile(icon: Icons.vpn_key_outlined, title: loc.showFcmToken, subtitle: 'رمز الجهاز لاختبار الإشعارات', onTap: _showFcmTokenDialog),
+                  _buildActionTile(icon: Icons.notifications_active_rounded, title: loc.testNotificationNow, subtitle: AppLocalizations.of(context).testNotificationSub, loading: _testingNotification, onTap: _sendTestNotification),
+                  _buildActionTile(icon: Icons.send_rounded, title: loc.sendDueNotifications, subtitle: AppLocalizations.of(context).sendDueNotificationsSub, loading: _triggeringReminders, onTap: _triggerUpcomingReminders),
+                  _buildActionTile(icon: Icons.vpn_key_outlined, title: loc.showFcmToken, subtitle: AppLocalizations.of(context).fcmTokenSubtitle, onTap: _showFcmTokenDialog),
               ]),
               const SizedBox(height: 20),
               _buildSection(title: loc.dataSection, isDark: isDark, children: [
-                _buildActionTile(icon: Icons.sync_rounded, title: loc.syncData, subtitle: 'تحديث البيانات من الخادم', onTap: _syncData),
-                _buildActionTile(icon: Icons.update_rounded, title: loc.updateOverdues, subtitle: 'فحص وتحديث حالة الأقساط', onTap: _checkOverdue),
+                _buildActionTile(icon: Icons.sync_rounded, title: loc.syncData, subtitle: AppLocalizations.of(context).syncDataSub, onTap: _syncData),
+                _buildActionTile(icon: Icons.update_rounded, title: loc.updateOverdues, subtitle: AppLocalizations.of(context).updateOverduesSub, onTap: _checkOverdue),
               ]),
               const SizedBox(height: 20),
               _buildSection(title: loc.aboutSection, isDark: isDark, children: [
@@ -200,7 +200,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ]),
               const SizedBox(height: 20),
               _buildSection(title: 'حساب المستخدم', isDark: isDark, children: [
-                _buildActionTile(icon: Icons.logout_rounded, title: loc.logoutLabel, subtitle: 'تسجيل الخروج من حسابك', onTap: _handleLogout, isDestructive: true),
+                _buildActionTile(icon: Icons.logout_rounded, title: loc.logoutLabel, subtitle: AppLocalizations.of(context).logoutSub, onTap: _handleLogout, isDestructive: true),
               ]),
               const SizedBox(height: 32),
               Center(child: Column(children: [
@@ -208,7 +208,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 const SizedBox(height: 4),
                 Text(loc.tagline, style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
                 const SizedBox(height: 4),
-                Text('© 2026 جميع الحقوق محفوظة', style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+                Text(AppLocalizations.of(context).copyrightLabel, style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
               ])),
             ])),
           ),
@@ -345,7 +345,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           size: 20,
         ),
       ),
-      title: Text(loc.appearanceSection),
+      title: Text(AppLocalizations.of(context).appearanceSection),
       trailing: DropdownButton<ThemeMode>(
         value: _themeMode,
         underline: const SizedBox(),
@@ -385,7 +385,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         child:
             const Icon(Icons.schedule, color: AppColors.primaryColor, size: 20),
       ),
-      title: Text(loc.reminderBeforeLabel),
+      title: Text(AppLocalizations.of(context).reminderBeforeLabel),
       trailing: DropdownButton<int>(
         value: _reminderDaysBefore,
         underline: const SizedBox(),
@@ -409,16 +409,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   void _showPrivacyPolicy() {
     _showInfoDialog(
-      title: 'سياسة الخصوصية',
+      title: AppLocalizations.of(context).privacyPolicy,
       icon: Icons.description,
-      content: 'يلتزم تطبيق ديبتي بحماية خصوصية مستخدميه على النحو التالي:\n\n'
-          '• جمع البيانات: يجمع التطبيق بيانات العملاء والأقساط التي تُدخلها أنت '
-          'فقط، ولا يجمع أي بيانات شخصية دون إذنك.\n\n'
-          '• تخزين البيانات: تُحفظ جميع البيانات بشكل مشفّر على خوادم Supabase '
-          'الآمنة.\n\n'
-          '• مشاركة البيانات: لا يتم مشاركة أي بيانات مع أطراف ثالثة بأي حال.\n\n'
-          '• الإشعارات: تُستخدم بيانات FCM فقط لإرسال تذكيرات الأقساط لك.\n\n'
-          '• للتواصل: karar.haider@debity.app',
+      content: AppLocalizations.of(context).privacyPolicyContent,
     );
   }
 
