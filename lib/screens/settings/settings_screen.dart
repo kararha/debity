@@ -545,15 +545,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(loc.showFcmToken),
+        title: Text(AppLocalizations.of(ctx).showFcmToken),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'استخدم هذا الرمز لاختبار الإشعارات من Firebase Console أو Postman:',
-              style: TextStyle(fontSize: 12),
-            ),
+            Text(AppLocalizations.of(ctx).fcmTokenSubtitle, style: const TextStyle(fontSize: 12)),
             const SizedBox(height: 12),
             Container(
               padding: const EdgeInsets.all(8),
@@ -569,18 +566,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ],
         ),
         actions: [
-            TextButton.icon(
+          TextButton.icon(
             icon: const Icon(Icons.copy, size: 16),
-            label: Text(loc.copy),
+            label: Text(AppLocalizations.of(ctx).copy),
             onPressed: () {
               Clipboard.setData(ClipboardData(text: token));
               Navigator.pop(ctx);
-              _showSnack(AppLocalizations.of(context).copied, isSuccess: true);
+              _showSnack(AppLocalizations.of(ctx).copied, isSuccess: true);
             },
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: Text(loc.cancel),
+            child: Text(AppLocalizations.of(ctx).cancel),
           ),
         ],
       ),
