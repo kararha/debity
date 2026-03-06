@@ -417,32 +417,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   void _showTermsOfService() {
     _showInfoDialog(
-      title: 'شروط الاستخدام',
+      title: AppLocalizations.of(context).termsOfService,
       icon: Icons.gavel,
-      content: 'باستخدامك لتطبيق ديبتي، فإنك توافق على الشروط التالية:\n\n'
-          '• الاستخدام المسموح: يُستخدم التطبيق لأغراض تتبع الأقساط والديون '
-          'الشخصية أو التجارية المشروعة فقط.\n\n'
-          '• المسؤولية: المطوّر غير مسؤول عن أي قرارات مالية تُتخذ بناءً على '
-          'بيانات التطبيق.\n\n'
-          '• الملكية الفكرية: جميع حقوق التطبيق محفوظة لـ Karar Haider © 2026.\n\n'
-          '• التعديلات: يحق للمطوّر تعديل هذه الشروط في أي وقت مع إشعار المستخدمين.\n\n'
-          '• إنهاء الخدمة: يحق لنا إنهاء الخدمة في حالة إساءة الاستخدام.',
+      content: AppLocalizations.of(context).termsOfServiceContent,
     );
   }
 
   void _showHelpAndSupport() {
     _showInfoDialog(
-      title: 'المساعدة والدعم',
+      title: AppLocalizations.of(context).helpAndSupport,
       icon: Icons.help_outline,
-      content: 'هل تحتاج إلى مساعدة؟ إليك كيفية التواصل معنا:\n\n'
-          '📧 البريد الإلكتروني:\nkarar.haider@debity.app\n\n'
-          '💡 الأسئلة الشائعة:\n'
-          '• كيف أضيف عميلاً جديداً؟ اضغط على + في شاشة العملاء.\n'
-          '• كيف أسجّل دفعة قسط؟ افتح تفاصيل الدين ثم اضغط على القسط.\n'
-          '• هل يمكن استخدام التطبيق بدون إنترنت؟ البيانات تتطلب اتصالاً '
-          'بالإنترنت للمزامنة.\n\n'
-          '⏱ وقت الاستجابة: خلال 24 ساعة عمل.\n\n'
-          'الإصدار الحالي: 1.0.0\nالمطوّر: Karar Haider',
+      content: AppLocalizations.of(context).helpAndSupportContent,
     );
   }
 
