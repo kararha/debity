@@ -118,9 +118,9 @@ class _DebtsScreenState extends State<DebtsScreen>
                 Row(
                   children: [
                     Expanded(
-                      child: const Text(
-                        'الديون',
-                        style: TextStyle(
+                      child: Text(
+                        AppLocalizations.of(context).debtsTitle,
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
@@ -151,13 +151,13 @@ class _DebtsScreenState extends State<DebtsScreen>
                       ),
                     ],
                   ),
-                  child: TextField(
+                    child: TextField(
                     controller: _searchController,
                     style: TextStyle(
                       color: isDark ? Colors.white : AppColors.textPrimary,
                     ),
                     decoration: InputDecoration(
-                      hintText: 'بحث عن دين...',
+                      hintText: AppLocalizations.of(context).debtsSearchHint,
                       hintStyle: TextStyle(
                         color: AppColors.textSecondary,
                         fontSize: 13,
@@ -195,9 +195,9 @@ class _DebtsScreenState extends State<DebtsScreen>
                   ),
                   dividerColor: Colors.transparent,
                   tabs: [
-                    Tab(text: 'الكل (${_filteredDebts.length})'),
-                    Tab(text: 'نشط (${_activeDebts.length})'),
-                    Tab(text: 'مكتمل (${_completedDebts.length})'),
+                    Tab(text: AppLocalizations.of(context).tabLabel('tab_all', _filteredDebts.length)),
+                    Tab(text: AppLocalizations.of(context).tabLabel('tab_active', _activeDebts.length)),
+                    Tab(text: AppLocalizations.of(context).tabLabel('tab_completed', _completedDebts.length)),
                   ],
                 ),
               ],
@@ -229,7 +229,7 @@ class _DebtsScreenState extends State<DebtsScreen>
           if (result == true) _loadDebts();
         },
         icon: const Icon(Icons.add_rounded),
-        label: const Text('إضافة دين'),
+        label: Text(AppLocalizations.of(context).addDebt),
         elevation: 4,
       ),
     );
@@ -256,7 +256,7 @@ class _DebtsScreenState extends State<DebtsScreen>
             ),
             const SizedBox(height: 20),
             Text(
-              'تعذّر التحميل',
+              AppLocalizations.of(context).loadFailed,
               style: Theme.of(
                 context,
               ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
@@ -273,7 +273,7 @@ class _DebtsScreenState extends State<DebtsScreen>
             FilledButton.icon(
               onPressed: _loadDebts,
               icon: const Icon(Icons.refresh_rounded),
-              label: const Text('إعادة المحاولة'),
+              label: Text(AppLocalizations.of(context).retry),
               style: FilledButton.styleFrom(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14),
@@ -308,14 +308,14 @@ class _DebtsScreenState extends State<DebtsScreen>
               ),
               const SizedBox(height: 20),
               Text(
-                'لا توجد ديون',
+                AppLocalizations.of(context).noDebts,
                 style: Theme.of(
                   context,
                 ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
               Text(
-                'اضغط + لإضافة دين جديد',
+                AppLocalizations.of(context).pressPlusAddDebt,
                 style: Theme.of(
                   context,
                 ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
