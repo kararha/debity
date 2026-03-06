@@ -345,7 +345,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           size: 20,
         ),
       ),
-      title: const Text('المظهر'),
+      title: Text(loc.appearanceSection),
       trailing: DropdownButton<ThemeMode>(
         value: _themeMode,
         underline: const SizedBox(),
@@ -385,7 +385,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         child:
             const Icon(Icons.schedule, color: AppColors.primaryColor, size: 20),
       ),
-      title: const Text('التذكير قبل'),
+      title: Text(loc.reminderBeforeLabel),
       trailing: DropdownButton<int>(
         value: _reminderDaysBefore,
         underline: const SizedBox(),
@@ -509,7 +509,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('إغلاق'),
+            child: Text(loc.cancel),
           ),
         ],
       ),
@@ -569,7 +569,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('رمز FCM للجهاز'),
+        title: Text(loc.showFcmToken),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -593,9 +593,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ],
         ),
         actions: [
-          TextButton.icon(
+            TextButton.icon(
             icon: const Icon(Icons.copy, size: 16),
-            label: const Text('نسخ'),
+            label: Text(loc.copy),
             onPressed: () {
               Clipboard.setData(ClipboardData(text: token));
               Navigator.pop(ctx);
@@ -604,7 +604,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('إغلاق'),
+            child: Text(loc.cancel),
           ),
         ],
       ),

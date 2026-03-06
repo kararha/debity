@@ -213,7 +213,7 @@ class _InstallmentsScreenState extends State<InstallmentsScreen>
       const SizedBox(height: 8),
       Text(_error ?? '', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary), textAlign: TextAlign.center),
       const SizedBox(height: 24),
-      FilledButton.icon(onPressed: _loadInstallments, icon: const Icon(Icons.refresh_rounded), label: const Text('إعادة المحاولة'),
+      FilledButton.icon(onPressed: _loadInstallments, icon: const Icon(Icons.refresh_rounded), label: Text(loc.retry),
         style: FilledButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)))),
     ])));
   }

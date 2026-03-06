@@ -597,6 +597,10 @@ class AppLocalizations {
       'ar': 'تم النسخ',
       'en': 'Copied',
     },
+    'copy': {
+      'ar': 'نسخ',
+      'en': 'Copy',
+    },
     // Notifications
     'notifications_title': {
       'ar': 'الإشعارات',
@@ -856,6 +860,7 @@ class AppLocalizations {
   String get logoutLabel => _t('logout')!;
   String get confirmLogout => _t('confirm_logout')!;
   String get copied => _t('copied')!;
+  String get copy => _t('copy')!;
   // Notifications
   String get notificationsTitle => _t('notifications_title')!;
   String get refreshReminders => _t('refresh_reminders')!;
