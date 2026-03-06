@@ -354,7 +354,7 @@ class _DashboardViewState extends State<DashboardView> {
               children: [
                 Expanded(
                   child: _MiniStatTile(
-                    label: 'ديون نشطة',
+                    label: AppLocalizations.of(context).miniActiveDebts,
                     value: '${stats.activeDebts}',
                     color: AppColors.warning,
                   ),
@@ -362,7 +362,7 @@ class _DashboardViewState extends State<DashboardView> {
                 const SizedBox(width: AppSpacing.sp12),
                 Expanded(
                   child: _MiniStatTile(
-                    label: 'ديون مكتملة',
+                    label: AppLocalizations.of(context).miniCompletedDebts,
                     value: '${stats.completedDebts}',
                     color: AppColors.success,
                   ),
@@ -374,10 +374,10 @@ class _DashboardViewState extends State<DashboardView> {
             // ── Overdue installments panel ──────────────────────────
             if (stats.overdueCount > 0) ...[
               SectionPanel(
-                title: 'الأقساط المتأخرة',
+                title: AppLocalizations.of(context).sectionOverdueInstallments,
                 trailing: OverdueBadge(count: stats.overdueCount),
                 child: stats.topCustomers.isEmpty
-                    ? _emptyState('لا توجد أقساط متأخرة')
+                    ? _emptyState(AppLocalizations.of(context).noOverdueInstallments)
                     : DebtListView(
                         itemCount: stats.topCustomers.length,
                         itemBuilder: (_, i) {
@@ -397,9 +397,9 @@ class _DashboardViewState extends State<DashboardView> {
 
             // ── Recent payments panel ───────────────────────────────
             SectionPanel(
-              title: 'أعلى العملاء مديونية',
+              title: AppLocalizations.of(context).sectionTopDebtors,
               child: stats.topCustomers.isEmpty
-                  ? _emptyState('لا توجد بيانات')
+                  ? _emptyState(AppLocalizations.of(context).noData)
                   : DebtListView(
                       itemCount: stats.topCustomers.length,
                       itemBuilder: (_, i) {
