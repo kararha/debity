@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_text_styles.dart';
+import '../l10n/app_localizations.dart';
 import 'debity_logo.dart';
 
 /// Debity top app bar matching the design spec.
@@ -91,14 +92,18 @@ class _LanguagePill extends StatelessWidget {
           borderRadius: BorderRadius.circular(AppRadius.pill),
           border: Border.all(color: AppColors.borderLight, width: 1),
         ),
-        child: Text(
-          locale,
-          style: AppTextStyles.xs.copyWith(
-            fontWeight: FontWeight.w600,
-            color: AppColors.textSecondary,
-            fontSize: 11,
-          ),
-        ),
+        child: Builder(builder: (ctx) {
+          final loc = AppLocalizations.of(ctx);
+          final label = locale.toLowerCase().startsWith('ar') ? loc.languageAr : loc.languageEn;
+          return Text(
+            label,
+            style: AppTextStyles.xs.copyWith(
+              fontWeight: FontWeight.w600,
+              color: AppColors.textSecondary,
+              fontSize: 11,
+            ),
+          );
+        }),
       ),
     );
   }
@@ -153,11 +158,17 @@ class _LogoutButtonState extends State<_LogoutButton> {
       borderRadius: BorderRadius.circular(AppRadius.md),
       child: Padding(
         padding: const EdgeInsets.all(6),
-        child: Icon(
-          Icons.logout_rounded,
-          size: 20,
-          color: _hovered ? AppColors.danger : AppColors.textSecondary,
-        ),
+        child: Builder(builder: (ctx) {
+          final loc = AppLocalizations.of(ctx);
+          return Tooltip(
+            message: loc.logoutLabel,
+            child: Icon(
+              Icons.logout_rounded,
+              size: 20,
+              color: _hovered ? AppColors.danger : AppColors.textSecondary,
+            ),
+          );
+        }),
       ),
     );
   }
