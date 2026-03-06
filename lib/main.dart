@@ -106,7 +106,7 @@ class DebityApp extends StatelessWidget {
           builder: (context, child) {
             return Directionality(
               textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
-              child: child!,
+              child: child ?? const SizedBox.shrink(),
             );
           },
 
