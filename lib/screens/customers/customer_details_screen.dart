@@ -70,6 +70,7 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: AppColors.surface1,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(AppLocalizations.of(context).deleteCustomerTitle, style: AppTextStyles.lg.copyWith(fontWeight: FontWeight.bold)),
         content: Text(
           AppLocalizations.of(context).deleteCustomerConfirm.replaceAll('{name}', _customer.name),
@@ -144,14 +145,20 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
       backgroundColor: AppColors.surface0,
       appBar: AppBar(
         title: Text('تفاصيل العميل', style: AppTextStyles.sectionTitle),
-        backgroundColor: AppColors.surface1,
+        backgroundColor: AppColors.surface0, // Seamless header
         foregroundColor: AppColors.textPrimary,
         elevation: 0,
         centerTitle: true,
-        shape: const Border(bottom: BorderSide(color: AppColors.borderSubtle, width: 1)),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1.0),
+          child: Container(
+            color: AppColors.borderSubtle.withOpacity(0.5),
+            height: 1.0,
+          ),
+        ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.edit_rounded, color: AppColors.textMuted),
+            icon: const Icon(Icons.edit_rounded, color: AppColors.textPrimary),
             onPressed: () async {
               final result = await Navigator.push(
                 context,
@@ -165,146 +172,96 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
             },
           ),
           IconButton(
-            icon: const Icon(Icons.delete_rounded, color: AppColors.danger),
+            icon: const Icon(Icons.delete_outline_rounded, color: AppColors.danger),
             onPressed: _deleteCustomer,
           ),
+          const SizedBox(width: AppSpacing.sp8),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.pageH, vertical: AppSpacing.sp24),
-        child: Column(
-          children: [
-            // Profile Card Let's make it beautiful
-            AppCard(
-              child: Column(
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.pageH, vertical: AppSpacing.sp24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Hero Profile Card
+              _buildHeroProfileCard(),
+              
+              const SizedBox(height: AppSpacing.sectionGap),
+
+              // Stats Grid
+              GridView.count(
+                crossAxisCount: 2,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                childAspectRatio: 1.5,
+                mainAxisSpacing: AppSpacing.sp16,
+                crossAxisSpacing: AppSpacing.sp16,
                 children: [
-                  Container(
-                    width: 72,
-                    height: 72,
-                    decoration: BoxDecoration(
-                      color: AppColors.brand500.withValues(alpha: 0.15),
-                      shape: BoxShape.circle,
-                      border: Border.all(color: AppColors.brand500, width: 2),
-                    ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      _customer.name.isNotEmpty ? _customer.name[0].toUpperCase() : '?',
-                      style: AppTextStyles.xl3.copyWith(color: AppColors.brand400, fontWeight: FontWeight.w700),
-                    ),
+                  StatCard(
+                    label: AppLocalizations.of(context).totalDebts,
+                    value: NumberFormatter.formatCurrency(totalDebt),
+                    icon: Icons.account_balance_wallet_rounded,
                   ),
-                  const SizedBox(height: AppSpacing.sp16),
-                  Text(_customer.name, style: AppTextStyles.xl2.copyWith(fontWeight: FontWeight.bold)),
-                  const SizedBox(height: AppSpacing.sp4),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.phone_rounded, size: 16, color: AppColors.textMuted),
-                      const SizedBox(width: AppSpacing.sp4),
-                      Text(_customer.phone, style: AppTextStyles.base.copyWith(color: AppColors.textSecondary)),
-                    ],
+                  StatCard(
+                    label: AppLocalizations.of(context).totalPaid,
+                    value: NumberFormatter.formatCurrency(totalPaid),
+                    valueColor: AppColors.success,
+                    icon: Icons.payments_rounded,
                   ),
-                  if ((_customer.address ?? '').isNotEmpty) ...[
-                    const SizedBox(height: AppSpacing.sp8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.location_on_rounded, size: 16, color: AppColors.textMuted),
-                        const SizedBox(width: AppSpacing.sp4),
-                        Text(_customer.address!, style: AppTextStyles.sm.copyWith(color: AppColors.textSecondary)),
-                      ],
-                    ),
-                  ],
-                  const SizedBox(height: AppSpacing.sp24),
-                  // Quick Actions
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _buildQuickAction(Icons.call_rounded, AppLocalizations.of(context).call, _callCustomer),
-                      const SizedBox(width: AppSpacing.sp16),
-                      _buildQuickAction(Icons.message_rounded, AppLocalizations.of(context).message, _messageCustomer),
-                      const SizedBox(width: AppSpacing.sp16),
-                      _buildQuickAction(Icons.chat_rounded, AppLocalizations.of(context).whatsapp, _whatsappCustomer),
-                    ],
+                  StatCard(
+                    label: AppLocalizations.of(context).remaining,
+                    value: NumberFormatter.formatCurrency(totalRemaining),
+                    valueColor: totalRemaining > 0 ? AppColors.danger : AppColors.textPrimary,
+                    icon: Icons.timeline_rounded,
+                  ),
+                  StatCard(
+                    label: AppLocalizations.of(context).activeDebts,
+                    value: '$activeDebts',
+                    icon: Icons.pending_actions_rounded,
                   ),
                 ],
               ),
-            ),
-            const SizedBox(height: AppSpacing.sectionGap),
+              
+              const SizedBox(height: AppSpacing.sectionGap),
 
-            // Stats
-            GridView.count(
-              crossAxisCount: 2,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              childAspectRatio: 1.5,
-              mainAxisSpacing: AppSpacing.sp16,
-              crossAxisSpacing: AppSpacing.sp16,
-              children: [
-                StatCard(
-                  label: AppLocalizations.of(context).totalDebts,
-                  value: NumberFormatter.formatCurrency(totalDebt),
-                  icon: Icons.account_balance_wallet_rounded,
-                ),
-                StatCard(
-                  label: AppLocalizations.of(context).totalPaid,
-                  value: NumberFormatter.formatCurrency(totalPaid),
-                  valueColor: AppColors.success,
-                  icon: Icons.payments_rounded,
-                ),
-                StatCard(
-                  label: AppLocalizations.of(context).remaining,
-                  value: NumberFormatter.formatCurrency(totalRemaining),
-                  valueColor: totalRemaining > 0 ? AppColors.danger : AppColors.textPrimary,
-                  icon: Icons.timeline_rounded,
-                ),
-                StatCard(
-                  label: AppLocalizations.of(context).activeDebts,
-                  value: '$activeDebts',
-                  icon: Icons.pending_actions_rounded,
-                ),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.sectionGap),
-
-            // Debts List
-            SectionPanel(
-              title: AppLocalizations.of(context).debtsTitle,
-              child: _isLoading 
-                  ? buildListSkeleton(count: 3)
-                  : _debts.isEmpty
-                      ? Center(
-                          child: Padding(
-                            padding: const EdgeInsets.all(AppSpacing.sp32),
-                              child: Text(AppLocalizations.of(context).noDebtsForCustomer, style: const TextStyle(color: AppColors.textMuted)),
+              // Debts List
+              SectionPanel(
+                title: AppLocalizations.of(context).debtsTitle,
+                child: _isLoading 
+                    ? buildListSkeleton(count: 3)
+                    : _debts.isEmpty
+                        ? _buildEmptyState()
+                        : DebtListView(
+                            itemCount: _debts.length,
+                            itemBuilder: (context, i) {
+                              final debt = _debts[i];
+                              return DebtListItem(
+                                primaryText: debt.customerName ?? 'دين',
+                                secondaryText: 'تاريخ الإنشاء: ',
+                                amount: NumberFormatter.formatCurrency(debt.remainingAmount),
+                                amountColor: debt.remainingAmount > 0 ? AppColors.warning : AppColors.success,
+                                trailing: StatusBadge.fromString(debt.status.name),
+                                onTap: () async {
+                                  await Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => DebtDetailsScreen(debt: debt),
+                                    ),
+                                  );
+                                  _loadDebts();
+                                },
+                              );
+                            },
                           ),
-                        )
-                      : DebtListView(
-                          itemCount: _debts.length,
-                          itemBuilder: (context, i) {
-                            final debt = _debts[i];
-                            return DebtListItem(
-                              primaryText: debt.customerName ?? 'دين',
-                              secondaryText: 'تاريخ الإنشاء: ',
-                              amount: NumberFormatter.formatCurrency(debt.remainingAmount),
-                              amountColor: debt.remainingAmount > 0 ? AppColors.warning : AppColors.success,
-                              trailing: StatusBadge.fromString(debt.status.name),
-                              onTap: () async {
-                                await Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => DebtDetailsScreen(debt: debt),
-                                  ),
-                                );
-                                _loadDebts();
-                              },
-                            );
-                          },
-                        ),
-            ),
-          ],
+              ),
+              const SizedBox(height: 80), // Padding for the floating action button
+            ],
+          ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
+      // Upgraded FAB for clearer action
+      floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
           final result = await Navigator.push(
             context,
@@ -317,7 +274,69 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
           }
         },
         backgroundColor: AppColors.brand500,
-        child: const Icon(Icons.add_rounded, color: Colors.white),
+        elevation: 4,
+        icon: const Icon(Icons.add_rounded, color: Colors.white),
+        label: const Text(
+          'إضافة دين',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 16),
+        ),
+      ),
+    );
+  }
+
+  // --- Extracted UI Widgets for Cleanliness ---
+
+  Widget _buildHeroProfileCard() {
+    return AppCard(
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: AppSpacing.sp8),
+        child: Column(
+          children: [
+            // (avatar removed) keep vertical spacing
+            const SizedBox(height: AppSpacing.sp24),
+            
+            // Name
+            Text(_customer.name, style: AppTextStyles.xl2.copyWith(fontWeight: FontWeight.w800)),
+            const SizedBox(height: AppSpacing.sp8),
+            
+            // Contact Info Chips
+            Wrap(
+              alignment: WrapAlignment.center,
+              spacing: AppSpacing.sp16,
+              runSpacing: AppSpacing.sp8,
+              children: [
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.phone_rounded, size: 16, color: AppColors.textMuted),
+                    const SizedBox(width: AppSpacing.sp4),
+                    Text(_customer.phone, style: AppTextStyles.base.copyWith(color: AppColors.textSecondary)),
+                  ],
+                ),
+                if ((_customer.address ?? '').isNotEmpty)
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.location_on_rounded, size: 16, color: AppColors.textMuted),
+                      const SizedBox(width: AppSpacing.sp4),
+                      Text(_customer.address!, style: AppTextStyles.sm.copyWith(color: AppColors.textSecondary)),
+                    ],
+                  ),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.sp32),
+            
+            // Premium Quick Actions Row
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _buildQuickAction(Icons.call_rounded, AppLocalizations.of(context).call, _callCustomer),
+                _buildQuickAction(Icons.message_rounded, AppLocalizations.of(context).message, _messageCustomer),
+                _buildQuickAction(Icons.chat_rounded, AppLocalizations.of(context).whatsapp, _whatsappCustomer),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -325,19 +344,49 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
   Widget _buildQuickAction(IconData icon, String label, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
+      behavior: HitTestBehavior.opaque,
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: AppColors.surface2,
+              color: AppColors.brand500.withOpacity(0.08), // Soft brand tint
               shape: BoxShape.circle,
-              border: Border.all(color: AppColors.borderLight),
             ),
-            child: Icon(icon, color: AppColors.textPrimary, size: 20),
+            child: Icon(icon, color: AppColors.brand500, size: 24), // Brand colored icon
           ),
           const SizedBox(height: AppSpacing.sp8),
-          Text(label, style: AppTextStyles.xs.copyWith(color: AppColors.textSecondary)),
+          Text(label, style: AppTextStyles.sm.copyWith(color: AppColors.textPrimary, fontWeight: FontWeight.w500)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.sp40),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: AppColors.surface1,
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.receipt_long_outlined, size: 48, color: AppColors.textMuted),
+          ),
+          const SizedBox(height: AppSpacing.sp16),
+          Text(
+            AppLocalizations.of(context).noDebtsForCustomer,
+            style: AppTextStyles.lg.copyWith(color: AppColors.textSecondary, fontWeight: FontWeight.w500),
+          ),
+          const SizedBox(height: AppSpacing.sp8),
+          Text(
+            'اضغط على زر الإضافة لتسجيل دين جديد',
+            style: AppTextStyles.sm.copyWith(color: AppColors.textMuted),
+          ),
         ],
       ),
     );
