@@ -764,6 +764,10 @@ class AppLocalizations {
       'ar': 'سعر البيع',
       'en': 'Selling price',
     },
+    'down_payment': {
+      'ar': 'المقدم',
+      'en': 'Down payment',
+    },
     'delete_debt_title': {
       'ar': 'حذف الدين',
       'en': 'Delete debt',
@@ -1007,6 +1011,7 @@ class AppLocalizations {
   String get installmentsLabel => _t('installments_label')!;
   String get dueDateLabel => _t('due_date_label')!;
   String get sellingPrice => _t('selling_price')!;
+  String get downPayment => _t('down_payment')!;
   String get deleteDebtTitle => _t('delete_debt_title')!;
   String get deleteDebtConfirm => _t('delete_debt_confirm')!;
   String get deleteDebtSuccess => _t('delete_debt_success')!;

@@ -222,6 +222,11 @@ class _DebtDetailsScreenState extends State<DebtDetailsScreen> {
                           icon: Icons.payments_rounded,
                         ),
                         StatCard(
+                          label: AppLocalizations.of(context).downPayment,
+                          value: NumberFormatter.formatCurrency(_debt.downPayment),
+                          icon: Icons.attach_money_rounded,
+                        ),
+                        StatCard(
                           label: AppLocalizations.of(context).totalPaid,
                           value: NumberFormatter.formatCurrency(_debt.paidAmount),
                           valueColor: AppColors.success,
