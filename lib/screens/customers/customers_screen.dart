@@ -139,14 +139,6 @@ class _CustomersScreenState extends State<CustomersScreen> {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    IconButton(
-                      icon: const Icon(
-                        Icons.refresh_rounded,
-                        color: Colors.white,
-                        size: 20,
-                      ),
-                      onPressed: _loadCustomers,
-                    ),
                   ],
                 ),
                 const SizedBox(height: 14),
