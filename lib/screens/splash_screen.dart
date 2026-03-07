@@ -109,7 +109,7 @@ class _SplashScreenState extends State<SplashScreen>
     // Try to restore session from stored refresh_token (via AuthService).
     // This calls the refresh-token edge function and hydrates the Supabase client.
     final restored = await AuthService().tryRestoreSession();
-    final next = restored ? const HomeScreen() : const AuthScreen();
+    final next = restored ? const HomeScreen() : const AuthScreen(openLoginSheetOnLoad: true);
 
     if (!mounted) return;
 

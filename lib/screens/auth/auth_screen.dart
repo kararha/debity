@@ -14,8 +14,45 @@ import '../home_screen.dart';
 import 'verify_email_screen.dart';
 
 /// Debity auth landing screen — dark mode, centered design.
-class AuthScreen extends StatelessWidget {
-  const AuthScreen({super.key});
+class AuthScreen extends StatefulWidget {
+  const AuthScreen({super.key, this.openLoginSheetOnLoad = false});
+
+  final bool openLoginSheetOnLoad;
+
+  @override
+  State<AuthScreen> createState() => _AuthScreenState();
+}
+
+class _AuthScreenState extends State<AuthScreen> {
+  @override
+  void initState() {
+    super.initState();
+    if (widget.openLoginSheetOnLoad) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _AuthScreenState._showLoginSheet(context);
+      });
+    }
+  }
+
+  static void _showLoginSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      isDismissible: false,
+      backgroundColor: Colors.transparent,
+      builder: (_) => const _LoginSheet(),
+    );
+  }
+
+  static void _showRegisterSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      isDismissible: false,
+      backgroundColor: Colors.transparent,
+      builder: (_) => const _RegisterSheet(),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,40 +86,6 @@ class AuthScreen extends StatelessWidget {
 
                   // ── Language toggle ───────────────────────────────
                   _LanguageToggle(),
-                  const SizedBox(height: AppSpacing.sp32),
-
-                  // ── Auth actions (use bottom-sheet variants only) ───
-                  Container(
-                    decoration: BoxDecoration(
-                      color: AppColors.surface1,
-                      borderRadius: BorderRadius.circular(AppRadius.xxl),
-                      border: Border.all(color: AppColors.borderSubtle, width: 1),
-                    ),
-                    padding: const EdgeInsets.all(AppSpacing.sp32),
-                    child: Column(
-                      children: [
-                        SizedBox(
-                          width: double.infinity,
-                          child: DebityPrimaryButton(
-                            label: AppLocalizations.of(context).loginButton,
-                            onPressed: () => AuthScreen.showLoginSheet(context),
-                          ),
-                        ),
-                        const SizedBox(height: AppSpacing.sp16),
-                        SizedBox(
-                          width: double.infinity,
-                          child: OutlinedButton(
-                            onPressed: () => AuthScreen.showRegisterSheet(context),
-                            child: Text(AppLocalizations.of(context).createAccount),
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: AppColors.brand500,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
                 ],
               ),
             ),
@@ -93,24 +96,6 @@ class AuthScreen extends StatelessWidget {
   }
 
   // ─── Bottom sheets ─────────────────────────────────────────────────
-
-  static void showLoginSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => const _LoginSheet(),
-    );
-  }
-
-  static void showRegisterSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => const _RegisterSheet(),
-    );
-  }
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -251,7 +236,7 @@ class _LoginSheetState extends State<_LoginSheet> {
               child: GestureDetector(
                 onTap: () {
                   Navigator.pop(context);
-                  AuthScreen.showRegisterSheet(context);
+                  _AuthScreenState._showRegisterSheet(context);
                 },
                 child: RichText(
                   text: TextSpan(children: [
@@ -417,7 +402,7 @@ class _RegisterSheetState extends State<_RegisterSheet> {
               child: GestureDetector(
                 onTap: () {
                   Navigator.pop(context);
-                  AuthScreen.showLoginSheet(context);
+                  _AuthScreenState._showLoginSheet(context);
                 },
                 child: RichText(
                   text: TextSpan(children: [

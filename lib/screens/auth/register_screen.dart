@@ -382,7 +382,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     TextButton(
                                         onPressed: _isLoading
                                           ? null
-                                          : () => AuthScreen.showLoginSheet(context),
+                                          : () => Navigator.of(context).pushReplacementNamed('/login'),
                                       style: TextButton.styleFrom(
                                         foregroundColor: AppColors.brand500,
                                       ),
