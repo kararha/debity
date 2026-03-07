@@ -26,7 +26,8 @@ class _PayInstallmentScreenState extends State<PayInstallmentScreen> {
   @override
   void initState() {
     super.initState();
-    _remainingAmount = widget.installment.amount - widget.installment.paidAmount;
+    _remainingAmount =
+        widget.installment.amount - widget.installment.paidAmount;
     // Show cents to avoid rounding-up causing incorrect validation
     _amountController.text = _remainingAmount.toStringAsFixed(2);
   }
@@ -54,7 +55,9 @@ class _PayInstallmentScreenState extends State<PayInstallmentScreen> {
 
     if (entered > remainingRounded) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppLocalizations.of(context).amountGreaterThanRemaining)),
+        SnackBar(
+            content:
+                Text(AppLocalizations.of(context).amountGreaterThanRemaining)),
       );
       return;
     }
@@ -64,14 +67,17 @@ class _PayInstallmentScreenState extends State<PayInstallmentScreen> {
     try {
       // Use the rounded entered amount for calculations to avoid fractional drift
       final newPaidAmount = widget.installment.paidAmount + entered;
-      final installmentAmountRounded = (widget.installment.amount * 100).round() / 100.0;
+      final installmentAmountRounded =
+          (widget.installment.amount * 100).round() / 100.0;
       final isFullyPaid = newPaidAmount >= installmentAmountRounded;
 
       // Update installment
       await _supabase.from('installments').update({
         'paid_amount': newPaidAmount,
         'status': isFullyPaid ? 'paid' : 'partial',
-        'paid_date': isFullyPaid ? DateTime.now().toIso8601String().split('T')[0] : null,
+        'paid_date': isFullyPaid
+            ? DateTime.now().toIso8601String().split('T')[0]
+            : null,
         'notes': _notesController.text.trim().isEmpty
             ? null
             : _notesController.text.trim(),
@@ -85,7 +91,8 @@ class _PayInstallmentScreenState extends State<PayInstallmentScreen> {
           .eq('id', widget.installment.debtId)
           .single();
 
-      final currentRemaining = (debtResponse['remaining_amount'] as num).toDouble();
+      final currentRemaining =
+          (debtResponse['remaining_amount'] as num).toDouble();
       final newRemaining = currentRemaining - entered;
 
       await _supabase.from('debts').update({
@@ -109,8 +116,11 @@ class _PayInstallmentScreenState extends State<PayInstallmentScreen> {
         Navigator.pop(context, true);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(isFullyPaid ? AppLocalizations.of(context).paymentFullSuccess : AppLocalizations.of(context).paymentPartialSuccess),
+            content: Text(isFullyPaid
+                ? AppLocalizations.of(context).paymentFullSuccess
+                : AppLocalizations.of(context).paymentPartialSuccess),
             backgroundColor: const Color.fromARGB(255, 6, 21, 53),
+            behavior: SnackBarBehavior.floating,
           ),
         );
       }
@@ -118,173 +128,76 @@ class _PayInstallmentScreenState extends State<PayInstallmentScreen> {
       setState(() => _isLoading = false);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${AppLocalizations.of(context).paymentError}: $e')),
+          SnackBar(
+              content:
+                  Text('${AppLocalizations.of(context).paymentError}: $e')),
         );
       }
     }
+  }
+
+  // Helper method to determine card color based on due date
+  Color _getCardColor(int daysUntil) {
+    if (daysUntil < 0) return AppColors.error;
+    if (daysUntil == 0) return AppColors.warning;
+    return AppColors.primaryColor;
   }
 
   @override
   Widget build(BuildContext context) {
     final installment = widget.installment;
     final daysUntil = DateFormatter.daysUntil(installment.dueDate);
+    final baseCardColor = _getCardColor(daysUntil);
 
     return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text(
           AppLocalizations.of(context).paymentTitle,
-          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style:
+              const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.transparent,
         foregroundColor: Colors.white,
         elevation: 0,
+        centerTitle: true,
         flexibleSpace: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [Color.fromARGB(255, 6, 8, 53), Color(0xFF1565C0)],
+              colors:[Color.fromARGB(255, 6, 8, 53), Color(0xFF1565C0)],
             ),
           ),
+        ),
+      ),
+      // Action button moved to the bottom so it's always accessible
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: _buildPayButton(),
         ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Installment Info Card
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    daysUntil < 0
-                        ? AppColors.error
-                          : daysUntil == 0
-                            ? AppColors.warning
-                            : const Color.fromARGB(255, 29, 48, 160),
-                        daysUntil < 0
-                          ? Color.fromRGBO((AppColors.error.toARGB32() >> 16) & 0xFF, (AppColors.error.toARGB32() >> 8) & 0xFF, AppColors.error.toARGB32() & 0xFF, 0.8)
-                          : daysUntil == 0
-                            ? Color.fromRGBO((AppColors.warning.toARGB32() >> 16) & 0xFF, (AppColors.warning.toARGB32() >> 8) & 0xFF, AppColors.warning.toARGB32() & 0xFF, 0.8)
-                            : Color.fromRGBO((AppColors.primaryColor.toARGB32() >> 16) & 0xFF, (AppColors.primaryColor.toARGB32() >> 8) & 0xFF, AppColors.primaryColor.toARGB32() & 0xFF, 0.8),
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        width: 56,
-                        height: 56,
-                        decoration: BoxDecoration(
-                          color: Color.fromRGBO(255, 255, 255, 0.2),
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Center(
-                          child: Text(
-                            '${installment.installmentNumber}',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              installment.customerName ?? 'عميل',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              installment.itemName ?? 'منتج',
-                              style: const TextStyle(color: Colors.white70),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      _buildInfoItem(
-                        label: 'قيمة القسط',
-                        value: NumberFormatter.formatCurrency(installment.amount),
-                      ),
-                      _buildInfoItem(
-                        label: 'المدفوع',
-                        value:
-                            NumberFormatter.formatCurrency(installment.paidAmount),
-                      ),
-                      _buildInfoItem(
-                        label: 'المتبقي',
-                        value: NumberFormatter.formatCurrency(_remainingAmount),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: Color.fromRGBO(255, 255, 255, 0.2),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(Icons.calendar_today,
-                            color: Colors.white, size: 16),
-                        const SizedBox(width: 8),
-                        Text(
-                          '${AppLocalizations.of(context).dueDateLabel}: ${DateFormatter.formatDate(installment.dueDate)}',
-                          style: const TextStyle(color: Colors.white),
-                        ),
-                      ],
-                    ),
-                  ),
-                  if (daysUntil != 0) ...[
-                    const SizedBox(height: 8),
-                    Text(
-                      daysUntil < 0
-                          ? AppLocalizations.of(context).daysOverdue.replaceAll('{n}', '${-daysUntil}')
-                          : AppLocalizations.of(context).daysInFuture.replaceAll('{n}', '$daysUntil'),
-                      style: const TextStyle(
-                        color: Colors.white70,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
+          children:[
+            // Modern Installment Info Card
+            _buildInstallmentInfoCard(installment, daysUntil, baseCardColor),
+            const SizedBox(height: 32),
 
             // Payment Options
             Text(
               AppLocalizations.of(context).paymentOptions,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
+                    fontSize: 18,
                   ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             Row(
-              children: [
+              children:[
                 Expanded(
                   child: _buildPaymentOption(
                     title: AppLocalizations.of(context).payFull,
@@ -293,13 +206,13 @@ class _PayInstallmentScreenState extends State<PayInstallmentScreen> {
                     onTap: () {
                       setState(() {
                         _payFull = true;
-                        // Keep two decimals to avoid rounding surprises
-                        _amountController.text = _remainingAmount.toStringAsFixed(2);
+                        _amountController.text =
+                            _remainingAmount.toStringAsFixed(2);
                       });
                     },
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 16),
                 Expanded(
                   child: _buildPaymentOption(
                     title: AppLocalizations.of(context).payPartial,
@@ -315,94 +228,90 @@ class _PayInstallmentScreenState extends State<PayInstallmentScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 32),
 
             // Amount Field
             Text(
               AppLocalizations.of(context).amountLabel,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
+                    fontSize: 18,
                   ),
             ),
             const SizedBox(height: 12),
             TextFormField(
               controller: _amountController,
               enabled: !_payFull,
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: _payFull ? Colors.grey.shade600 : null,
+              ),
               decoration: InputDecoration(
-              labelText: AppLocalizations.of(context).amountPaidLabel,
+                labelText: AppLocalizations.of(context).amountPaidLabel,
                 suffixText: 'د.ع',
-                prefixIcon: const Icon(Icons.payments),
+                prefixIcon: Icon(
+                  Icons.payments_rounded,
+                  color: _payFull ? Colors.grey : AppColors.primaryColor,
+                ),
                 filled: true,
                 fillColor: _payFull
-                  ? Color.fromRGBO((AppColors.primaryColor.toARGB32() >> 16) & 0xFF, (AppColors.primaryColor.toARGB32() >> 8) & 0xFF, AppColors.primaryColor.toARGB32() & 0xFF, 0.05)
-                  : null,
-              ),
-              keyboardType: TextInputType.number,
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
+                    ? Colors.grey.withOpacity(0.1)
+                    : Theme.of(context).cardColor,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: BorderSide(
+                    color: AppColors.borderColor,
+                    width: 1,
+                  ),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: BorderSide(
+                    color: AppColors.borderColor,
+                    width: 1,
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: BorderSide(
+                    color: AppColors.primaryColor,
+                    width: 2,
+                  ),
+                ),
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
 
             // Notes
             TextFormField(
               controller: _notesController,
+              maxLines: 3,
               decoration: InputDecoration(
                 labelText: AppLocalizations.of(context).notesOptional,
-                prefixIcon: const Icon(Icons.note),
-              ),
-              maxLines: 2,
-            ),
-            const SizedBox(height: 32),
-
-            // Pay Button
-            Container(
-              width: double.infinity,
-              height: 56,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [AppColors.success, Color(0xFF2E7D32)],
+                alignLabelWithHint: true,
+                prefixIcon: const Padding(
+                  padding: EdgeInsets.only(bottom: 35.0), // Align icon to top
+                  child: Icon(Icons.note_alt_outlined),
                 ),
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Color.fromRGBO((AppColors.success.toARGB32() >> 16) & 0xFF, (AppColors.success.toARGB32() >> 8) & 0xFF, AppColors.success.toARGB32() & 0xFF, 0.4),
-                    blurRadius: 12,
-                    offset: const Offset(0, 6),
-                  ),
-                ],
-              ),
-              child: ElevatedButton(
-                onPressed: _isLoading ? null : _payInstallment,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.transparent,
-                  shadowColor: Colors.transparent,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
+                filled: true,
+                fillColor: Theme.of(context).cardColor,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: BorderSide(
+                    color: AppColors.borderColor,
+                    width: 1,
                   ),
                 ),
-                child: _isLoading
-                    ? const SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                      )
-                    : Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(Icons.check_circle_rounded, color: Colors.white, size: 22),
-                          const SizedBox(width: 10),
-                          Text(
-                            AppLocalizations.of(context).confirmPayment,
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ],
-                      ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: BorderSide(
+                    color: AppColors.borderColor,
+                    width: 1,
+                  ),
+                ),
               ),
             ),
           ],
@@ -411,20 +320,178 @@ class _PayInstallmentScreenState extends State<PayInstallmentScreen> {
     );
   }
 
+  Widget _buildInstallmentInfoCard(
+      Installment installment, int daysUntil, Color baseColor) {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors:[
+            baseColor,
+            baseColor.withOpacity(0.8),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(24),
+        boxShadow:[
+          BoxShadow(
+            color: baseColor.withOpacity(0.3),
+            blurRadius: 15,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Column(
+        children:[
+          // Top Row: Avatar & Name
+          Row(
+            children:[
+              Container(
+                width: 56,
+                height: 56,
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  shape: BoxShape.circle,
+                ),
+                child: Center(
+                  child: Text(
+                    '${installment.installmentNumber}',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children:[
+                    Text(
+                      installment.customerName ?? 'عميل',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      installment.itemName ?? 'منتج',
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.9),
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+          Divider(color: Colors.white.withOpacity(0.2), height: 1),
+          const SizedBox(height: 24),
+
+          // Middle Row: Financial Stats
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children:[
+              Expanded(
+                child: _buildInfoItem(
+                  label: 'قيمة القسط',
+                  value: NumberFormatter.formatCurrency(installment.amount),
+                ),
+              ),
+              Container(width: 1, height: 40, color: Colors.white.withOpacity(0.3)),
+              Expanded(
+                child: _buildInfoItem(
+                  label: 'المدفوع',
+                  value: NumberFormatter.formatCurrency(installment.paidAmount),
+                ),
+              ),
+              Container(width: 1, height: 40, color: Colors.white.withOpacity(0.3)),
+              Expanded(
+                child: _buildInfoItem(
+                  label: 'المتبقي',
+                  value: NumberFormatter.formatCurrency(_remainingAmount),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+
+          // Bottom Row: Date & Status Badge
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children:[
+              Row(
+                children:[
+                  Icon(Icons.calendar_month_rounded,
+                      color: Colors.white.withOpacity(0.8), size: 18),
+                  const SizedBox(width: 8),
+                  Text(
+                    '${AppLocalizations.of(context).dueDateLabel}: ${DateFormatter.formatDate(installment.dueDate)}',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.9),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+              if (daysUntil != 0)
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    daysUntil < 0
+                        ? AppLocalizations.of(context)
+                            .daysOverdue
+                            .replaceAll('{n}', '${-daysUntil}')
+                        : AppLocalizations.of(context)
+                            .daysInFuture
+                            .replaceAll('{n}', '$daysUntil'),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildInfoItem({required String label, required String value}) {
     return Column(
-      children: [
+      children:[
         Text(
           label,
-          style: const TextStyle(color: Colors.white70, fontSize: 12),
+          style: TextStyle(
+            color: Colors.white.withOpacity(0.7),
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+          ),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 6),
         Text(
           value,
           style: const TextStyle(
             color: Colors.white,
+            fontSize: 16,
             fontWeight: FontWeight.bold,
           ),
+          textAlign: TextAlign.center,
         ),
       ],
     );
@@ -439,71 +506,135 @@ class _PayInstallmentScreenState extends State<PayInstallmentScreen> {
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        curve: Curves.easeOut,
-        padding: const EdgeInsets.all(16),
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeInOut,
+        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
         decoration: BoxDecoration(
-          gradient: isSelected
-              ? LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Color.fromRGBO((AppColors.primaryColor.toARGB32() >> 16) & 0xFF, (AppColors.primaryColor.toARGB32() >> 8) & 0xFF, AppColors.primaryColor.toARGB32() & 0xFF, 0.15),
-                    Color.fromRGBO((AppColors.primaryColor.toARGB32() >> 16) & 0xFF, (AppColors.primaryColor.toARGB32() >> 8) & 0xFF, AppColors.primaryColor.toARGB32() & 0xFF, 0.05),
-                  ],
-                )
-              : null,
-          color: isSelected ? null : Theme.of(context).cardColor,
-          borderRadius: BorderRadius.circular(16),
+          color: isSelected
+              ? AppColors.primaryColor.withOpacity(0.08)
+              : Theme.of(context).cardColor,
+          borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isSelected ? AppColors.primaryColor : AppColors.borderColor,
+            color: isSelected
+                ? AppColors.primaryColor
+                : AppColors.borderColor.withOpacity(0.5),
             width: isSelected ? 2 : 1,
           ),
           boxShadow: isSelected
-              ? [
+              ?[
                   BoxShadow(
-                    color: Color.fromRGBO((AppColors.primaryColor.toARGB32() >> 16) & 0xFF, (AppColors.primaryColor.toARGB32() >> 8) & 0xFF, AppColors.primaryColor.toARGB32() & 0xFF, 0.15),
-                    blurRadius: 8,
+                    color: AppColors.primaryColor.withOpacity(0.15),
+                    blurRadius: 12,
                     offset: const Offset(0, 4),
                   )
                 ]
-              : null,
+              :[
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.03),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  )
+                ],
         ),
         child: Column(
-          children: [
-            Container(
-              width: 24,
-              height: 24,
+          children:[
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 250),
+              width: 28,
+              height: 28,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: isSelected ? AppColors.primaryColor : Colors.transparent,
                 border: Border.all(
-                  color: isSelected ? AppColors.primaryColor : AppColors.borderColor,
+                  color: isSelected
+                      ? AppColors.primaryColor
+                      : AppColors.borderColor,
                   width: 2,
                 ),
               ),
               child: isSelected
-                  ? const Icon(Icons.check, color: Colors.white, size: 14)
+                  ? const Icon(Icons.check, color: Colors.white, size: 16)
                   : null,
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
             Text(
               title,
               style: TextStyle(
+                fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: isSelected ? AppColors.primaryColor : null,
+                color: isSelected
+                    ? AppColors.primaryColor
+                    : Theme.of(context).textTheme.bodyLarge?.color,
               ),
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 6),
             Text(
               subtitle,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: isSelected ? AppColors.primaryColor : AppColors.textSecondary,
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                  ),
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 13,
+                color: isSelected
+                    ? AppColors.primaryColor.withOpacity(0.8)
+                    : AppColors.textSecondary,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+              ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildPayButton() {
+    return Container(
+      width: double.infinity,
+      height: 56,
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors:[Color(0xFF4CAF50), Color(0xFF2E7D32)], // Brighter green gradient
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow:[
+          BoxShadow(
+            color: const Color(0xFF4CAF50).withOpacity(0.4),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: ElevatedButton(
+        onPressed: _isLoading ? null : _payInstallment,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.transparent,
+          shadowColor: Colors.transparent,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+        ),
+        child: _isLoading
+            ? const SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(
+                    strokeWidth: 2.5, color: Colors.white),
+              )
+            : Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children:[
+                  const Icon(Icons.check_circle_rounded,
+                      color: Colors.white, size: 24),
+                  const SizedBox(width: 12),
+                  Text(
+                    AppLocalizations.of(context).confirmPayment,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ],
+              ),
       ),
     );
   }
