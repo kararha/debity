@@ -61,12 +61,13 @@ class _AuthScreenState extends State<AuthScreen> {
     return Scaffold(
       backgroundColor: AppColors.surface0,
       body: SafeArea(
-        child: Center(
+        child: Align(
+          alignment: Alignment.topCenter,
           child: SingleChildScrollView(
             padding: const EdgeInsets.only(
               left: AppSpacing.pageH,
               right: AppSpacing.pageH,
-              top: 0.0,
+              top: AppSpacing.sp24,
               bottom: AppSpacing.sp8,
             ),
             child: ConstrainedBox(
