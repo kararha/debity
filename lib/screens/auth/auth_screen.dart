@@ -51,7 +51,7 @@ class AuthScreen extends StatelessWidget {
                   _LanguageToggle(),
                   const SizedBox(height: AppSpacing.sp32),
 
-                  // ── Auth card ─────────────────────────────────────
+                  // ── Auth actions (use bottom-sheet variants only) ───
                   Container(
                     decoration: BoxDecoration(
                       color: AppColors.surface1,
@@ -61,9 +61,24 @@ class AuthScreen extends StatelessWidget {
                     padding: const EdgeInsets.all(AppSpacing.sp32),
                     child: Column(
                       children: [
-                        // Default: show Login form embedded
-                        _EmbeddedLoginForm(
-                          onSwitchToRegister: () => _showRegisterSheet(context),
+                        SizedBox(
+                          width: double.infinity,
+                          child: DebityPrimaryButton(
+                            label: AppLocalizations.of(context).loginButton,
+                            onPressed: () => AuthScreen.showLoginSheet(context),
+                          ),
+                        ),
+                        const SizedBox(height: AppSpacing.sp16),
+                        SizedBox(
+                          width: double.infinity,
+                          child: OutlinedButton(
+                            onPressed: () => AuthScreen.showRegisterSheet(context),
+                            child: Text(AppLocalizations.of(context).createAccount),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: AppColors.brand500,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                            ),
+                          ),
                         ),
                       ],
                     ),
@@ -79,7 +94,7 @@ class AuthScreen extends StatelessWidget {
 
   // ─── Bottom sheets ─────────────────────────────────────────────────
 
-  static void _showLoginSheet(BuildContext context) {
+  static void showLoginSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -88,7 +103,7 @@ class AuthScreen extends StatelessWidget {
     );
   }
 
-  static void _showRegisterSheet(BuildContext context) {
+  static void showRegisterSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -132,129 +147,7 @@ class _LanguageToggleState extends State<_LanguageToggle> {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════════════
-// Embedded login form (inside the card)
-// ═══════════════════════════════════════════════════════════════════════
-
-class _EmbeddedLoginForm extends StatefulWidget {
-  const _EmbeddedLoginForm({required this.onSwitchToRegister});
-  final VoidCallback onSwitchToRegister;
-
-  @override
-  State<_EmbeddedLoginForm> createState() => _EmbeddedLoginFormState();
-}
-
-class _EmbeddedLoginFormState extends State<_EmbeddedLoginForm> {
-  final _formKey = GlobalKey<FormState>();
-  final _emailCtrl = TextEditingController();
-  final _passwordCtrl = TextEditingController();
-  bool _loading = false;
-  String? _error;
-
-  @override
-  void dispose() {
-    _emailCtrl.dispose();
-    _passwordCtrl.dispose();
-    super.dispose();
-  }
-
-  Future<void> _submit() async {
-    if (!_formKey.currentState!.validate()) return;
-    setState(() { _loading = true; _error = null; });
-
-    try {
-      await AuthService().login(
-        email: _emailCtrl.text.trim(),
-        password: _passwordCtrl.text,
-      );
-      if (!mounted) return;
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => const HomeScreen()),
-        (_) => false,
-      );
-    } catch (e) {
-      if (mounted) setState(() { _error = _parseError(e.toString()); _loading = false; });
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Form(
-      key: _formKey,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Title
-          Text(AppLocalizations.of(context).loginButton, style: AppTextStyles.xl2.copyWith(color: AppColors.textPrimary)),
-          const SizedBox(height: AppSpacing.sp4),
-          Text(AppLocalizations.of(context).loginPrompt, style: AppTextStyles.sm.copyWith(color: AppColors.textSecondary)),
-          const SizedBox(height: AppSpacing.sp20),
-
-          // Error banner
-          if (_error != null)
-            ErrorBanner(message: _error!, onDismiss: () => setState(() => _error = null)),
-
-          // Email
-          DebityTextField(
-            controller: _emailCtrl,
-            label: AppLocalizations.of(context).emailLabel,
-            hintText: 'example@mail.com',
-            keyboardType: TextInputType.emailAddress,
-            textInputAction: TextInputAction.next,
-            prefixIcon: const Icon(Icons.email_outlined),
-            validator: _emailValidator,
-          ),
-          const SizedBox(height: AppSpacing.sp20),
-
-          // Password
-          DebityTextField(
-            controller: _passwordCtrl,
-            label: AppLocalizations.of(context).passwordLabel,
-            hintText: '••••••••',
-            obscureText: true,
-            showPasswordToggle: true,
-            prefixIcon: const Icon(Icons.lock_outline),
-            textInputAction: TextInputAction.done,
-            onSubmitted: (_) => _submit(),
-            validator: (v) =>
-                (v == null || v.isEmpty) ? AppLocalizations.of(context).passwordRequired : null,
-          ),
-          const SizedBox(height: AppSpacing.sp20),
-
-          // Submit
-          DebityPrimaryButton(
-            label: AppLocalizations.of(context).loginButton,
-            onPressed: _submit,
-            isLoading: _loading,
-          ),
-          const SizedBox(height: AppSpacing.sp16),
-
-          // Switch to register
-          Center(
-            child: GestureDetector(
-              onTap: widget.onSwitchToRegister,
-              child: RichText(
-                text: TextSpan(children: [
-                  TextSpan(
-                    text: AppLocalizations.of(context).noAccount + '  ',
-                    style: AppTextStyles.base.copyWith(color: AppColors.textSecondary),
-                  ),
-                  TextSpan(
-                    text: AppLocalizations.of(context).createAccount,
-                    style: AppTextStyles.base.copyWith(
-                      color: AppColors.brand400,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ]),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
+// Embedded login form removed — use bottom-sheet variants instead.
 
 // ═══════════════════════════════════════════════════════════════════════
 // LOGIN SHEET (bottom-sheet variant for quick access)
@@ -358,7 +251,7 @@ class _LoginSheetState extends State<_LoginSheet> {
               child: GestureDetector(
                 onTap: () {
                   Navigator.pop(context);
-                  AuthScreen._showRegisterSheet(context);
+                  AuthScreen.showRegisterSheet(context);
                 },
                 child: RichText(
                   text: TextSpan(children: [
@@ -524,7 +417,7 @@ class _RegisterSheetState extends State<_RegisterSheet> {
               child: GestureDetector(
                 onTap: () {
                   Navigator.pop(context);
-                  AuthScreen._showLoginSheet(context);
+                  AuthScreen.showLoginSheet(context);
                 },
                 child: RichText(
                   text: TextSpan(children: [
