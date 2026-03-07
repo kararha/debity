@@ -260,25 +260,38 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
           ),
         ),
       ),
-      // Upgraded FAB for clearer action
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () async {
-          final result = await Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => AddDebtScreen(customer: _customer),
+      // Glowing circular add button
+      floatingActionButton: Container(
+        width: 56,
+        height: 56,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [AppColors.brand500, AppColors.brand400],
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.brand500.withValues(alpha: 0.28),
+              blurRadius: 12,
+              spreadRadius: 1,
+              offset: const Offset(0, 4),
             ),
-          );
-          if (result == true) {
-            _loadDebts();
-          }
-        },
-        backgroundColor: AppColors.brand500,
-        elevation: 4,
-        icon: const Icon(Icons.add_rounded, color: Colors.white),
-        label: const Text(
-          'إضافة دين',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 16),
+          ],
+        ),
+        child: IconButton(
+          onPressed: () async {
+            final result = await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => AddDebtScreen(customer: _customer),
+              ),
+            );
+            if (result == true) _loadDebts();
+          },
+          icon: const Icon(Icons.add_rounded, color: Colors.white),
+          tooltip: AppLocalizations.of(context).addDebt,
         ),
       ),
     );
