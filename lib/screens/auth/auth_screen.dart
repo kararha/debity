@@ -67,7 +67,7 @@ class _AuthScreenState extends State<AuthScreen> {
             padding: const EdgeInsets.only(
               left: AppSpacing.pageH,
               right: AppSpacing.pageH,
-              top: AppSpacing.sp24,
+              top: AppSpacing.sp48,
               bottom: AppSpacing.sp8,
             ),
             child: ConstrainedBox(
