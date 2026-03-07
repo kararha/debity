@@ -27,7 +27,8 @@ class _PayInstallmentScreenState extends State<PayInstallmentScreen> {
   void initState() {
     super.initState();
     _remainingAmount = widget.installment.amount - widget.installment.paidAmount;
-    _amountController.text = _remainingAmount.toStringAsFixed(0);
+    // Show cents to avoid rounding-up causing incorrect validation
+    _amountController.text = _remainingAmount.toStringAsFixed(2);
   }
 
   @override
@@ -38,16 +39,20 @@ class _PayInstallmentScreenState extends State<PayInstallmentScreen> {
   }
 
   Future<void> _payInstallment() async {
-    final amount = double.tryParse(_amountController.text) ?? 0;
-    
-    if (amount <= 0) {
+    final parsed = double.tryParse(_amountController.text) ?? 0;
+
+    // Round both entered amount and remaining to 2 decimals (currency cents)
+    final entered = (parsed * 100).round() / 100.0;
+    final remainingRounded = (_remainingAmount * 100).round() / 100.0;
+
+    if (entered <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(AppLocalizations.of(context).enterValidAmount)),
       );
       return;
     }
 
-    if (amount > _remainingAmount) {
+    if (entered > remainingRounded) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(AppLocalizations.of(context).amountGreaterThanRemaining)),
       );
@@ -57,8 +62,10 @@ class _PayInstallmentScreenState extends State<PayInstallmentScreen> {
     setState(() => _isLoading = true);
 
     try {
-      final newPaidAmount = widget.installment.paidAmount + amount;
-      final isFullyPaid = newPaidAmount >= widget.installment.amount;
+      // Use the rounded entered amount for calculations to avoid fractional drift
+      final newPaidAmount = widget.installment.paidAmount + entered;
+      final installmentAmountRounded = (widget.installment.amount * 100).round() / 100.0;
+      final isFullyPaid = newPaidAmount >= installmentAmountRounded;
 
       // Update installment
       await _supabase.from('installments').update({
@@ -79,7 +86,7 @@ class _PayInstallmentScreenState extends State<PayInstallmentScreen> {
           .single();
 
       final currentRemaining = (debtResponse['remaining_amount'] as num).toDouble();
-      final newRemaining = currentRemaining - amount;
+      final newRemaining = currentRemaining - entered;
 
       await _supabase.from('debts').update({
         'remaining_amount': newRemaining,
@@ -90,7 +97,7 @@ class _PayInstallmentScreenState extends State<PayInstallmentScreen> {
       // Create payment record
       await _supabase.from('payments').insert({
         'installment_id': widget.installment.id,
-        'amount': amount,
+        'amount': entered,
         'payment_date': DateTime.now().toIso8601String().split('T')[0],
         'notes': _notesController.text.trim().isEmpty
             ? null
@@ -286,8 +293,8 @@ class _PayInstallmentScreenState extends State<PayInstallmentScreen> {
                     onTap: () {
                       setState(() {
                         _payFull = true;
-                        _amountController.text =
-                            _remainingAmount.toStringAsFixed(0);
+                        // Keep two decimals to avoid rounding surprises
+                        _amountController.text = _remainingAmount.toStringAsFixed(2);
                       });
                     },
                   ),

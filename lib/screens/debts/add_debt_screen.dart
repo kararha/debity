@@ -9,6 +9,7 @@ import '../../core/widgets/debity_input.dart';
 import '../../core/theme/app_theme.dart';
 import '../../models/customer.dart';
 import 'package:intl/intl.dart';
+import '../../models/debt.dart';
 
 class AddDebtScreen extends StatefulWidget {
   final Customer? customer;
@@ -203,27 +204,33 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
           ? (totalAmount / numInstallments)
           : totalAmount;
 
+        // Build Debt model and use its toJson to ensure consistent keys
+        final debtObj = Debt(
+          customerId: _selectedCustomer!.id!,
+          itemName: _itemNameController.text.trim(),
+          itemDescription: _itemDescController.text.trim().isEmpty
+              ? null
+              : _itemDescController.text.trim(),
+          originalPrice: originalPrice,
+          sellingPrice: sellingPrice,
+          downPayment: downPaymentVal,
+          totalAmount: totalAmount,
+          remainingAmount: totalAmount,
+          numberOfInstallments: numInstallments,
+          installmentAmount: installmentAmount,
+          startDate: _startDate,
+          status: DebtStatus.active,
+          notes: _notesController.text.trim().isEmpty
+              ? null
+              : _notesController.text.trim(),
+        );
+
+        final payload = debtObj.toJson();
+        debugPrint('[AddDebtScreen] _saveDebt → payload for insert: $payload');
+
         final debtResponse = await _supabase
           .from('debts')
-          .insert({
-          'customer_id': _selectedCustomer!.id,
-          'item_name': _itemNameController.text.trim(),
-          'item_description': _itemDescController.text.trim().isEmpty
-            ? null
-            : _itemDescController.text.trim(),
-          'original_price': originalPrice,
-          'selling_price': sellingPrice,
-          'down_payment': downPaymentVal,
-          'total_amount': totalAmount,
-          'remaining_amount': totalAmount,
-          'installment_amount': installmentAmount,
-          'number_of_installments': numInstallments,
-          'start_date': _startDate.toIso8601String().split('T')[0],
-          'notes': _notesController.text.trim().isEmpty
-            ? null
-            : _notesController.text.trim(),
-          'status': 'active',
-          })
+          .insert(payload)
           .select()
           .single();
 
