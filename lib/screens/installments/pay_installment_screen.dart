@@ -258,7 +258,7 @@ class _PayInstallmentScreenState extends State<PayInstallmentScreen> {
                 ),
                 filled: true,
                 fillColor: _payFull
-                    ? Colors.grey.withOpacity(0.1)
+                    ? Colors.grey.withValues(alpha: 0.1)
                     : Theme.of(context).cardColor,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16),
@@ -330,13 +330,13 @@ class _PayInstallmentScreenState extends State<PayInstallmentScreen> {
           end: Alignment.bottomRight,
           colors:[
             baseColor,
-            baseColor.withOpacity(0.8),
+            baseColor.withValues(alpha: 0.8),
           ],
         ),
         borderRadius: BorderRadius.circular(24),
         boxShadow:[
           BoxShadow(
-            color: baseColor.withOpacity(0.3),
+            color: baseColor.withValues(alpha: 0.3),
             blurRadius: 15,
             offset: const Offset(0, 8),
           ),
@@ -351,7 +351,7 @@ class _PayInstallmentScreenState extends State<PayInstallmentScreen> {
                 width: 56,
                 height: 56,
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.white.withValues(alpha: 0.2),
                   shape: BoxShape.circle,
                 ),
                 child: Center(
@@ -383,7 +383,7 @@ class _PayInstallmentScreenState extends State<PayInstallmentScreen> {
                     Text(
                       installment.itemName ?? 'منتج',
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.9),
+                        color: Colors.white.withValues(alpha: 0.9),
                         fontSize: 14,
                       ),
                     ),
@@ -393,7 +393,7 @@ class _PayInstallmentScreenState extends State<PayInstallmentScreen> {
             ],
           ),
           const SizedBox(height: 24),
-          Divider(color: Colors.white.withOpacity(0.2), height: 1),
+          Divider(color: Colors.white.withValues(alpha: 0.2), height: 1),
           const SizedBox(height: 24),
 
           // Middle Row: Financial Stats
@@ -406,14 +406,14 @@ class _PayInstallmentScreenState extends State<PayInstallmentScreen> {
                   value: NumberFormatter.formatCurrency(installment.amount),
                 ),
               ),
-              Container(width: 1, height: 40, color: Colors.white.withOpacity(0.3)),
+              Container(width: 1, height: 40, color: Colors.white.withValues(alpha: 0.3)),
               Expanded(
                 child: _buildInfoItem(
                   label: 'المدفوع',
                   value: NumberFormatter.formatCurrency(installment.paidAmount),
                 ),
               ),
-              Container(width: 1, height: 40, color: Colors.white.withOpacity(0.3)),
+              Container(width: 1, height: 40, color: Colors.white.withValues(alpha: 0.3)),
               Expanded(
                 child: _buildInfoItem(
                   label: 'المتبقي',
@@ -431,12 +431,12 @@ class _PayInstallmentScreenState extends State<PayInstallmentScreen> {
               Row(
                 children:[
                   Icon(Icons.calendar_month_rounded,
-                      color: Colors.white.withOpacity(0.8), size: 18),
+                      color: Colors.white.withValues(alpha: 0.8), size: 18),
                   const SizedBox(width: 8),
                   Text(
                     '${AppLocalizations.of(context).dueDateLabel}: ${DateFormatter.formatDate(installment.dueDate)}',
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.9),
+                      color: Colors.white.withValues(alpha: 0.9),
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -447,7 +447,7 @@ class _PayInstallmentScreenState extends State<PayInstallmentScreen> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
+                    color: Colors.white.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
@@ -478,7 +478,7 @@ class _PayInstallmentScreenState extends State<PayInstallmentScreen> {
         Text(
           label,
           style: TextStyle(
-            color: Colors.white.withOpacity(0.7),
+            color: Colors.white.withValues(alpha: 0.7),
             fontSize: 13,
             fontWeight: FontWeight.w500,
           ),
@@ -511,26 +511,26 @@ class _PayInstallmentScreenState extends State<PayInstallmentScreen> {
         padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
         decoration: BoxDecoration(
           color: isSelected
-              ? AppColors.primaryColor.withOpacity(0.08)
+              ? AppColors.primaryColor.withValues(alpha: 0.08)
               : Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isSelected
                 ? AppColors.primaryColor
-                : AppColors.borderColor.withOpacity(0.5),
+                : AppColors.borderColor.withValues(alpha: 0.5),
             width: isSelected ? 2 : 1,
           ),
           boxShadow: isSelected
               ?[
                   BoxShadow(
-                    color: AppColors.primaryColor.withOpacity(0.15),
+                    color: AppColors.primaryColor.withValues(alpha: 0.15),
                     blurRadius: 12,
                     offset: const Offset(0, 4),
                   )
                 ]
               :[
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.03),
+                    color: Colors.black.withValues(alpha: 0.03),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   )
@@ -574,7 +574,7 @@ class _PayInstallmentScreenState extends State<PayInstallmentScreen> {
               style: TextStyle(
                 fontSize: 13,
                 color: isSelected
-                    ? AppColors.primaryColor.withOpacity(0.8)
+                    ? AppColors.primaryColor.withValues(alpha: 0.8)
                     : AppColors.textSecondary,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
               ),
@@ -596,7 +596,7 @@ class _PayInstallmentScreenState extends State<PayInstallmentScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow:[
           BoxShadow(
-            color: const Color(0xFF4CAF50).withOpacity(0.4),
+            color: const Color(0xFF4CAF50).withValues(alpha: 0.4),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
