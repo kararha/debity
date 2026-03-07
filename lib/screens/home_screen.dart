@@ -93,7 +93,6 @@ class _DebityBottomNav extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int> onTap;
 
-  // Items are built dynamically to allow localization
   static List<_NavItem> _itemsFor(BuildContext context) => [
         _NavItem(icon: Icons.home_outlined, label: AppLocalizations.of(context).navHome),
         _NavItem(icon: Icons.people_outline, label: AppLocalizations.of(context).navCustomers),
@@ -104,9 +103,15 @@ class _DebityBottomNav extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
-        color: AppColors.surface1,
-        border: Border(top: BorderSide(color: AppColors.borderSubtle, width: 1)),
+      decoration: BoxDecoration(
+        color: AppColors.surface0,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            offset: const Offset(0, -4),
+            blurRadius: 16,
+          ),
+        ],
       ),
       child: SafeArea(
         top: false,
@@ -124,36 +129,39 @@ class _DebityBottomNav extends StatelessWidget {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        // Icon with pill indicator when active
+                        // Icon with premium active pill
                         AnimatedContainer(
-                          duration: const Duration(milliseconds: 200),
+                          duration: const Duration(milliseconds: 250),
+                          curve: Curves.easeOutCubic,
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 6,
+                            horizontal: 20, vertical: 6,
                           ),
                           decoration: BoxDecoration(
                             color: selected
-                                ? AppColors.brand500.withValues(alpha: 0.15)
+                                ? AppColors.brand500.withOpacity(0.12)
                                 : Colors.transparent,
-                            borderRadius: BorderRadius.circular(AppRadius.md),
+                            borderRadius: BorderRadius.circular(20),
                           ),
                           child: Icon(
-                            item.icon,
-                            size: 22,
+                            selected ? _getActiveIcon(item.icon) : item.icon,
+                            size: 24,
                             color: selected
-                                ? AppColors.brand400
-                                : AppColors.textSecondary,
+                                ? AppColors.brand500
+                                : AppColors.textMuted,
                           ),
                         ),
-                        const SizedBox(height: 2),
+                        const SizedBox(height: 4),
                         // Label
-                        Text(
-                          item.label,
+                        AnimatedDefaultTextStyle(
+                          duration: const Duration(milliseconds: 200),
                           style: AppTextStyles.navLabel.copyWith(
                             color: selected
-                                ? AppColors.brand400
-                                : AppColors.textSecondary,
-                            fontWeight: FontWeight.w500,
+                                ? AppColors.brand500
+                                : AppColors.textMuted,
+                            fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                            fontSize: 11,
                           ),
+                          child: Text(item.label),
                         ),
                       ],
                     ),
@@ -165,6 +173,15 @@ class _DebityBottomNav extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  // Helper to switch to solid icons when selected for a premium feel
+  IconData _getActiveIcon(IconData outlinedIcon) {
+    if (outlinedIcon == Icons.home_outlined) return Icons.home_rounded;
+    if (outlinedIcon == Icons.people_outline) return Icons.people_rounded;
+    if (outlinedIcon == Icons.receipt_long_outlined) return Icons.receipt_long_rounded;
+    if (outlinedIcon == Icons.settings_outlined) return Icons.settings_rounded;
+    return outlinedIcon;
   }
 }
 
@@ -205,25 +222,32 @@ class _DashboardViewState extends State<DashboardView> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.surface0,
-      // ── App bar ────────────────────────────────────────────────────
       appBar: DebityAppBar(
         userInitial: _userInitial,
         onLogout: _handleLogout,
         actions: [
-          // Refresh button
           IconButton(
-            icon: const Icon(Icons.refresh_rounded, size: 20),
+            icon: const Icon(Icons.refresh_rounded, size: 24),
             color: AppColors.textSecondary,
             onPressed: _loadStatistics,
-            splashRadius: 18,
+            splashRadius: 24,
+          ),
+          const SizedBox(width: AppSpacing.sp8),
+        ],
+      ),
+      body: Column(
+        children: [
+          // Optional divider under App Bar
+          Container(height: 1.0, color: AppColors.borderSubtle.withOpacity(0.5)),
+          Expanded(
+            child: _isLoading
+                ? _buildSkeleton()
+                : _error != null
+                    ? _buildError()
+                    : _buildContent(),
           ),
         ],
       ),
-      body: _isLoading
-          ? _buildSkeleton()
-          : _error != null
-              ? _buildError()
-              : _buildContent(),
     );
   }
 
@@ -240,17 +264,16 @@ class _DashboardViewState extends State<DashboardView> {
   // ── Skeleton ───────────────────────────────────────────────────────
   Widget _buildSkeleton() {
     return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.pageH, AppSpacing.sp24,
-        AppSpacing.pageH, AppSpacing.sp24,
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.pageH, vertical: AppSpacing.sp24,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SkeletonBox(width: 180, height: 28),
-          const SizedBox(height: 6),
-          const SkeletonBox(width: 130, height: 14),
-          const SizedBox(height: AppSpacing.sp24),
+          const SkeletonBox(width: 220, height: 32),
+          const SizedBox(height: 8),
+          const SkeletonBox(width: 140, height: 16),
+          const SizedBox(height: AppSpacing.sp32),
           buildStatGridSkeleton(),
           const SizedBox(height: AppSpacing.sp24),
           buildListSkeleton(count: 4),
@@ -259,14 +282,38 @@ class _DashboardViewState extends State<DashboardView> {
     );
   }
 
-  // ── Error ──────────────────────────────────────────────────────────
+  // ── Premium Error State ────────────────────────────────────────────
   Widget _buildError() {
     return Padding(
-      padding: const EdgeInsets.all(AppSpacing.pageH),
+      padding: const EdgeInsets.all(AppSpacing.sp32),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          ErrorBanner(message: _error!, onDismiss: _loadStatistics),
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: AppColors.danger.withOpacity(0.1),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.error_outline_rounded,
+              size: 56,
+              color: AppColors.danger,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.sp24),
+          Text(
+            AppLocalizations.of(context).loadFailed,
+            style: AppTextStyles.lg.copyWith(fontWeight: FontWeight.bold),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: AppSpacing.sp8),
+          Text(
+            _error ?? '',
+            style: AppTextStyles.sm.copyWith(color: AppColors.textSecondary),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: AppSpacing.sp32),
           DebityPrimaryButton(
             label: AppLocalizations.of(context).retry,
             onPressed: _loadStatistics,
@@ -282,7 +329,7 @@ class _DashboardViewState extends State<DashboardView> {
     return RefreshIndicator(
       onRefresh: _loadStatistics,
       color: AppColors.brand500,
-      backgroundColor: AppColors.surface2,
+      backgroundColor: AppColors.surface0,
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.fromLTRB(
@@ -292,17 +339,17 @@ class _DashboardViewState extends State<DashboardView> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ── Page title ──────────────────────────────────────────
+            // ── Premium Welcome Header ──────────────────────────────
             Text(
-              AppLocalizations.of(context).dashboardTitle,
-              style: AppTextStyles.xl2.copyWith(color: AppColors.textPrimary),
+              _greeting(),
+              style: AppTextStyles.xl3.copyWith(color: AppColors.textPrimary, fontWeight: FontWeight.w800),
             ),
             const SizedBox(height: AppSpacing.sp4),
             Text(
-              _greeting(),
-              style: AppTextStyles.base.copyWith(color: AppColors.textSecondary),
+              AppLocalizations.of(context).dashboardTitle,
+              style: AppTextStyles.base.copyWith(color: AppColors.textSecondary, fontWeight: FontWeight.w500),
             ),
-            const SizedBox(height: AppSpacing.sp24),
+            const SizedBox(height: AppSpacing.sp32),
 
             // ── Overdue alert ───────────────────────────────────────
             if (stats.overdueCount > 0) ...[
@@ -315,32 +362,32 @@ class _DashboardViewState extends State<DashboardView> {
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               crossAxisCount: 2,
-              mainAxisSpacing: 12,
-              crossAxisSpacing: 12,
+              mainAxisSpacing: AppSpacing.sp16, // Unified spacing
+              crossAxisSpacing: AppSpacing.sp16,
               childAspectRatio: 1.45,
               children: [
                 StatCard(
                   label: AppLocalizations.of(context).statTotalDebts,
                   value: NumberFormatter.formatCurrency(stats.totalDebts),
-                  icon: Icons.account_balance_wallet_outlined,
-                  valueColor: AppColors.brand400,
+                  icon: Icons.account_balance_wallet_rounded, // Swapped to solid
+                  valueColor: AppColors.brand500,
                 ),
                 StatCard(
                   label: AppLocalizations.of(context).statTotalRemaining,
                   value: NumberFormatter.formatCurrency(stats.totalRemaining),
-                  icon: Icons.pending_actions_outlined,
+                  icon: Icons.pending_actions_rounded,
                   valueColor: AppColors.warning,
                 ),
                 StatCard(
                   label: AppLocalizations.of(context).statTotalPaid,
                   value: NumberFormatter.formatCurrency(stats.totalPaid),
-                  icon: Icons.check_circle_outline,
+                  icon: Icons.check_circle_rounded,
                   valueColor: AppColors.success,
                 ),
                 StatCard(
                   label: AppLocalizations.of(context).statOverdueInstallments,
                   value: '${stats.overdueCount}',
-                  icon: Icons.schedule_outlined,
+                  icon: Icons.schedule_rounded,
                   valueColor: stats.overdueCount > 0
                       ? AppColors.danger
                       : AppColors.textPrimary,
@@ -357,14 +404,16 @@ class _DashboardViewState extends State<DashboardView> {
                     label: AppLocalizations.of(context).miniActiveDebts,
                     value: '${stats.activeDebts}',
                     color: AppColors.warning,
+                    icon: Icons.bolt_rounded,
                   ),
                 ),
-                const SizedBox(width: AppSpacing.sp12),
+                const SizedBox(width: AppSpacing.sp16),
                 Expanded(
                   child: _MiniStatTile(
                     label: AppLocalizations.of(context).miniCompletedDebts,
                     value: '${stats.completedDebts}',
                     color: AppColors.success,
+                    icon: Icons.task_alt_rounded,
                   ),
                 ),
               ],
@@ -377,14 +426,14 @@ class _DashboardViewState extends State<DashboardView> {
                 title: AppLocalizations.of(context).sectionOverdueInstallments,
                 trailing: OverdueBadge(count: stats.overdueCount),
                 child: stats.topCustomers.isEmpty
-                    ? _emptyState(AppLocalizations.of(context).noOverdueInstallments)
+                    ? _emptyState(AppLocalizations.of(context).noOverdueInstallments, Icons.check_circle_outline)
                     : DebtListView(
                         itemCount: stats.topCustomers.length,
                         itemBuilder: (_, i) {
                           final c = stats.topCustomers[i];
                           return DebtListItem(
-                              primaryText: '${AppLocalizations.of(context).customerLabel} ...${c.customerId.length >= 8 ? c.customerId.substring(0, 8) : c.customerId}',
-                              secondaryText: AppLocalizations.of(context).remainingAmountLabel,
+                            primaryText: '${AppLocalizations.of(context).customerLabel} ...${c.customerId.length >= 8 ? c.customerId.substring(0, 8) : c.customerId}',
+                            secondaryText: AppLocalizations.of(context).remainingAmountLabel,
                             amount: NumberFormatter.formatCurrency(c.remainingAmount),
                             amountColor: AppColors.danger,
                             trailing: StatusBadge.fromString('overdue'),
@@ -399,7 +448,7 @@ class _DashboardViewState extends State<DashboardView> {
             SectionPanel(
               title: AppLocalizations.of(context).sectionTopDebtors,
               child: stats.topCustomers.isEmpty
-                  ? _emptyState(AppLocalizations.of(context).noData)
+                  ? _emptyState(AppLocalizations.of(context).noData, Icons.analytics_outlined)
                   : DebtListView(
                       itemCount: stats.topCustomers.length,
                       itemBuilder: (_, i) {
@@ -419,11 +468,18 @@ class _DashboardViewState extends State<DashboardView> {
     );
   }
 
-  Widget _emptyState(String msg) {
+  // Upgraded Empty State to match the rest of the app
+  Widget _emptyState(String msg, IconData icon) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: AppSpacing.sp24),
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.sp32),
       child: Center(
-        child: Text(msg, style: AppTextStyles.base.copyWith(color: AppColors.textMuted)),
+        child: Column(
+          children: [
+            Icon(icon, size: 40, color: AppColors.textMuted.withOpacity(0.5)),
+            const SizedBox(height: AppSpacing.sp12),
+            Text(msg, style: AppTextStyles.base.copyWith(color: AppColors.textMuted, fontWeight: FontWeight.w500)),
+          ],
+        ),
       ),
     );
   }
@@ -446,24 +502,41 @@ class _OverdueAlert extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.sp16, vertical: AppSpacing.sp12,
+        horizontal: AppSpacing.sp20, vertical: AppSpacing.sp16,
       ),
       decoration: BoxDecoration(
-        color: const Color(0x1AF87171), // danger/10
-        borderRadius: BorderRadius.circular(AppRadius.md),
-        border: Border.all(color: const Color(0x33F87171), width: 1),
+        color: AppColors.danger.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.danger.withOpacity(0.3), width: 1),
       ),
       child: Row(
         children: [
-          const Icon(Icons.warning_amber_rounded, color: AppColors.danger, size: 20),
-          const SizedBox(width: AppSpacing.sp12),
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: AppColors.danger.withOpacity(0.15),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.warning_amber_rounded, color: AppColors.danger, size: 24),
+          ),
+          const SizedBox(width: AppSpacing.sp16),
           Expanded(
-            child: Text(
-              AppLocalizations.of(context).overdueAlert.replaceAll('{count}', '$count'),
-              style: AppTextStyles.base.copyWith(color: AppColors.danger),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'تنبيه أقساط متأخرة', // Ideally localize this
+                  style: AppTextStyles.sm.copyWith(color: AppColors.danger, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  AppLocalizations.of(context).overdueAlert.replaceAll('{count}', '$count'),
+                  style: AppTextStyles.base.copyWith(color: AppColors.danger.withOpacity(0.8), fontWeight: FontWeight.w500),
+                ),
+              ],
             ),
           ),
-          const Icon(Icons.chevron_right_rounded, color: AppColors.danger, size: 18),
+          const Icon(Icons.chevron_left_rounded, color: AppColors.danger, size: 24), // Left for Arabic RTL
         ],
       ),
     );
@@ -473,27 +546,49 @@ class _OverdueAlert extends StatelessWidget {
 // ─── Mini stat tile ───────────────────────────────────────────────────
 
 class _MiniStatTile extends StatelessWidget {
-  const _MiniStatTile({required this.label, required this.value, required this.color});
+  const _MiniStatTile({required this.label, required this.value, required this.color, required this.icon});
   final String label;
   final String value;
   final Color color;
+  final IconData icon;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.sp12, vertical: AppSpacing.sp10,
-      ),
+      padding: const EdgeInsets.all(AppSpacing.sp16),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.10),
-        borderRadius: BorderRadius.circular(AppRadius.md),
+        color: AppColors.surface0,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.borderSubtle.withOpacity(0.5)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          Text(value, style: AppTextStyles.lg.copyWith(color: color)),
-          const SizedBox(height: 2),
-          Text(label, style: AppTextStyles.xs.copyWith(color: AppColors.textSecondary)),
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.12),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: color, size: 20),
+          ),
+          const SizedBox(width: AppSpacing.sp12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(value, style: AppTextStyles.xl.copyWith(color: color, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 2),
+                Text(label, style: AppTextStyles.xs.copyWith(color: AppColors.textSecondary, fontWeight: FontWeight.w500)),
+              ],
+            ),
+          ),
         ],
       ),
     );
