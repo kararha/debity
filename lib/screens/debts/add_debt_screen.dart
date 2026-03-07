@@ -3,7 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_text_styles.dart';
-import '../../core/widgets/app_card.dart'; // Assuming SectionPanel comes from here
+import '../../core/widgets/app_card.dart'; 
 import '../../core/widgets/debity_button.dart';
 import '../../core/widgets/debity_input.dart';
 import '../../core/theme/app_theme.dart';
@@ -37,6 +37,9 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
   DateTime _startDate = DateTime.now();
   bool _isLoading = false;
   bool _isLoadingCustomers = true;
+  
+  // NEW: Purely for UI tracking in the Stepper
+  int _currentStep = 0;
 
   @override
   void initState() {
@@ -60,50 +63,25 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
     super.dispose();
   }
 
-  // LOGIC UNCHANGED
+  // --- LOGIC METHODS REMAIN EXACTLY THE SAME ---
+
   Future<void> _loadCustomers() async {
-    debugPrint(
-      '[AddDebtScreen] _loadCustomers → fetching customers from Supabase...',
-    );
+    debugPrint('[AddDebtScreen] _loadCustomers → fetching customers from Supabase...');
     try {
       final response = await _supabase
           .from('customers')
           .select('id, name, phone, address, notes, created_at, updated_at')
           .order('name');
 
-      debugPrint(
-        '[AddDebtScreen] _loadCustomers → raw response received, count: ${(response as List).length}',
-      );
-
       if (mounted) {
         setState(() {
-          _customers = (response as List)
-              .map((data) => Customer.fromJson(data))
-              .toList();
-          debugPrint(
-            '[AddDebtScreen] _loadCustomers → parsed ${_customers.length} customers',
-          );
+          _customers = (response as List).map((data) => Customer.fromJson(data)).toList();
           if (widget.customer != null) {
-            debugPrint(
-              '[AddDebtScreen] _loadCustomers → looking for pre-selected customer id: ${widget.customer!.id}',
-            );
-            final matches = _customers.where(
-              (c) => c.id == widget.customer!.id,
-            );
+            final matches = _customers.where((c) => c.id == widget.customer!.id);
             if (matches.isNotEmpty) {
               _selectedCustomer = matches.first;
-              debugPrint(
-                '[AddDebtScreen] _loadCustomers → matched pre-selected: ${_selectedCustomer?.name}',
-              );
             } else if (_customers.isNotEmpty) {
               _selectedCustomer = _customers.first;
-              debugPrint(
-                '[AddDebtScreen] _loadCustomers → no match found, defaulting to first: ${_selectedCustomer?.name}',
-              );
-            } else {
-              debugPrint(
-                '[AddDebtScreen] _loadCustomers → customers list is empty, no default set',
-              );
             }
           }
           _isLoadingCustomers = false;
@@ -111,24 +89,16 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
       }
     } catch (e, st) {
       debugPrint('[AddDebtScreen] _loadCustomers ERROR: $e');
-      debugPrint('[AddDebtScreen] _loadCustomers STACKTRACE: $st');
       if (mounted) {
         setState(() => _isLoadingCustomers = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('خطأ في تحميل العملاء: $e'),
-            backgroundColor: AppColors.danger,
-          ),
+          SnackBar(content: Text('خطأ في تحميل العملاء: $e'), backgroundColor: AppColors.danger),
         );
       }
     }
   }
 
-  // LOGIC UNCHANGED
   Future<void> _selectDate(BuildContext context) async {
-    debugPrint(
-      '[AddDebtScreen] _selectDate → opening date picker, current: $_startDate',
-    );
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: _startDate,
@@ -139,81 +109,36 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
       },
     );
     if (picked != null && picked != _startDate) {
-      debugPrint('[AddDebtScreen] _selectDate → date selected: $picked');
       setState(() => _startDate = picked);
-    } else {
-      debugPrint(
-        '[AddDebtScreen] _selectDate → no date change (picked=$picked)',
-      );
     }
   }
 
-  // LOGIC UNCHANGED
   Future<void> _saveDebt() async {
-    debugPrint('[AddDebtScreen] _saveDebt → STEP 1: running form validation');
-    if (!_formKey.currentState!.validate()) {
-      debugPrint('[AddDebtScreen] _saveDebt → STEP 1 FAILED: form is invalid');
-      return;
-    }
-    debugPrint('[AddDebtScreen] _saveDebt → STEP 1 PASSED: form is valid');
+    if (!_formKey.currentState!.validate()) return;
 
-    debugPrint(
-      '[AddDebtScreen] _saveDebt → STEP 2: checking customer selection (selected=${_selectedCustomer?.name ?? "none"})',
-    );
     if (_selectedCustomer == null) {
-      debugPrint(
-        '[AddDebtScreen] _saveDebt → STEP 2 FAILED: no customer selected',
-      );
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('الرجاء اختيار العميل'),
-          backgroundColor: AppColors.danger,
-        ),
+        const SnackBar(content: Text('الرجاء اختيار العميل'), backgroundColor: AppColors.danger),
       );
       return;
     }
-    debugPrint(
-      '[AddDebtScreen] _saveDebt → STEP 2 PASSED: customer=${_selectedCustomer!.name}, id=${_selectedCustomer!.id}',
-    );
 
     setState(() => _isLoading = true);
 
     try {
-      debugPrint('[AddDebtScreen] _saveDebt → STEP 3: parsing input values');
-      final downPaymentText = _downPaymentController.text.trim().replaceAll(
-        ',',
-        '',
-      );
-      final downPaymentVal = downPaymentText.isEmpty
-          ? 0.0
-          : double.parse(downPaymentText);
-      final double sellingPrice = double.parse(
-        _sellingPriceController.text.replaceAll(',', ''),
-      );
-      final double originalPrice = double.parse(
-        _originalPriceController.text.replaceAll(',', ''),
-      );
+      final downPaymentText = _downPaymentController.text.trim().replaceAll(',', '');
+      final downPaymentVal = downPaymentText.isEmpty ? 0.0 : double.parse(downPaymentText);
+      final double sellingPrice = double.parse(_sellingPriceController.text.replaceAll(',', ''));
+      final double originalPrice = double.parse(_originalPriceController.text.replaceAll(',', ''));
       final int numInstallments = int.parse(_installmentsController.text);
-      debugPrint(
-        '[AddDebtScreen] _saveDebt → STEP 3 PASSED: originalPrice=$originalPrice, sellingPrice=$sellingPrice, downPayment=$downPaymentVal, installments=$numInstallments',
-      );
 
-      // 1. Insert debt
-      debugPrint(
-        '[AddDebtScreen] _saveDebt → STEP 4: inserting debt record into Supabase',
-      );
       final double totalAmount = sellingPrice - downPaymentVal;
-      final double installmentAmount = numInstallments > 0
-          ? (totalAmount / numInstallments)
-          : totalAmount;
+      final double installmentAmount = numInstallments > 0 ? (totalAmount / numInstallments) : totalAmount;
 
-      // Build Debt model and use its toJson to ensure consistent keys
       final debtObj = Debt(
         customerId: _selectedCustomer!.id!,
         itemName: _itemNameController.text.trim(),
-        itemDescription: _itemDescController.text.trim().isEmpty
-            ? null
-            : _itemDescController.text.trim(),
+        itemDescription: _itemDescController.text.trim().isEmpty ? null : _itemDescController.text.trim(),
         originalPrice: originalPrice,
         sellingPrice: sellingPrice,
         downPayment: downPaymentVal,
@@ -223,44 +148,15 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
         installmentAmount: installmentAmount,
         startDate: _startDate,
         status: DebtStatus.active,
-        notes: _notesController.text.trim().isEmpty
-            ? null
-            : _notesController.text.trim(),
+        notes: _notesController.text.trim().isEmpty ? null : _notesController.text.trim(),
       );
 
-      final payload = debtObj.toJson();
-      debugPrint('[AddDebtScreen] _saveDebt → payload for insert: $payload');
-
-      final debtResponse = await _supabase
-          .from('debts')
-          .insert(payload)
-          .select()
-          .single();
-
+      final debtResponse = await _supabase.from('debts').insert(debtObj.toJson()).select().single();
       final debtId = debtResponse['id'];
-      debugPrint(
-        '[AddDebtScreen] _saveDebt → STEP 4 PASSED: debt inserted, id=$debtId',
-      );
-
-      // 2. Build installments list
-      debugPrint(
-        '[AddDebtScreen] _saveDebt → STEP 5: building $numInstallments installment records',
-      );
-      final double remainingAmount = totalAmount;
-      debugPrint(
-        '[AddDebtScreen] _saveDebt → remaining=$remainingAmount, per installment=$installmentAmount',
-      );
 
       List<Map<String, dynamic>> installments = [];
       for (int i = 0; i < numInstallments; i++) {
-        final dueDate = DateTime(
-          _startDate.year,
-          _startDate.month + i,
-          _startDate.day,
-        );
-        debugPrint(
-          '[AddDebtScreen] _saveDebt → installment #${i + 1}: due=${dueDate.toIso8601String()}, amount=$installmentAmount',
-        );
+        final dueDate = DateTime(_startDate.year, _startDate.month + i, _startDate.day);
         installments.add({
           'debt_id': debtId,
           'amount': installmentAmount,
@@ -269,31 +165,14 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
           'installment_number': i + 1,
         });
       }
-      debugPrint(
-        '[AddDebtScreen] _saveDebt → STEP 5 PASSED: ${installments.length} installments built',
-      );
 
-      // 3. Insert installments
-      debugPrint(
-        '[AddDebtScreen] _saveDebt → STEP 6: inserting installments into Supabase',
-      );
       await _supabase.from('installments').insert(installments);
-      debugPrint(
-        '[AddDebtScreen] _saveDebt → STEP 6 PASSED: installments inserted successfully',
-      );
 
       if (mounted) {
-        debugPrint(
-          '[AddDebtScreen] _saveDebt → STEP 7: navigating back with success result',
-        );
         Navigator.pop(context, true);
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('تمت إضافة الدين بنجاح')));
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تمت إضافة الدين بنجاح')));
       }
     } catch (e, st) {
-      debugPrint('[AddDebtScreen] _saveDebt ERROR: $e');
-      debugPrint('[AddDebtScreen] _saveDebt STACKTRACE: $st');
       setState(() => _isLoading = false);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -303,7 +182,8 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
     }
   }
 
-  // UI RESTYLE BEGINS HERE
+  // --- NEW UI LAYOUT ---
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -314,266 +194,261 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
         foregroundColor: AppColors.textPrimary,
         elevation: 0,
         centerTitle: true,
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(1.0),
-          child: Container(
-            color: AppColors.borderSubtle.withOpacity(0.5),
-            height: 1.0,
-          ),
-        ),
       ),
-      body: SafeArea(
-        child: _isLoadingCustomers
-            ? const Center(
-                child: CircularProgressIndicator(color: AppColors.brand500),
-              )
-            : Form(
-                key: _formKey,
-                child: Column(
-                  children: [
-                    Expanded(
-                      child: ListView(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: AppSpacing.pageH,
-                          vertical: AppSpacing.sp24,
-                        ),
+      body: _isLoadingCustomers
+          ? const Center(child: CircularProgressIndicator(color: AppColors.brand500))
+          : Form(
+              key: _formKey,
+              child: Theme(
+                // Adjusting Stepper theme to match your app colors
+                data: Theme.of(context).copyWith(
+                  colorScheme: const ColorScheme.light(
+                    primary: AppColors.brand500,
+                  ),
+                ),
+                child: Stepper(
+                  type: StepperType.vertical,
+                  physics: const BouncingScrollPhysics(),
+                  currentStep: _currentStep,
+                  onStepTapped: (step) => setState(() => _currentStep = step),
+                  onStepContinue: () {
+                    final isLastStep = _currentStep == _getSteps().length - 1;
+                    if (isLastStep) {
+                      _saveDebt();
+                    } else {
+                      setState(() => _currentStep += 1);
+                    }
+                  },
+                  onStepCancel: _currentStep == 0
+                      ? null
+                      : () => setState(() => _currentStep -= 1),
+                  
+                  // Customizing the Stepper buttons to use your DebityPrimaryButton
+                  controlsBuilder: (context, details) {
+                    final isLastStep = _currentStep == _getSteps().length - 1;
+                    return Padding(
+                      padding: const EdgeInsets.only(top: AppSpacing.sp24),
+                      child: Row(
                         children: [
-                          _buildCustomerSection(),
-                          const SizedBox(height: AppSpacing.sp24),
-                          _buildItemInfoSection(),
-                          const SizedBox(height: AppSpacing.sp24),
-                          _buildPricingSection(),
-                          const SizedBox(height: AppSpacing.sp24),
-                          _buildInstallmentsSection(),
-                          const SizedBox(height: AppSpacing.sp24),
-                          _buildNotesSection(),
-                          const SizedBox(height: AppSpacing.sp24),
+                          Expanded(
+                            child: DebityPrimaryButton(
+                              label: isLastStep ? 'حفظ الدين' : 'التالي',
+                              isLoading: _isLoading && isLastStep,
+                              onPressed: details.onStepContinue,
+                            ),
+                          ),
+                          if (_currentStep != 0) ...[
+                            const SizedBox(width: AppSpacing.sp16),
+                            Expanded(
+                              child: TextButton(
+                                onPressed: details.onStepCancel,
+                                child: Text(
+                                  'رجوع',
+                                  style: TextStyle(color: AppColors.textSecondary),
+                                ),
+                              ),
+                            ),
+                          ]
                         ],
                       ),
-                    ),
-                    _buildStickyBottomButton(),
-                  ],
-                ),
-              ),
-      ),
-    );
-  }
-
-  Widget _buildStickyBottomButton() {
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.pageH),
-      decoration: BoxDecoration(
-        color: AppColors.surface0,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            offset: const Offset(0, -4),
-            blurRadius: 12,
-          ),
-        ],
-      ),
-      child: DebityPrimaryButton(
-        label: 'إضافة الدين',
-        isLoading: _isLoading,
-        onPressed: _saveDebt,
-      ),
-    );
-  }
-
-  Widget _buildCustomerSection() {
-    return SectionPanel(
-      title: 'العميل',
-      child: DropdownMenu<Customer>(
-        initialSelection: _selectedCustomer,
-        expandedInsets: EdgeInsets.zero,
-        enableSearch: true,
-        enableFilter: true,
-        requestFocusOnTap: true,
-        label: const Text('اختر العميل *'),
-        textStyle: AppTextStyles.base.copyWith(color: AppColors.textPrimary),
-        inputDecorationTheme: InputDecorationTheme(
-          labelStyle: AppTextStyles.sm.copyWith(color: AppColors.textSecondary),
-          filled: true,
-          fillColor: AppColors.surface1,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: AppColors.borderSubtle, width: 1),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: AppColors.borderSubtle, width: 1),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: AppColors.brand500, width: 2),
-          ),
-        ),
-        leadingIcon: const Icon(
-          Icons.person_search_rounded,
-          color: AppColors.textMuted,
-        ),
-        dropdownMenuEntries: _customers.map((c) {
-          return DropdownMenuEntry<Customer>(
-            value: c,
-            label: c.name,
-            style: MenuItemButton.styleFrom(
-              foregroundColor: AppColors.textPrimary,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            ),
-          );
-        }).toList(),
-        onSelected: (v) => setState(() => _selectedCustomer = v),
-      ),
-    );
-  }
-
-  Widget _buildItemInfoSection() {
-    return SectionPanel(
-      title: 'معلومات المنتج',
-      child: Column(
-        children: [
-          DebityTextField(
-            controller: _itemNameController,
-            label: 'اسم المنتج *',
-            prefixIcon: const Icon(
-              Icons.inventory_2_outlined,
-              color: AppColors.textMuted,
-            ),
-            validator: (v) => (v == null || v.trim().isEmpty)
-                ? 'الرجاء إدخال اسم المنتج'
-                : null,
-          ),
-          const SizedBox(height: AppSpacing.sp16),
-          DebityTextField(
-            controller: _itemDescController,
-            label: 'وصف المنتج',
-            prefixIcon: const Icon(
-              Icons.description_outlined,
-              color: AppColors.textMuted,
-            ),
-            maxLines: 2,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPricingSection() {
-    return SectionPanel(
-      title: 'التسعير',
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: DebityTextField(
-              controller: _originalPriceController,
-              label: 'السعر الأصلي * (د.ع)',
-              prefixIcon: const Icon(
-                Icons.sell_outlined,
-                color: AppColors.textMuted,
-              ),
-              keyboardType: TextInputType.number,
-              validator: (v) {
-                if (v == null || v.isEmpty) return 'مطلوب';
-                if (double.tryParse(v.replaceAll(',', '')) == null) return 'غير صحيح';
-                return null;
-              },
-            ),
-          ),
-          const SizedBox(width: AppSpacing.sp16),
-          Expanded(
-            child: DebityTextField(
-              controller: _sellingPriceController,
-              label: 'سعر البيع * (د.ع)',
-              prefixIcon: const Icon(
-                Icons.point_of_sale_rounded,
-                color: AppColors.textMuted,
-              ),
-              keyboardType: TextInputType.number,
-              validator: (v) {
-                if (v == null || v.isEmpty) return 'مطلوب';
-                if (double.tryParse(v.replaceAll(',', '')) == null) return 'غير صحيح';
-                return null;
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildInstallmentsSection() {
-    return SectionPanel(
-      title: 'الأقساط',
-      child: Column(
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: DebityTextField(
-                  controller: _downPaymentController,
-                  label: 'المقدمة (د.ع)',
-                  prefixIcon: const Icon(
-                    Icons.payments_outlined,
-                    color: AppColors.textMuted,
-                  ),
-                  keyboardType: TextInputType.number,
-                ),
-              ),
-              const SizedBox(width: AppSpacing.sp16),
-              Expanded(
-                child: DebityTextField(
-                  controller: _installmentsController,
-                  label: 'الأقساط (أشهر) *',
-                  prefixIcon: const Icon(
-                    Icons.format_list_numbered_rounded,
-                    color: AppColors.textMuted,
-                  ),
-                  keyboardType: TextInputType.number,
-                  validator: (v) {
-                    if (v == null || v.isEmpty) return 'مطلوب';
-                    if (int.tryParse(v) == null || int.parse(v) <= 0) return 'غير صحيح';
-                    return null;
+                    );
                   },
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.sp16),
-          GestureDetector(
-            onTap: () => _selectDate(context),
-            child: AbsorbPointer(
-              child: DebityTextField(
-                controller: TextEditingController(
-                  text: DateFormat('yyyy/MM/dd').format(_startDate),
-                ),
-                label: 'تاريخ بداية الأقساط',
-                prefixIcon: const Icon(
-                  Icons.calendar_today_rounded,
-                  color: AppColors.brand500,
+                  steps: _getSteps(),
                 ),
               ),
             ),
-          ),
-        ],
-      ),
     );
   }
 
-  Widget _buildNotesSection() {
-    return SectionPanel(
-      title: 'ملاحظات إضافية',
-      child: DebityTextField(
-        controller: _notesController,
-        label: 'ملاحظات',
-        prefixIcon: const Icon(
-          Icons.sticky_note_2_outlined,
-          color: AppColors.textMuted,
-        ),
-        maxLines: 3,
+  List<Step> _getSteps() {
+    return [
+      Step(
+        state: _currentStep > 0 ? StepState.complete : StepState.indexed,
+        isActive: _currentStep >= 0,
+        title: const Text('بيانات العميل'),
+        content: _buildCustomerInput(),
       ),
+      Step(
+        state: _currentStep > 1 ? StepState.complete : StepState.indexed,
+        isActive: _currentStep >= 1,
+        title: const Text('معلومات المنتج'),
+        content: _buildItemInfoInput(),
+      ),
+      Step(
+        state: _currentStep > 2 ? StepState.complete : StepState.indexed,
+        isActive: _currentStep >= 2,
+        title: const Text('التسعير'),
+        content: _buildPricingInput(),
+      ),
+      Step(
+        isActive: _currentStep >= 3,
+        title: const Text('الأقساط والملاحظات'),
+        content: Column(
+          children: [
+            _buildInstallmentsInput(),
+            const SizedBox(height: AppSpacing.sp24),
+            _buildNotesInput(),
+          ],
+        ),
+      ),
+    ];
+  }
+
+  // I removed the 'SectionPanel' wrappers here because the Stepper's 'Step' acts as the visual container.
+
+  Widget _buildCustomerInput() {
+    return DropdownMenu<Customer>(
+      initialSelection: _selectedCustomer,
+      expandedInsets: EdgeInsets.zero,
+      enableSearch: true,
+      enableFilter: true,
+      requestFocusOnTap: true,
+      label: const Text('اختر العميل *'),
+      textStyle: AppTextStyles.base.copyWith(color: AppColors.textPrimary),
+      inputDecorationTheme: InputDecorationTheme(
+        labelStyle: AppTextStyles.sm.copyWith(color: AppColors.textSecondary),
+        filled: true,
+        fillColor: AppColors.surface1,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: AppColors.borderSubtle, width: 1),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: AppColors.borderSubtle, width: 1),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: AppColors.brand500, width: 2),
+        ),
+      ),
+      leadingIcon: const Icon(
+        Icons.person_search_rounded,
+        color: AppColors.textMuted,
+      ),
+      dropdownMenuEntries: _customers.map((c) {
+        return DropdownMenuEntry<Customer>(
+          value: c,
+          label: c.name,
+          style: MenuItemButton.styleFrom(
+            foregroundColor: AppColors.textPrimary,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          ),
+        );
+      }).toList(),
+      onSelected: (v) => setState(() => _selectedCustomer = v),
+    );
+  }
+
+  Widget _buildItemInfoInput() {
+    return Column(
+      children: [
+        DebityTextField(
+          controller: _itemNameController,
+          label: 'اسم المنتج *',
+          prefixIcon: const Icon(Icons.inventory_2_outlined, color: AppColors.textMuted),
+          validator: (v) => (v == null || v.trim().isEmpty) ? 'الرجاء إدخال اسم المنتج' : null,
+        ),
+        const SizedBox(height: AppSpacing.sp16),
+        DebityTextField(
+          controller: _itemDescController,
+          label: 'وصف المنتج',
+          prefixIcon: const Icon(Icons.description_outlined, color: AppColors.textMuted),
+          maxLines: 2,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPricingInput() {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: DebityTextField(
+            controller: _originalPriceController,
+            label: 'السعر الأصلي *',
+            prefixIcon: const Icon(Icons.sell_outlined, color: AppColors.textMuted),
+            keyboardType: TextInputType.number,
+            validator: (v) {
+              if (v == null || v.isEmpty) return 'مطلوب';
+              if (double.tryParse(v.replaceAll(',', '')) == null) return 'غير صحيح';
+              return null;
+            },
+          ),
+        ),
+        const SizedBox(width: AppSpacing.sp16),
+        Expanded(
+          child: DebityTextField(
+            controller: _sellingPriceController,
+            label: 'سعر البيع *',
+            prefixIcon: const Icon(Icons.point_of_sale_rounded, color: AppColors.textMuted),
+            keyboardType: TextInputType.number,
+            validator: (v) {
+              if (v == null || v.isEmpty) return 'مطلوب';
+              if (double.tryParse(v.replaceAll(',', '')) == null) return 'غير صحيح';
+              return null;
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildInstallmentsInput() {
+    return Column(
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: DebityTextField(
+                controller: _downPaymentController,
+                label: 'المقدمة',
+                prefixIcon: const Icon(Icons.payments_outlined, color: AppColors.textMuted),
+                keyboardType: TextInputType.number,
+              ),
+            ),
+            const SizedBox(width: AppSpacing.sp16),
+            Expanded(
+              child: DebityTextField(
+                controller: _installmentsController,
+                label: 'الأقساط *',
+                prefixIcon: const Icon(Icons.format_list_numbered_rounded, color: AppColors.textMuted),
+                keyboardType: TextInputType.number,
+                validator: (v) {
+                  if (v == null || v.isEmpty) return 'مطلوب';
+                  if (int.tryParse(v) == null || int.parse(v) <= 0) return 'غير صحيح';
+                  return null;
+                },
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: AppSpacing.sp16),
+        GestureDetector(
+          onTap: () => _selectDate(context),
+          child: AbsorbPointer(
+            child: DebityTextField(
+              controller: TextEditingController(
+                text: DateFormat('yyyy/MM/dd').format(_startDate),
+              ),
+              label: 'تاريخ بداية الأقساط',
+              prefixIcon: const Icon(Icons.calendar_today_rounded, color: AppColors.brand500),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildNotesInput() {
+    return DebityTextField(
+      controller: _notesController,
+      label: 'ملاحظات إضافية',
+      prefixIcon: const Icon(Icons.sticky_note_2_outlined, color: AppColors.textMuted),
+      maxLines: 3,
     );
   }
 }
