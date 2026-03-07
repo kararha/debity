@@ -260,39 +260,55 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
           ),
         ),
       ),
-      // Glowing circular add button
-      floatingActionButton: Container(
-        width: 56,
-        height: 56,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [AppColors.brand500, AppColors.brand400],
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.brand500.withValues(alpha: 0.28),
-              blurRadius: 12,
-              spreadRadius: 1,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: IconButton(
-          onPressed: () async {
-            final result = await Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => AddDebtScreen(customer: _customer),
+      // Glowing circular add button with visible label and semantics
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Semantics(
+            label: AppLocalizations.of(context).addDebt,
+            button: true,
+            child: Tooltip(
+              message: AppLocalizations.of(context).addDebt,
+              child: Container(
+                width: 56,
+                height: 56,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [AppColors.brand500, AppColors.brand400],
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.brand500.withValues(alpha: 0.28),
+                      blurRadius: 12,
+                      spreadRadius: 1,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: IconButton(
+                  onPressed: () async {
+                    final result = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => AddDebtScreen(customer: _customer),
+                      ),
+                    );
+                    if (result == true) _loadDebts();
+                  },
+                  icon: const Icon(Icons.add_rounded, color: Colors.white),
+                ),
               ),
-            );
-            if (result == true) _loadDebts();
-          },
-          icon: const Icon(Icons.add_rounded, color: Colors.white),
-          tooltip: AppLocalizations.of(context).addDebt,
-        ),
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            AppLocalizations.of(context).addDebt,
+            style: const TextStyle(fontSize: 12),
+          ),
+        ],
       ),
     );
   }
