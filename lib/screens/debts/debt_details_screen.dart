@@ -45,11 +45,11 @@ class _DebtDetailsScreenState extends State<DebtDetailsScreen> {
           .eq('id', _debt.id!)
           .single();
 
-      final installmentsResponse = await _supabase
+        final installmentsResponse = await _supabase
           .from('installments')
           .select()
           .eq('debt_id', _debt.id!)
-          .order('installment_number');
+          .order('installment_number', ascending: true);
 
       if (mounted) {
         setState(() {
