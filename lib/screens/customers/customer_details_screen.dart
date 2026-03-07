@@ -326,15 +326,7 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
             ),
             const SizedBox(height: AppSpacing.sp32),
             
-            // Premium Quick Actions Row
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _buildQuickAction(Icons.call_rounded, AppLocalizations.of(context).call, _callCustomer),
-                _buildQuickAction(Icons.message_rounded, AppLocalizations.of(context).message, _messageCustomer),
-                _buildQuickAction(Icons.chat_rounded, AppLocalizations.of(context).whatsapp, _whatsappCustomer),
-              ],
-            ),
+            // Quick actions removed
           ],
         ),
       ),
