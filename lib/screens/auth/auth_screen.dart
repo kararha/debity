@@ -39,6 +39,7 @@ class _AuthScreenState extends State<AuthScreen> {
       context: context,
       isScrollControlled: true,
       isDismissible: false,
+      enableDrag: false,
       backgroundColor: Colors.transparent,
       builder: (_) => const _LoginSheet(),
     );
@@ -49,6 +50,7 @@ class _AuthScreenState extends State<AuthScreen> {
       context: context,
       isScrollControlled: true,
       isDismissible: false,
+      enableDrag: false,
       backgroundColor: Colors.transparent,
       builder: (_) => const _RegisterSheet(),
     );
@@ -63,7 +65,7 @@ class _AuthScreenState extends State<AuthScreen> {
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(
               horizontal: AppSpacing.pageH,
-              vertical: AppSpacing.sp32,
+              vertical: AppSpacing.sp8,
             ),
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 400),
@@ -72,7 +74,7 @@ class _AuthScreenState extends State<AuthScreen> {
                 children: [
                   // ── Logo ─────────────────────────────────────────
                   const DebityLogo(size: LogoSize.lg),
-                  const SizedBox(height: AppSpacing.sp16),
+                  const SizedBox(height: AppSpacing.sp8),
 
                   // ── Subtitle ─────────────────────────────────────
                   Text(
@@ -82,7 +84,7 @@ class _AuthScreenState extends State<AuthScreen> {
                       color: AppColors.textSecondary,
                     ),
                   ),
-                  const SizedBox(height: AppSpacing.sp24),
+                  const SizedBox(height: AppSpacing.sp12),
 
                   // ── Language toggle ───────────────────────────────
                   _LanguageToggle(),
@@ -187,8 +189,6 @@ class _LoginSheetState extends State<_LoginSheet> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _sheetHandle(),
-            const SizedBox(height: AppSpacing.sp16),
             Text('تسجيل الدخول',
                 style: AppTextStyles.xl.copyWith(color: AppColors.textPrimary)),
             const SizedBox(height: AppSpacing.sp4),
@@ -331,8 +331,6 @@ class _RegisterSheetState extends State<_RegisterSheet> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _sheetHandle(),
-            const SizedBox(height: AppSpacing.sp16),
             Text('إنشاء حساب جديد',
                 style: AppTextStyles.xl.copyWith(color: AppColors.textPrimary)),
             const SizedBox(height: AppSpacing.sp4),
