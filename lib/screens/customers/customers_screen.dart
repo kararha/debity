@@ -210,18 +210,52 @@ class _CustomersScreenState extends State<CustomersScreen> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        heroTag: 'add_customer_fab',
-        onPressed: () async {
-          final result = await Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const AddCustomerScreen()),
-          );
-          if (result == true) _loadCustomers();
-        },
-        icon: const Icon(Icons.person_add_rounded),
-        label: Text(AppLocalizations.of(context).addCustomer),
-        elevation: 4,
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Semantics(
+            label: AppLocalizations.of(context).addCustomer,
+            button: true,
+            child: Tooltip(
+              message: AppLocalizations.of(context).addCustomer,
+              child: Container(
+                width: 56,
+                height: 56,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [AppColors.brand500, AppColors.brand400],
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.brand500.withValues(alpha: 0.28),
+                      blurRadius: 12,
+                      spreadRadius: 1,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: IconButton(
+                  onPressed: () async {
+                    final result = await Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const AddCustomerScreen()),
+                    );
+                    if (result == true) _loadCustomers();
+                  },
+                  icon: const Icon(Icons.person_add_rounded, color: Colors.white),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            AppLocalizations.of(context).addCustomer,
+            style: const TextStyle(fontSize: 12),
+          ),
+        ],
       ),
     );
   }
