@@ -224,16 +224,6 @@ class _DashboardViewState extends State<DashboardView> {
       backgroundColor: AppColors.surface0,
       appBar: DebityAppBar(
         userInitial: _userInitial,
-        onLogout: _handleLogout,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh_rounded, size: 24),
-            color: AppColors.textSecondary,
-            onPressed: _loadStatistics,
-            splashRadius: 24,
-          ),
-          const SizedBox(width: AppSpacing.sp8),
-        ],
       ),
       body: Column(
         children: [
