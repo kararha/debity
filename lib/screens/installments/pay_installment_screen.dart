@@ -110,7 +110,7 @@ class _PayInstallmentScreenState extends State<PayInstallmentScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(isFullyPaid ? AppLocalizations.of(context).paymentFullSuccess : AppLocalizations.of(context).paymentPartialSuccess),
-            backgroundColor: AppColors.success,
+            backgroundColor: const Color.fromARGB(255, 6, 21, 53),
           ),
         );
       }
@@ -143,7 +143,7 @@ class _PayInstallmentScreenState extends State<PayInstallmentScreen> {
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [AppColors.primaryColor, Color(0xFF1565C0)],
+              colors: [Color.fromARGB(255, 6, 8, 53), Color(0xFF1565C0)],
             ),
           ),
         ),
@@ -163,7 +163,7 @@ class _PayInstallmentScreenState extends State<PayInstallmentScreen> {
                         ? AppColors.error
                           : daysUntil == 0
                             ? AppColors.warning
-                            : AppColors.primaryColor,
+                            : const Color.fromARGB(255, 29, 48, 160),
                         daysUntil < 0
                           ? Color.fromRGBO((AppColors.error.toARGB32() >> 16) & 0xFF, (AppColors.error.toARGB32() >> 8) & 0xFF, AppColors.error.toARGB32() & 0xFF, 0.8)
                           : daysUntil == 0
