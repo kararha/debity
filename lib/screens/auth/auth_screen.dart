@@ -63,9 +63,11 @@ class _AuthScreenState extends State<AuthScreen> {
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.pageH,
-              vertical: AppSpacing.sp8,
+            padding: const EdgeInsets.only(
+              left: AppSpacing.pageH,
+              right: AppSpacing.pageH,
+              top: 0.0,
+              bottom: AppSpacing.sp8,
             ),
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 400),
@@ -74,7 +76,7 @@ class _AuthScreenState extends State<AuthScreen> {
                 children: [
                   // ── Logo ─────────────────────────────────────────
                   const DebityLogo(size: LogoSize.lg),
-                  const SizedBox(height: AppSpacing.sp8),
+                  const SizedBox(height: AppSpacing.sp48),
 
                   // ── Subtitle ─────────────────────────────────────
                   Text(
@@ -84,7 +86,7 @@ class _AuthScreenState extends State<AuthScreen> {
                       color: AppColors.textSecondary,
                     ),
                   ),
-                  const SizedBox(height: AppSpacing.sp12),
+                  const SizedBox(height: AppSpacing.sp48),
 
                   // ── Language toggle ───────────────────────────────
                   _LanguageToggle(),
