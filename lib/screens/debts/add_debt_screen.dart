@@ -199,36 +199,36 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
       debugPrint(
         '[AddDebtScreen] _saveDebt → STEP 4: inserting debt record into Supabase',
       );
-        final double totalAmount = sellingPrice - downPaymentVal;
-        final double installmentAmount = numInstallments > 0
+      final double totalAmount = sellingPrice - downPaymentVal;
+      final double installmentAmount = numInstallments > 0
           ? (totalAmount / numInstallments)
           : totalAmount;
 
-        // Build Debt model and use its toJson to ensure consistent keys
-        final debtObj = Debt(
-          customerId: _selectedCustomer!.id!,
-          itemName: _itemNameController.text.trim(),
-          itemDescription: _itemDescController.text.trim().isEmpty
-              ? null
-              : _itemDescController.text.trim(),
-          originalPrice: originalPrice,
-          sellingPrice: sellingPrice,
-          downPayment: downPaymentVal,
-          totalAmount: totalAmount,
-          remainingAmount: totalAmount,
-          numberOfInstallments: numInstallments,
-          installmentAmount: installmentAmount,
-          startDate: _startDate,
-          status: DebtStatus.active,
-          notes: _notesController.text.trim().isEmpty
-              ? null
-              : _notesController.text.trim(),
-        );
+      // Build Debt model and use its toJson to ensure consistent keys
+      final debtObj = Debt(
+        customerId: _selectedCustomer!.id!,
+        itemName: _itemNameController.text.trim(),
+        itemDescription: _itemDescController.text.trim().isEmpty
+            ? null
+            : _itemDescController.text.trim(),
+        originalPrice: originalPrice,
+        sellingPrice: sellingPrice,
+        downPayment: downPaymentVal,
+        totalAmount: totalAmount,
+        remainingAmount: totalAmount,
+        numberOfInstallments: numInstallments,
+        installmentAmount: installmentAmount,
+        startDate: _startDate,
+        status: DebtStatus.active,
+        notes: _notesController.text.trim().isEmpty
+            ? null
+            : _notesController.text.trim(),
+      );
 
-        final payload = debtObj.toJson();
-        debugPrint('[AddDebtScreen] _saveDebt → payload for insert: $payload');
+      final payload = debtObj.toJson();
+      debugPrint('[AddDebtScreen] _saveDebt → payload for insert: $payload');
 
-        final debtResponse = await _supabase
+      final debtResponse = await _supabase
           .from('debts')
           .insert(payload)
           .select()
@@ -306,13 +306,10 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
       backgroundColor: AppColors.surface0,
       appBar: AppBar(
         title: Text('إضافة دين جديد', style: AppTextStyles.sectionTitle),
-        backgroundColor: AppColors.surface1,
+        backgroundColor: AppColors.surface0, // Adjusted for a seamless header look
         foregroundColor: AppColors.textPrimary,
         elevation: 0,
         centerTitle: true,
-        shape: const Border(
-          bottom: BorderSide(color: AppColors.borderSubtle, width: 1),
-        ),
       ),
       body: _isLoadingCustomers
           ? const Center(
@@ -326,211 +323,208 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
                   vertical: AppSpacing.sp24,
                 ),
                 children: [
-                  // Customer Selection
-                  SectionPanel(
-                    title: 'العميل',
-                    child: DropdownMenu<Customer>(
-                      initialSelection: _selectedCustomer,
-                      expandedInsets: EdgeInsets.zero,
-                      enableSearch: true,
-                      enableFilter: true,
-                      requestFocusOnTap: true,
-                      label: const Text('اختر العميل *'),
-                      textStyle: AppTextStyles.base,
-                      inputDecorationTheme: InputDecorationTheme(
-                        labelStyle: AppTextStyles.sm.copyWith(
-                          color: AppColors.textMuted,
-                        ),
-                        filled: true,
-                        fillColor: AppColors.surface2,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(
-                            color: AppColors.borderLight,
-                            width: 1,
-                          ),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(
-                            color: AppColors.borderLight,
-                            width: 1,
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(
-                            color: AppColors.brand500,
-                            width: 2,
-                          ),
-                        ),
-                      ),
-                      leadingIcon: const Icon(
-                        Icons.people_rounded,
-                        color: AppColors.textMuted,
-                      ),
-                      dropdownMenuEntries: _customers.map((c) {
-                        return DropdownMenuEntry<Customer>(
-                          value: c,
-                          label: c.name,
-                          style: MenuItemButton.styleFrom(
-                            foregroundColor: AppColors.textPrimary,
-                          ),
-                        );
-                      }).toList(),
-                      onSelected: (v) => setState(() => _selectedCustomer = v),
-                    ),
-                  ),
+                  _buildCustomerSection(),
                   const SizedBox(height: AppSpacing.sp24),
-
-                  // Item Info
-                  SectionPanel(
-                    title: 'معلومات المنتج',
-                    child: Column(
-                      children: [
-                        DebityTextField(
-                          controller: _itemNameController,
-                          label: 'اسم المنتج *',
-                          prefixIcon: const Icon(
-                            Icons.label_rounded,
-                            color: AppColors.textMuted,
-                          ),
-                          validator: (v) => (v == null || v.trim().isEmpty)
-                              ? 'الرجاء إدخال اسم المنتج'
-                              : null,
-                        ),
-                        const SizedBox(height: AppSpacing.sp16),
-                        DebityTextField(
-                          controller: _itemDescController,
-                          label: 'وصف المنتج',
-                          prefixIcon: const Icon(
-                            Icons.description_rounded,
-                            color: AppColors.textMuted,
-                          ),
-                          maxLines: 2,
-                        ),
-                      ],
-                    ),
-                  ),
+                  _buildItemInfoSection(),
                   const SizedBox(height: AppSpacing.sp24),
-
-                  // Pricing
-                  SectionPanel(
-                    title: 'التسعير',
-                    child: Column(
-                      children: [
-                        DebityTextField(
-                          controller: _originalPriceController,
-                          label: 'السعر الأصلي * (د.ع)',
-                          prefixIcon: const Icon(
-                            Icons.attach_money_rounded,
-                            color: AppColors.textMuted,
-                          ),
-                          keyboardType: TextInputType.number,
-                          validator: (v) {
-                            if (v == null || v.isEmpty) return 'مطلوب';
-                            if (double.tryParse(v.replaceAll(',', '')) == null)
-                              return 'رقم غير صحيح';
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: AppSpacing.sp16),
-                        DebityTextField(
-                          controller: _sellingPriceController,
-                          label: 'سعر البيع * (د.ع)',
-                          prefixIcon: const Icon(
-                            Icons.sell_rounded,
-                            color: AppColors.textMuted,
-                          ),
-                          keyboardType: TextInputType.number,
-                          validator: (v) {
-                            if (v == null || v.isEmpty) return 'مطلوب';
-                            if (double.tryParse(v.replaceAll(',', '')) == null)
-                              return 'رقم غير صحيح';
-                            return null;
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
+                  _buildPricingSection(),
                   const SizedBox(height: AppSpacing.sp24),
-
-                  // Installments
-                  SectionPanel(
-                    title: 'الأقساط',
-                    child: Column(
-                      children: [
-                        DebityTextField(
-                          controller: _downPaymentController,
-                          label: 'الدفعة المقدمة (د.ع)',
-                          prefixIcon: const Icon(
-                            Icons.payments_rounded,
-                            color: AppColors.textMuted,
-                          ),
-                          keyboardType: TextInputType.number,
-                        ),
-                        const SizedBox(height: AppSpacing.sp16),
-                        DebityTextField(
-                          controller: _installmentsController,
-                          label: 'عدد الأقساط (أشهر) *',
-                          prefixIcon: const Icon(
-                            Icons.format_list_numbered_rounded,
-                            color: AppColors.textMuted,
-                          ),
-                          keyboardType: TextInputType.number,
-                          validator: (v) {
-                            if (v == null || v.isEmpty) return 'مطلوب';
-                            if (int.tryParse(v) == null || int.parse(v) <= 0)
-                              return 'رقم غير صحيح';
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: AppSpacing.sp16),
-                        GestureDetector(
-                          onTap: () => _selectDate(context),
-                          child: AbsorbPointer(
-                            child: DebityTextField(
-                              controller: TextEditingController(
-                                text: DateFormat(
-                                  'yyyy/MM/dd',
-                                ).format(_startDate),
-                              ),
-                              label: 'تاريخ بداية الأقساط',
-                              prefixIcon: const Icon(
-                                Icons.calendar_today_rounded,
-                                color: AppColors.brand500,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                  _buildInstallmentsSection(),
                   const SizedBox(height: AppSpacing.sp24),
-
-                  // Notes
-                  SectionPanel(
-                    title: 'ملاحظات إضافية',
-                    child: DebityTextField(
-                      controller: _notesController,
-                      label: 'ملاحظات',
-                      prefixIcon: const Icon(
-                        Icons.note_rounded,
-                        color: AppColors.textMuted,
-                      ),
-                      maxLines: 3,
-                    ),
-                  ),
-                  const SizedBox(height: AppSpacing.sp32),
-
+                  _buildNotesSection(),
+                  const SizedBox(height: AppSpacing.sp40),
                   DebityPrimaryButton(
                     label: 'إضافة الدين',
                     isLoading: _isLoading,
                     onPressed: _saveDebt,
                   ),
+                  const SizedBox(height: AppSpacing.sp24), // Extra bottom padding
                 ],
               ),
             ),
+    );
+  }
+
+  Widget _buildCustomerSection() {
+    return SectionPanel(
+      title: 'العميل',
+      child: DropdownMenu<Customer>(
+        initialSelection: _selectedCustomer,
+        expandedInsets: EdgeInsets.zero,
+        enableSearch: true,
+        enableFilter: true,
+        requestFocusOnTap: true,
+        label: const Text('اختر العميل *'),
+        textStyle: AppTextStyles.base.copyWith(color: AppColors.textPrimary),
+        inputDecorationTheme: InputDecorationTheme(
+          labelStyle: AppTextStyles.sm.copyWith(color: AppColors.textSecondary),
+          filled: true,
+          fillColor: AppColors.surface1, // Adjusted to match custom text fields better
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: AppColors.borderSubtle, width: 1),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: AppColors.borderSubtle, width: 1),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: AppColors.brand500, width: 2),
+          ),
+        ),
+        leadingIcon: const Icon(
+          Icons.person_search_rounded,
+          color: AppColors.textMuted,
+        ),
+        dropdownMenuEntries: _customers.map((c) {
+          return DropdownMenuEntry<Customer>(
+            value: c,
+            label: c.name,
+            style: MenuItemButton.styleFrom(
+              foregroundColor: AppColors.textPrimary,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            ),
+          );
+        }).toList(),
+        onSelected: (v) => setState(() => _selectedCustomer = v),
+      ),
+    );
+  }
+
+  Widget _buildItemInfoSection() {
+    return SectionPanel(
+      title: 'معلومات المنتج',
+      child: Column(
+        children: [
+          DebityTextField(
+            controller: _itemNameController,
+            label: 'اسم المنتج *',
+            prefixIcon: const Icon(
+              Icons.inventory_2_outlined,
+              color: AppColors.textMuted,
+            ),
+            validator: (v) => (v == null || v.trim().isEmpty)
+                ? 'الرجاء إدخال اسم المنتج'
+                : null,
+          ),
+          const SizedBox(height: AppSpacing.sp16),
+          DebityTextField(
+            controller: _itemDescController,
+            label: 'وصف المنتج',
+            prefixIcon: const Icon(
+              Icons.description_outlined,
+              color: AppColors.textMuted,
+            ),
+            maxLines: 2,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPricingSection() {
+    return SectionPanel(
+      title: 'التسعير',
+      child: Column(
+        children: [
+          DebityTextField(
+            controller: _originalPriceController,
+            label: 'السعر الأصلي * (د.ع)',
+            prefixIcon: const Icon(
+              Icons.sell_outlined,
+              color: AppColors.textMuted,
+            ),
+            keyboardType: TextInputType.number,
+            validator: (v) {
+              if (v == null || v.isEmpty) return 'مطلوب';
+              if (double.tryParse(v.replaceAll(',', '')) == null) return 'رقم غير صحيح';
+              return null;
+            },
+          ),
+          const SizedBox(height: AppSpacing.sp16),
+          DebityTextField(
+            controller: _sellingPriceController,
+            label: 'سعر البيع * (د.ع)',
+            prefixIcon: const Icon(
+              Icons.point_of_sale_rounded,
+              color: AppColors.textMuted,
+            ),
+            keyboardType: TextInputType.number,
+            validator: (v) {
+              if (v == null || v.isEmpty) return 'مطلوب';
+              if (double.tryParse(v.replaceAll(',', '')) == null) return 'رقم غير صحيح';
+              return null;
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInstallmentsSection() {
+    return SectionPanel(
+      title: 'الأقساط',
+      child: Column(
+        children: [
+          DebityTextField(
+            controller: _downPaymentController,
+            label: 'الدفعة المقدمة (د.ع)',
+            prefixIcon: const Icon(
+              Icons.payments_outlined,
+              color: AppColors.textMuted,
+            ),
+            keyboardType: TextInputType.number,
+          ),
+          const SizedBox(height: AppSpacing.sp16),
+          DebityTextField(
+            controller: _installmentsController,
+            label: 'عدد الأقساط (أشهر) *',
+            prefixIcon: const Icon(
+              Icons.format_list_numbered_rounded,
+              color: AppColors.textMuted,
+            ),
+            keyboardType: TextInputType.number,
+            validator: (v) {
+              if (v == null || v.isEmpty) return 'مطلوب';
+              if (int.tryParse(v) == null || int.parse(v) <= 0) return 'رقم غير صحيح';
+              return null;
+            },
+          ),
+          const SizedBox(height: AppSpacing.sp16),
+          GestureDetector(
+            onTap: () => _selectDate(context),
+            child: AbsorbPointer(
+              child: DebityTextField(
+                controller: TextEditingController(
+                  text: DateFormat('yyyy/MM/dd').format(_startDate),
+                ),
+                label: 'تاريخ بداية الأقساط',
+                prefixIcon: const Icon(
+                  Icons.calendar_today_rounded,
+                  color: AppColors.brand500,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNotesSection() {
+    return SectionPanel(
+      title: 'ملاحظات إضافية',
+      child: DebityTextField(
+        controller: _notesController,
+        label: 'ملاحظات',
+        prefixIcon: const Icon(
+          Icons.sticky_note_2_outlined,
+          color: AppColors.textMuted,
+        ),
+        maxLines: 3,
+      ),
     );
   }
 }

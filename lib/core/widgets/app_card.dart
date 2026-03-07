@@ -145,15 +145,17 @@ class StatCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppSpacing.sp8),
-          FittedBox(
-            fit: BoxFit.scaleDown,
-            alignment: AlignmentDirectional.centerStart,
-            child: Text(
-              value,
-              style: AppTextStyles.statValue.copyWith(
-                color: valueColor ?? AppColors.textPrimary,
+          Flexible(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: AlignmentDirectional.centerStart,
+              child: Text(
+                value,
+                style: AppTextStyles.statValue.copyWith(
+                  color: valueColor ?? AppColors.textPrimary,
+                ),
+                maxLines: 1,
               ),
-              maxLines: 1,
             ),
           ),
           if (sub != null) ...[
