@@ -329,12 +329,7 @@ class _DashboardViewState extends State<DashboardView> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ── Premium Welcome Header ──────────────────────────────
-            Text(
-              _greeting(),
-              style: AppTextStyles.xl3.copyWith(color: AppColors.textPrimary, fontWeight: FontWeight.w800),
-            ),
-            const SizedBox(height: AppSpacing.sp4),
+            // ── Dashboard Title ─────────────────────────────────────
             Text(
               AppLocalizations.of(context).dashboardTitle,
               style: AppTextStyles.base.copyWith(color: AppColors.textSecondary, fontWeight: FontWeight.w500),
@@ -474,12 +469,7 @@ class _DashboardViewState extends State<DashboardView> {
     );
   }
 
-  String _greeting() {
-    final h = DateTime.now().hour;
-    if (h < 12) return AppLocalizations.of(context).greetingMorning;
-    if (h < 17) return AppLocalizations.of(context).greetingAfternoon;
-    return AppLocalizations.of(context).greetingEvening;
-  }
+  // Greeting removed per UX request.
 }
 
 // ─── Overdue alert banner ─────────────────────────────────────────────
