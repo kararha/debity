@@ -194,7 +194,7 @@ class _DebtsScreenState extends State<DebtsScreen> with SingleTickerProviderStat
                 const SizedBox(height: AppSpacing.sp8),
                 TabBar(
                   controller: _tabController,
-                  indicatorColor: Colors.white,
+                  indicatorColor: const Color.fromARGB(255, 253, 252, 252),
                   indicatorWeight: 3,
                   labelColor: Colors.white,
                   unselectedLabelColor: Colors.white.withValues(alpha: 0.6),

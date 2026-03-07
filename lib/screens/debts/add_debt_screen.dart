@@ -3,7 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_text_styles.dart';
-import '../../core/widgets/app_card.dart';
+import '../../core/widgets/app_card.dart'; // Assuming SectionPanel comes from here
 import '../../core/widgets/debity_button.dart';
 import '../../core/widgets/debity_input.dart';
 import '../../core/theme/app_theme.dart';
@@ -60,6 +60,7 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
     super.dispose();
   }
 
+  // LOGIC UNCHANGED
   Future<void> _loadCustomers() async {
     debugPrint(
       '[AddDebtScreen] _loadCustomers → fetching customers from Supabase...',
@@ -123,6 +124,7 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
     }
   }
 
+  // LOGIC UNCHANGED
   Future<void> _selectDate(BuildContext context) async {
     debugPrint(
       '[AddDebtScreen] _selectDate → opening date picker, current: $_startDate',
@@ -146,6 +148,7 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
     }
   }
 
+  // LOGIC UNCHANGED
   Future<void> _saveDebt() async {
     debugPrint('[AddDebtScreen] _saveDebt → STEP 1: running form validation');
     if (!_formKey.currentState!.validate()) {
@@ -300,48 +303,80 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
     }
   }
 
+  // UI RESTYLE BEGINS HERE
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.surface0,
       appBar: AppBar(
         title: Text('إضافة دين جديد', style: AppTextStyles.sectionTitle),
-        backgroundColor: AppColors.surface0, // Adjusted for a seamless header look
+        backgroundColor: AppColors.surface0,
         foregroundColor: AppColors.textPrimary,
         elevation: 0,
         centerTitle: true,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1.0),
+          child: Container(
+            color: AppColors.borderSubtle.withOpacity(0.5),
+            height: 1.0,
+          ),
+        ),
       ),
-      body: _isLoadingCustomers
-          ? const Center(
-              child: CircularProgressIndicator(color: AppColors.brand500),
-            )
-          : Form(
-              key: _formKey,
-              child: ListView(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.pageH,
-                  vertical: AppSpacing.sp24,
+      body: SafeArea(
+        child: _isLoadingCustomers
+            ? const Center(
+                child: CircularProgressIndicator(color: AppColors.brand500),
+              )
+            : Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: ListView(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: AppSpacing.pageH,
+                          vertical: AppSpacing.sp24,
+                        ),
+                        children: [
+                          _buildCustomerSection(),
+                          const SizedBox(height: AppSpacing.sp24),
+                          _buildItemInfoSection(),
+                          const SizedBox(height: AppSpacing.sp24),
+                          _buildPricingSection(),
+                          const SizedBox(height: AppSpacing.sp24),
+                          _buildInstallmentsSection(),
+                          const SizedBox(height: AppSpacing.sp24),
+                          _buildNotesSection(),
+                          const SizedBox(height: AppSpacing.sp24),
+                        ],
+                      ),
+                    ),
+                    _buildStickyBottomButton(),
+                  ],
                 ),
-                children: [
-                  _buildCustomerSection(),
-                  const SizedBox(height: AppSpacing.sp24),
-                  _buildItemInfoSection(),
-                  const SizedBox(height: AppSpacing.sp24),
-                  _buildPricingSection(),
-                  const SizedBox(height: AppSpacing.sp24),
-                  _buildInstallmentsSection(),
-                  const SizedBox(height: AppSpacing.sp24),
-                  _buildNotesSection(),
-                  const SizedBox(height: AppSpacing.sp40),
-                  DebityPrimaryButton(
-                    label: 'إضافة الدين',
-                    isLoading: _isLoading,
-                    onPressed: _saveDebt,
-                  ),
-                  const SizedBox(height: AppSpacing.sp24), // Extra bottom padding
-                ],
               ),
-            ),
+      ),
+    );
+  }
+
+  Widget _buildStickyBottomButton() {
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.pageH),
+      decoration: BoxDecoration(
+        color: AppColors.surface0,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            offset: const Offset(0, -4),
+            blurRadius: 12,
+          ),
+        ],
+      ),
+      child: DebityPrimaryButton(
+        label: 'إضافة الدين',
+        isLoading: _isLoading,
+        onPressed: _saveDebt,
+      ),
     );
   }
 
@@ -359,7 +394,7 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
         inputDecorationTheme: InputDecorationTheme(
           labelStyle: AppTextStyles.sm.copyWith(color: AppColors.textSecondary),
           filled: true,
-          fillColor: AppColors.surface1, // Adjusted to match custom text fields better
+          fillColor: AppColors.surface1,
           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
@@ -427,36 +462,41 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
   Widget _buildPricingSection() {
     return SectionPanel(
       title: 'التسعير',
-      child: Column(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          DebityTextField(
-            controller: _originalPriceController,
-            label: 'السعر الأصلي * (د.ع)',
-            prefixIcon: const Icon(
-              Icons.sell_outlined,
-              color: AppColors.textMuted,
+          Expanded(
+            child: DebityTextField(
+              controller: _originalPriceController,
+              label: 'السعر الأصلي * (د.ع)',
+              prefixIcon: const Icon(
+                Icons.sell_outlined,
+                color: AppColors.textMuted,
+              ),
+              keyboardType: TextInputType.number,
+              validator: (v) {
+                if (v == null || v.isEmpty) return 'مطلوب';
+                if (double.tryParse(v.replaceAll(',', '')) == null) return 'غير صحيح';
+                return null;
+              },
             ),
-            keyboardType: TextInputType.number,
-            validator: (v) {
-              if (v == null || v.isEmpty) return 'مطلوب';
-              if (double.tryParse(v.replaceAll(',', '')) == null) return 'رقم غير صحيح';
-              return null;
-            },
           ),
-          const SizedBox(height: AppSpacing.sp16),
-          DebityTextField(
-            controller: _sellingPriceController,
-            label: 'سعر البيع * (د.ع)',
-            prefixIcon: const Icon(
-              Icons.point_of_sale_rounded,
-              color: AppColors.textMuted,
+          const SizedBox(width: AppSpacing.sp16),
+          Expanded(
+            child: DebityTextField(
+              controller: _sellingPriceController,
+              label: 'سعر البيع * (د.ع)',
+              prefixIcon: const Icon(
+                Icons.point_of_sale_rounded,
+                color: AppColors.textMuted,
+              ),
+              keyboardType: TextInputType.number,
+              validator: (v) {
+                if (v == null || v.isEmpty) return 'مطلوب';
+                if (double.tryParse(v.replaceAll(',', '')) == null) return 'غير صحيح';
+                return null;
+              },
             ),
-            keyboardType: TextInputType.number,
-            validator: (v) {
-              if (v == null || v.isEmpty) return 'مطلوب';
-              if (double.tryParse(v.replaceAll(',', '')) == null) return 'رقم غير صحيح';
-              return null;
-            },
           ),
         ],
       ),
@@ -468,29 +508,38 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
       title: 'الأقساط',
       child: Column(
         children: [
-          DebityTextField(
-            controller: _downPaymentController,
-            label: 'الدفعة المقدمة (د.ع)',
-            prefixIcon: const Icon(
-              Icons.payments_outlined,
-              color: AppColors.textMuted,
-            ),
-            keyboardType: TextInputType.number,
-          ),
-          const SizedBox(height: AppSpacing.sp16),
-          DebityTextField(
-            controller: _installmentsController,
-            label: 'عدد الأقساط (أشهر) *',
-            prefixIcon: const Icon(
-              Icons.format_list_numbered_rounded,
-              color: AppColors.textMuted,
-            ),
-            keyboardType: TextInputType.number,
-            validator: (v) {
-              if (v == null || v.isEmpty) return 'مطلوب';
-              if (int.tryParse(v) == null || int.parse(v) <= 0) return 'رقم غير صحيح';
-              return null;
-            },
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: DebityTextField(
+                  controller: _downPaymentController,
+                  label: 'المقدمة (د.ع)',
+                  prefixIcon: const Icon(
+                    Icons.payments_outlined,
+                    color: AppColors.textMuted,
+                  ),
+                  keyboardType: TextInputType.number,
+                ),
+              ),
+              const SizedBox(width: AppSpacing.sp16),
+              Expanded(
+                child: DebityTextField(
+                  controller: _installmentsController,
+                  label: 'الأقساط (أشهر) *',
+                  prefixIcon: const Icon(
+                    Icons.format_list_numbered_rounded,
+                    color: AppColors.textMuted,
+                  ),
+                  keyboardType: TextInputType.number,
+                  validator: (v) {
+                    if (v == null || v.isEmpty) return 'مطلوب';
+                    if (int.tryParse(v) == null || int.parse(v) <= 0) return 'غير صحيح';
+                    return null;
+                  },
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: AppSpacing.sp16),
           GestureDetector(
