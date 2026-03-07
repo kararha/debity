@@ -29,6 +29,8 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
   bool _isLoading = false;
   bool get _isEditing => widget.customer != null;
 
+  int _currentStep = 0;
+
   @override
   void initState() {
     super.initState();
@@ -110,119 +112,197 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
           _isEditing ? AppLocalizations.of(context).saveChanges : AppLocalizations.of(context).addCustomerButton,
           style: AppTextStyles.sectionTitle,
         ),
-        backgroundColor: AppColors.surface1,
+        backgroundColor: AppColors.surface0,
         foregroundColor: AppColors.textPrimary,
         elevation: 0,
         centerTitle: true,
-        shape: const Border(
-          bottom: BorderSide(color: AppColors.borderSubtle, width: 1),
-        ),
       ),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.pageH,
-            vertical: AppSpacing.sp24,
+      body: SafeArea(
+        child: Form(
+          key: _formKey,
+          child: Theme(
+            data: Theme.of(context).copyWith(
+              colorScheme: const ColorScheme.light(
+                primary: AppColors.brand500,
+              ),
+            ),
+            child: Stepper(
+              type: StepperType.vertical,
+              physics: const BouncingScrollPhysics(),
+              currentStep: _currentStep,
+              onStepTapped: (step) => setState(() => _currentStep = step),
+              onStepContinue: () {
+                // Optional Enhancement: Validate the current step before allowing 'Next'
+                if (_currentStep == 0 && _nameController.text.trim().length < 2) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(AppLocalizations.of(context).nameTooShort), backgroundColor: AppColors.danger),
+                  );
+                  return;
+                }
+                if (_currentStep == 1 && _phoneController.text.trim().length < 10) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('رقم الهاتف غير صحيح'), backgroundColor: AppColors.danger),
+                  );
+                  return;
+                }
+
+                final isLastStep = _currentStep == _getSteps().length - 1;
+                if (isLastStep) {
+                  _saveCustomer();
+                } else {
+                  setState(() => _currentStep += 1);
+                }
+              },
+              onStepCancel: _currentStep == 0
+                  ? null
+                  : () => setState(() => _currentStep -= 1),
+              
+              controlsBuilder: (context, details) {
+                final isLastStep = _currentStep == _getSteps().length - 1;
+                return Padding(
+                  padding: const EdgeInsets.only(top: AppSpacing.sp24),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: DebityPrimaryButton(
+                          label: isLastStep 
+                            ? (_isEditing ? AppLocalizations.of(context).saveChanges : AppLocalizations.of(context).addCustomerButton) 
+                            : 'التالي',
+                          isLoading: _isLoading && isLastStep,
+                          onPressed: details.onStepContinue,
+                        ),
+                      ),
+                      if (_currentStep != 0) ...[
+                        const SizedBox(width: AppSpacing.sp16),
+                        Expanded(
+                          child: TextButton(
+                            onPressed: details.onStepCancel,
+                            child: const Text(
+                              'رجوع',
+                              style: TextStyle(color: AppColors.textSecondary),
+                            ),
+                          ),
+                        ),
+                      ]
+                    ],
+                  ),
+                );
+              },
+              steps: _getSteps(),
+            ),
           ),
-          children: [
-            // Avatar Preview
-            Center(
-              child: Container(
-                width: 96,
-                height: 96,
-                decoration: BoxDecoration(
-                  color: AppColors.brand500.withValues(alpha: 0.15),
-                  shape: BoxShape.circle,
-                  border: Border.all(color: AppColors.brand500, width: 2),
-                ),
-                alignment: Alignment.center,
-                child: Text(
-                  _nameController.text.isNotEmpty
-                      ? _nameController.text[0].toUpperCase()
-                      : '؟',
-                  style: AppTextStyles.xl4.copyWith(
-                    color: AppColors.brand400,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: AppSpacing.sp32),
-
-            // Basic Info Card
-                SectionPanel(
-              title: AppLocalizations.of(context).basicInfo,
-              child: Column(
-                children: [
-                  DebityTextField(
-                    controller: _nameController,
-                    label: '${AppLocalizations.of(context).nameLabel} *',
-                    hintText: AppLocalizations.of(context).nameLabel,
-                    prefixIcon: const Icon(Icons.badge_rounded, color: AppColors.textMuted),
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return AppLocalizations.of(context).nameRequired;
-                      }
-                      if (value.trim().length < 2) {
-                        return AppLocalizations.of(context).nameTooShort;
-                      }
-                      return null;
-                    },
-                    onChanged: (_) => setState(() {}),
-                  ),
-                  const SizedBox(height: AppSpacing.sp16),
-                  DebityTextField(
-                    controller: _phoneController,
-                    label: AppLocalizations.of(context).phone_label + ' *',
-                    hintText: '07xxxxxxxxx',
-                    prefixIcon: const Icon(Icons.phone_rounded, color: AppColors.textMuted),
-                    keyboardType: TextInputType.phone,
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return AppLocalizations.of(context).phone_required;
-                      }
-                      if (value.trim().length < 10) return 'رقم الهاتف غير صحيح';
-                      return null;
-                    },
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: AppSpacing.sp24),
-
-            // Extra Info Card
-            SectionPanel(
-              title: AppLocalizations.of(context).extraInfo,
-              child: Column(
-                children: [
-                  DebityTextField(
-                    controller: _addressController,
-                    label: AppLocalizations.of(context).addressLabel,
-                    hintText: AppLocalizations.of(context).addressHint,
-                    prefixIcon: const Icon(Icons.location_on_rounded, color: AppColors.textMuted),
-                  ),
-                  const SizedBox(height: AppSpacing.sp16),
-                  DebityTextField(
-                    controller: _notesController,
-                    label: AppLocalizations.of(context).notesLabel,
-                    hintText: AppLocalizations.of(context).notesLabel,
-                    prefixIcon: const Icon(Icons.note_rounded, color: AppColors.textMuted),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: AppSpacing.sp32),
-
-            // Save Button
-            DebityPrimaryButton(
-              label: _isEditing ? AppLocalizations.of(context).saveChanges : AppLocalizations.of(context).addCustomerButton,
-              isLoading: _isLoading,
-              onPressed: _saveCustomer,
-            ),
-          ],
         ),
       ),
+    );
+  }
+
+  // Broken down into 4 clear steps
+  List<Step> _getSteps() {
+    return [
+      Step(
+        state: _currentStep > 0 ? StepState.complete : StepState.indexed,
+        isActive: _currentStep >= 0,
+        title: Text(AppLocalizations.of(context).nameLabel), // "الاسم"
+        content: _buildIdentityInput(),
+      ),
+      Step(
+        state: _currentStep > 1 ? StepState.complete : StepState.indexed,
+        isActive: _currentStep >= 1,
+        title: Text(AppLocalizations.of(context).phone_label), // "رقم الهاتف"
+        content: _buildContactInput(),
+      ),
+      Step(
+        state: _currentStep > 2 ? StepState.complete : StepState.indexed,
+        isActive: _currentStep >= 2,
+        title: Text(AppLocalizations.of(context).addressLabel), // "العنوان"
+        content: _buildAddressInput(),
+      ),
+      Step(
+        isActive: _currentStep >= 3,
+        title: Text(AppLocalizations.of(context).notesLabel), // "ملاحظات"
+        content: _buildNotesInput(),
+      ),
+    ];
+  }
+
+  Widget _buildIdentityInput() {
+    return Column(
+      children: [
+        Center(
+          child: Container(
+            width: 96,
+            height: 96,
+            decoration: BoxDecoration(
+              color: AppColors.brand500.withOpacity(0.15),
+              shape: BoxShape.circle,
+              border: Border.all(color: AppColors.brand500, width: 2),
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              _nameController.text.isNotEmpty
+                  ? _nameController.text[0].toUpperCase()
+                  : '؟',
+              style: AppTextStyles.xl4.copyWith(
+                color: AppColors.brand400,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: AppSpacing.sp32),
+        DebityTextField(
+          controller: _nameController,
+          label: '${AppLocalizations.of(context).nameLabel} *',
+          hintText: AppLocalizations.of(context).nameLabel,
+          prefixIcon: const Icon(Icons.badge_rounded, color: AppColors.textMuted),
+          validator: (value) {
+            if (value == null || value.trim().isEmpty) {
+              return AppLocalizations.of(context).nameRequired;
+            }
+            if (value.trim().length < 2) {
+              return AppLocalizations.of(context).nameTooShort;
+            }
+            return null;
+          },
+          onChanged: (_) => setState(() {}),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildContactInput() {
+    return DebityTextField(
+      controller: _phoneController,
+      label: '${AppLocalizations.of(context).phone_label} *',
+      hintText: '07xxxxxxxxx',
+      prefixIcon: const Icon(Icons.phone_rounded, color: AppColors.textMuted),
+      keyboardType: TextInputType.phone,
+      validator: (value) {
+        if (value == null || value.trim().isEmpty) {
+          return AppLocalizations.of(context).phone_required;
+        }
+        if (value.trim().length < 10) return 'رقم الهاتف غير صحيح';
+        return null;
+      },
+    );
+  }
+
+  Widget _buildAddressInput() {
+    return DebityTextField(
+      controller: _addressController,
+      label: AppLocalizations.of(context).addressLabel,
+      hintText: AppLocalizations.of(context).addressHint,
+      prefixIcon: const Icon(Icons.location_on_rounded, color: AppColors.textMuted),
+    );
+  }
+
+  Widget _buildNotesInput() {
+    return DebityTextField(
+      controller: _notesController,
+      label: AppLocalizations.of(context).notesLabel,
+      hintText: AppLocalizations.of(context).notesLabel,
+      prefixIcon: const Icon(Icons.note_rounded, color: AppColors.textMuted),
+      maxLines: 3, // Increased lines slightly since it has its own dedicated step now
     );
   }
 }
