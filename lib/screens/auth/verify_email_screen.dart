@@ -148,7 +148,7 @@ class VerifyEmailScreen extends StatelessWidget {
                   onPressed: () {
                     Navigator.of(context).pushAndRemoveUntil(
                       MaterialPageRoute(
-                        builder: (_) => const AuthScreen(),
+                        builder: (_) => const AuthScreen(openLoginSheetOnLoad: true),
                       ),
                       (route) => false,
                     );

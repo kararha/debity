@@ -125,8 +125,10 @@ class AuthService {
 
     final data = await _postJson('refresh-token', {'refresh_token': storedRefresh}, context: 'refresh-token');
 
-    final accessToken = data['access_token'] as String?;
-    final refreshToken = data['refresh_token'] as String?;
+    // refresh-token edge function returns: { session: { access_token, refresh_token }, user }
+    final session = data['session'] as Map<String, dynamic>?;
+    final accessToken = session?['access_token'] as String?;
+    final refreshToken = session?['refresh_token'] as String?;
 
     if (accessToken == null || refreshToken == null) {
       throw Exception('استجابة تجديد غير صحيحة من الخادم');
