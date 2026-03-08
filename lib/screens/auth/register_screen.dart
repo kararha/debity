@@ -219,8 +219,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         // --- BOTTOM HALF: The "Drawer" ---
                         Container(
                           width: double.infinity,
-                          decoration: const BoxDecoration(
-                            color: AppColors.surface0,
+                          decoration: BoxDecoration(
+                            color: AppColors.of(context).surface0,
                             borderRadius: BorderRadius.only(
                               topLeft: Radius.circular(32),
                               topRight: Radius.circular(32),
@@ -244,7 +244,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   width: 48,
                                   height: 5,
                                   decoration: BoxDecoration(
-                                    color: AppColors.borderSubtle,
+                                    color: AppColors.of(context).borderSubtle,
                                     borderRadius: BorderRadius.circular(10),
                                   ),
                                 ),
@@ -302,13 +302,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 TextFormField(
                                   controller: _passwordController,
                                   obscureText: _obscurePassword,
-                                  style: const TextStyle(color: AppColors.textPrimary),
+                                  style: TextStyle(color: AppColors.of(context).textPrimary),
                                   decoration: InputDecoration(
                                     labelText: AppLocalizations.of(context).password_label,
                                     labelStyle: const TextStyle(color: AppColors.textSecondary),
                                     prefixIcon: const Icon(Icons.lock_outline, color: AppColors.textMuted),
                                     filled: true,
-                                    fillColor: AppColors.surface1,
+                                    fillColor: AppColors.of(context).surface1,
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(16),
                                       borderSide: BorderSide.none,
@@ -422,7 +422,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return TextFormField(
       controller: controller,
       keyboardType: keyboardType,
-      style: const TextStyle(color: AppColors.textPrimary), // Updated for surface
+      style: TextStyle(color: AppColors.of(context).textPrimary), // Updated for surface
       decoration: InputDecoration(
         labelText: label,
         labelStyle: const TextStyle(color: AppColors.textSecondary),
@@ -430,7 +430,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         hintStyle: const TextStyle(color: AppColors.textMuted),
         prefixIcon: Icon(icon, color: AppColors.textMuted),
         filled: true,
-        fillColor: AppColors.surface1, // Updated for surface
+        fillColor: AppColors.of(context).surface1, // Updated for surface
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide.none,
