@@ -136,15 +136,7 @@ class _DebtsScreenState extends State<DebtsScreen> with SingleTickerProviderStat
                         ),
                       ),
                     ),
-                    IconButton(
-                      icon: const Icon(
-                        Icons.refresh_rounded,
-                        color: Colors.white,
-                        size: 24,
-                      ),
-                      onPressed: _loadDebts,
-                      tooltip: AppLocalizations.of(context).retry,
-                    ),
+                    // Refresh button removed per UI update
                   ],
                 ),
                 const SizedBox(height: AppSpacing.sp16),
