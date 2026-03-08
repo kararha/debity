@@ -59,7 +59,7 @@ class _AuthScreenState extends State<AuthScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.surface0,
+      backgroundColor: AppColors.of(context).surface0,
       body: SafeArea(
         child: Align(
           alignment: Alignment.topCenter,
@@ -123,7 +123,7 @@ class _LanguageToggleState extends State<_LanguageToggle> {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(AppRadius.pill),
-          border: Border.all(color: AppColors.borderLight, width: 1),
+          border: Border.all(color: AppColors.of(context).borderLight, width: 1),
         ),
         child: Text(
           _isArabic ? 'AR  |  EN' : 'EN  |  AR',
@@ -193,7 +193,7 @@ class _LoginSheetState extends State<_LoginSheet> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text('تسجيل الدخول',
-                style: AppTextStyles.xl.copyWith(color: AppColors.textPrimary)),
+                style: AppTextStyles.xl.copyWith(color: AppColors.of(context).textPrimary)),
             const SizedBox(height: AppSpacing.sp4),
             Text('سجّل دخولك للمتابعة',
                 style: AppTextStyles.sm.copyWith(color: AppColors.textSecondary)),
@@ -335,7 +335,7 @@ class _RegisterSheetState extends State<_RegisterSheet> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text('إنشاء حساب جديد',
-                style: AppTextStyles.xl.copyWith(color: AppColors.textPrimary)),
+                style: AppTextStyles.xl.copyWith(color: AppColors.of(context).textPrimary)),
             const SizedBox(height: AppSpacing.sp4),
             Text('أدخل بياناتك للبدء',
                 style: AppTextStyles.sm.copyWith(color: AppColors.textSecondary)),
@@ -450,10 +450,10 @@ class _SheetWrapper extends StatelessWidget {
             AppSpacing.sp24, AppSpacing.sp20 + bottomInset,
           ),
           decoration: BoxDecoration(
-            color: AppColors.surface1,
+            color: AppColors.of(context).surface1,
             borderRadius: const BorderRadius.vertical(top: Radius.circular(AppRadius.xxl)),
-            border: const Border(
-              top: BorderSide(color: AppColors.borderSubtle, width: 1),
+            border: Border(
+              top: BorderSide(color: AppColors.of(context).borderSubtle, width: 1),
             ),
           ),
           child: SingleChildScrollView(child: child),
