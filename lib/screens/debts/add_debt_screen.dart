@@ -3,7 +3,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_text_styles.dart';
-import '../../core/widgets/app_card.dart'; 
 import '../../core/widgets/debity_button.dart';
 import '../../core/widgets/debity_input.dart';
 import '../../core/theme/app_theme.dart';
@@ -87,7 +86,7 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
           _isLoadingCustomers = false;
         });
       }
-    } catch (e, st) {
+    } catch (e) {
       debugPrint('[AddDebtScreen] _loadCustomers ERROR: $e');
       if (mounted) {
         setState(() => _isLoadingCustomers = false);
@@ -172,7 +171,7 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
         Navigator.pop(context, true);
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تمت إضافة الدين بنجاح')));
       }
-    } catch (e, st) {
+    } catch (e) {
       setState(() => _isLoading = false);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

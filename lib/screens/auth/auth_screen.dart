@@ -463,19 +463,6 @@ class _SheetWrapper extends StatelessWidget {
   }
 }
 
-Widget _sheetHandle() {
-  return Center(
-    child: Container(
-      width: 40,
-      height: 4,
-      decoration: BoxDecoration(
-        color: AppColors.borderLight,
-        borderRadius: BorderRadius.circular(AppRadius.pill),
-      ),
-    ),
-  );
-}
-
 // ─── Helpers ──────────────────────────────────────────────────────────
 
 String? _emailValidator(String? v) {

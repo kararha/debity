@@ -107,26 +107,6 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
     }
   }
 
-  void _callCustomer() async {
-    final uri = Uri.parse('tel:${_customer.phone}');
-    if (await canLaunchUrl(uri)) await launchUrl(uri);
-  }
-
-  void _messageCustomer() async {
-    final uri = Uri.parse('sms:${_customer.phone}');
-    if (await canLaunchUrl(uri)) await launchUrl(uri);
-  }
-
-  void _whatsappCustomer() async {
-    final phone = _customer.phone.startsWith('0')
-        ? '964${_customer.phone.substring(1)}'
-        : _customer.phone;
-    final uri = Uri.parse('https://wa.me/$phone');
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     double totalDebt = 0;
@@ -362,27 +342,7 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
     );
   }
 
-  Widget _buildQuickAction(IconData icon, String label, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: AppColors.brand500.withOpacity(0.08), // Soft brand tint
-              shape: BoxShape.circle,
-            ),
-            child: Icon(icon, color: AppColors.brand500, size: 24), // Brand colored icon
-          ),
-          const SizedBox(height: AppSpacing.sp8),
-          Text(label, style: AppTextStyles.sm.copyWith(color: AppColors.of(context).textPrimary, fontWeight: FontWeight.w500)),
-        ],
-      ),
-    );
-  }
+
 
   Widget _buildEmptyState() {
     return Padding(

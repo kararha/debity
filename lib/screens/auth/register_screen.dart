@@ -3,7 +3,6 @@ import '../../core/services/auth_service.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/password_validator.dart';
 import '../../core/l10n/app_localizations.dart';
-import 'auth_screen.dart';
 import 'verify_email_screen.dart';
 
 class RegisterScreen extends StatefulWidget {

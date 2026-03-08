@@ -11,7 +11,6 @@ import '../core/utils/formatters.dart' hide AppSpacing, AppRadius;
 import '../core/widgets/app_card.dart';
 import '../core/widgets/debity_app_bar.dart';
 import '../core/widgets/debity_button.dart';
-import '../core/widgets/error_banner.dart';
 import '../core/widgets/list_item_tile.dart';
 import '../core/widgets/skeleton_widget.dart';
 import '../core/widgets/status_badge.dart';
@@ -248,10 +247,6 @@ class _DashboardViewState extends State<DashboardView> {
     final user = Supabase.instance.client.auth.currentUser;
     final name = user?.userMetadata?['full_name'] as String?;
     return name?.isNotEmpty == true ? name![0] : (user?.email?.isNotEmpty == true ? user!.email![0].toUpperCase() : null);
-  }
-
-  Future<void> _handleLogout() async {
-    await Supabase.instance.client.auth.signOut();
   }
 
   // ── Skeleton ───────────────────────────────────────────────────────
