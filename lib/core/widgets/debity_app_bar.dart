@@ -41,10 +41,10 @@ class DebityAppBar extends StatelessWidget implements PreferredSizeWidget {
     return Container(
       height: AppSpacing.appBarH + MediaQuery.of(context).padding.top,
       padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
-      decoration: const BoxDecoration(
-        color: AppColors.surface1,
+      decoration: BoxDecoration(
+        color: AppColors.of(context).surface1,
         border: Border(
-          bottom: BorderSide(color: AppColors.borderSubtle, width: 1),
+          bottom: BorderSide(color: AppColors.of(context).borderSubtle, width: 1),
         ),
       ),
       child: Padding(
@@ -90,7 +90,7 @@ class _LanguagePill extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(AppRadius.pill),
-          border: Border.all(color: AppColors.borderLight, width: 1),
+          border: Border.all(color: AppColors.of(context).borderLight, width: 1),
         ),
         child: Builder(builder: (ctx) {
           final loc = AppLocalizations.of(ctx);

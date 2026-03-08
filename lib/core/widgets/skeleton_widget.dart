@@ -38,10 +38,15 @@ class _SkeletonBoxState extends State<SkeletonBox>
       vsync: this,
       duration: const Duration(milliseconds: 1200),
     )..repeat(reverse: true);
+  }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final c = AppColors.of(context);
     _color = ColorTween(
-      begin: AppColors.surface2,
-      end: AppColors.surface3,
+      begin: c.surface2,
+      end: c.surface3,
     ).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut));
   }
 
@@ -76,9 +81,9 @@ class SkeletonStatCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.statCardPad),
       decoration: BoxDecoration(
-        color: AppColors.surface1,
+        color: AppColors.of(context).surface1,
         borderRadius: BorderRadius.circular(AppRadius.lg),
-        border: Border.all(color: AppColors.borderSubtle),
+        border: Border.all(color: AppColors.of(context).borderSubtle),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

@@ -77,7 +77,7 @@ class DebityLogo extends StatelessWidget {
                       style: AppTextStyles.xl2.copyWith(
                         fontSize: fontSize,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.textPrimary,
+                        color: AppColors.of(ctx).textPrimary,
                         letterSpacing: -0.5,
                       ),
                     ),
@@ -91,7 +91,7 @@ class DebityLogo extends StatelessWidget {
               style: AppTextStyles.xl2.copyWith(
                 fontSize: fontSize,
                 fontWeight: FontWeight.w700,
-                color: AppColors.textPrimary,
+                color: AppColors.of(ctx).textPrimary,
                 letterSpacing: -0.5,
               ),
             );
