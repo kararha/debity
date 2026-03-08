@@ -75,7 +75,7 @@ class _DebtDetailsScreenState extends State<DebtDetailsScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: AppColors.surface1,
+        backgroundColor: AppColors.of(context).surface1,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.xl)),
         title: Text(AppLocalizations.of(context).deleteDebtTitle,
             style: AppTextStyles.lg.copyWith(fontWeight: FontWeight.bold)),
@@ -86,7 +86,7 @@ class _DebtDetailsScreenState extends State<DebtDetailsScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text(AppLocalizations.of(context).cancel, style: AppTextStyles.base.copyWith(color: AppColors.textPrimary)),
+            child: Text(AppLocalizations.of(context).cancel, style: AppTextStyles.base.copyWith(color: AppColors.of(context).textPrimary)),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
@@ -119,11 +119,11 @@ class _DebtDetailsScreenState extends State<DebtDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.surface0,
+      backgroundColor: AppColors.of(context).surface0,
       appBar: AppBar(
         title: Text(AppLocalizations.of(context).debtsTitle, style: AppTextStyles.sectionTitle),
-        backgroundColor: AppColors.surface0,
-        foregroundColor: AppColors.textPrimary,
+        backgroundColor: AppColors.of(context).surface0,
+        foregroundColor: AppColors.of(context).textPrimary,
         elevation: 0,
         centerTitle: true,
         actions: [
@@ -138,7 +138,7 @@ class _DebtDetailsScreenState extends State<DebtDetailsScreen> {
           : RefreshIndicator(
               onRefresh: _loadInstallments,
               color: AppColors.brand500,
-              backgroundColor: AppColors.surface1,
+              backgroundColor: AppColors.of(context).surface1,
               child: SingleChildScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
                 padding: const EdgeInsets.all(AppSpacing.pageH),
@@ -224,7 +224,7 @@ class _DebtDetailsScreenState extends State<DebtDetailsScreen> {
             child: LinearProgressIndicator(
               value: _debt.progressPercentage / 100,
               minHeight: 10,
-              backgroundColor: AppColors.surface2,
+              backgroundColor: AppColors.of(context).surface2,
               valueColor: AlwaysStoppedAnimation(
                 _debt.progressPercentage >= 100 ? AppColors.success : AppColors.brand500,
               ),
@@ -263,7 +263,7 @@ class _DebtDetailsScreenState extends State<DebtDetailsScreen> {
         StatCard(
           label: AppLocalizations.of(context).remaining,
           value: NumberFormatter.formatCurrency(_debt.remainingAmount),
-          valueColor: _debt.remainingAmount > 0 ? AppColors.danger : AppColors.textPrimary,
+          valueColor: _debt.remainingAmount > 0 ? AppColors.danger : AppColors.of(context).textPrimary,
           icon: Icons.pending_actions_rounded,
         ),
       ],
@@ -296,9 +296,9 @@ class _DebtDetailsScreenState extends State<DebtDetailsScreen> {
         
         return Container(
           decoration: BoxDecoration(
-            color: AppColors.surface1,
+            color: AppColors.of(context).surface1,
             borderRadius: BorderRadius.circular(AppRadius.lg),
-            border: Border.all(color: isPaid ? AppColors.success.withValues(alpha: 0.2) : AppColors.borderSubtle),
+            border: Border.all(color: isPaid ? AppColors.success.withValues(alpha: 0.2) : AppColors.of(context).borderSubtle),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.02),
@@ -326,13 +326,13 @@ class _DebtDetailsScreenState extends State<DebtDetailsScreen> {
                       width: 40,
                       height: 40,
                       decoration: BoxDecoration(
-                        color: isPaid ? AppColors.success.withValues(alpha: 0.1) : AppColors.surface2,
+                        color: isPaid ? AppColors.success.withValues(alpha: 0.1) : AppColors.of(context).surface2,
                         shape: BoxShape.circle,
                       ),
                       alignment: Alignment.center,
                       child: isPaid
                           ? const Icon(Icons.check_rounded, color: AppColors.success, size: 20)
-                          : Text('${installment.installmentNumber}', style: AppTextStyles.base.copyWith(fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+                          : Text('${installment.installmentNumber}', style: AppTextStyles.base.copyWith(fontWeight: FontWeight.bold, color: AppColors.of(context).textPrimary)),
                     ),
                     const SizedBox(width: AppSpacing.sp16),
                     Expanded(
@@ -341,7 +341,7 @@ class _DebtDetailsScreenState extends State<DebtDetailsScreen> {
                         children: [
                           Text(
                             NumberFormatter.formatCurrency(installment.amount),
-                            style: AppTextStyles.base.copyWith(fontWeight: FontWeight.bold, color: isPaid ? AppColors.textSecondary : AppColors.textPrimary),
+                            style: AppTextStyles.base.copyWith(fontWeight: FontWeight.bold, color: isPaid ? AppColors.textSecondary : AppColors.of(context).textPrimary),
                           ),
                           const SizedBox(height: 2),
                           Text(

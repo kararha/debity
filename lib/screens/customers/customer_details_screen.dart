@@ -69,7 +69,7 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: AppColors.surface1,
+        backgroundColor: AppColors.of(context).surface1,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(AppLocalizations.of(context).deleteCustomerTitle, style: AppTextStyles.lg.copyWith(fontWeight: FontWeight.bold)),
         content: Text(
@@ -79,7 +79,7 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text(AppLocalizations.of(context).cancel, style: AppTextStyles.base.copyWith(color: AppColors.textPrimary)),
+            child: Text(AppLocalizations.of(context).cancel, style: AppTextStyles.base.copyWith(color: AppColors.of(context).textPrimary)),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
@@ -142,23 +142,23 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
     double totalRemaining = totalDebt - totalPaid;
 
     return Scaffold(
-      backgroundColor: AppColors.surface0,
+      backgroundColor: AppColors.of(context).surface0,
       appBar: AppBar(
         title: Text('تفاصيل العميل', style: AppTextStyles.sectionTitle),
-        backgroundColor: AppColors.surface0, // Seamless header
-        foregroundColor: AppColors.textPrimary,
+        backgroundColor: AppColors.of(context).surface0, // Seamless header
+        foregroundColor: AppColors.of(context).textPrimary,
         elevation: 0,
         centerTitle: true,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1.0),
           child: Container(
-            color: AppColors.borderSubtle.withOpacity(0.5),
+            color: AppColors.of(context).borderSubtle.withOpacity(0.5),
             height: 1.0,
           ),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.edit_rounded, color: AppColors.textPrimary),
+            icon: Icon(Icons.edit_rounded, color: AppColors.of(context).textPrimary),
             onPressed: () async {
               final result = await Navigator.push(
                 context,
@@ -212,7 +212,7 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
                   StatCard(
                     label: AppLocalizations.of(context).remaining,
                     value: NumberFormatter.formatCurrency(totalRemaining),
-                    valueColor: totalRemaining > 0 ? AppColors.danger : AppColors.textPrimary,
+                    valueColor: totalRemaining > 0 ? AppColors.danger : AppColors.of(context).textPrimary,
                     icon: Icons.timeline_rounded,
                   ),
                   StatCard(
@@ -378,7 +378,7 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
             child: Icon(icon, color: AppColors.brand500, size: 24), // Brand colored icon
           ),
           const SizedBox(height: AppSpacing.sp8),
-          Text(label, style: AppTextStyles.sm.copyWith(color: AppColors.textPrimary, fontWeight: FontWeight.w500)),
+          Text(label, style: AppTextStyles.sm.copyWith(color: AppColors.of(context).textPrimary, fontWeight: FontWeight.w500)),
         ],
       ),
     );
@@ -393,7 +393,7 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: AppColors.surface1,
+              color: AppColors.of(context).surface1,
               shape: BoxShape.circle,
             ),
             child: const Icon(Icons.receipt_long_outlined, size: 48, color: AppColors.textMuted),

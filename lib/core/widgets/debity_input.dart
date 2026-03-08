@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
+import '../theme/app_color_scheme.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_text_styles.dart';
 
@@ -73,7 +74,7 @@ class _DebityTextFieldState extends State<DebityTextField> {
           Text(
             widget.label!,
             style: AppTextStyles.inputLabel.copyWith(
-              color: const Color(0xFFCBD5E1), // slate-300
+              color: AppColorScheme.of(context).textSecondary,
             ),
           ),
           const SizedBox(height: 6),
@@ -96,20 +97,20 @@ class _DebityTextFieldState extends State<DebityTextField> {
           cursorColor: AppColors.brand500,
           decoration: InputDecoration(
             hintText: widget.hintText,
-            hintStyle: AppTextStyles.inputHint,
+            hintStyle: AppTextStyles.inputHint.copyWith(color: AppColorScheme.of(context).textMuted),
             filled: true,
-            fillColor: AppColors.surface2,
+            fillColor: AppColorScheme.of(context).surface2,
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 16,
               vertical: 10,
             ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppRadius.md),
-              borderSide: const BorderSide(color: AppColors.borderLight, width: 1),
+              borderSide: BorderSide(color: AppColorScheme.of(context).borderLight, width: 1),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppRadius.md),
-              borderSide: const BorderSide(color: AppColors.borderLight, width: 1),
+              borderSide: BorderSide(color: AppColorScheme.of(context).borderLight, width: 1),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppRadius.md),
@@ -125,8 +126,8 @@ class _DebityTextFieldState extends State<DebityTextField> {
             ),
             prefixIcon: widget.prefixIcon != null
                 ? IconTheme(
-                    data: const IconThemeData(
-                      color: AppColors.textMuted,
+                    data: IconThemeData(
+                      color: AppColorScheme.of(context).textMuted,
                       size: 18,
                     ),
                     child: widget.prefixIcon!,
@@ -139,7 +140,7 @@ class _DebityTextFieldState extends State<DebityTextField> {
                           ? Icons.visibility_outlined
                           : Icons.visibility_off_outlined,
                       size: 18,
-                      color: AppColors.textSecondary,
+                      color: AppColorScheme.of(context).textSecondary,
                     ),
                     onPressed: () => setState(() => _obscured = !_obscured),
                     splashRadius: 16,

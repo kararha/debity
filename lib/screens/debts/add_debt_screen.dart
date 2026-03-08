@@ -187,11 +187,11 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.surface0,
+      backgroundColor: AppColors.of(context).surface0,
       appBar: AppBar(
         title: Text('إضافة دين جديد', style: AppTextStyles.sectionTitle),
-        backgroundColor: AppColors.surface0,
-        foregroundColor: AppColors.textPrimary,
+        backgroundColor: AppColors.of(context).surface0,
+        foregroundColor: AppColors.of(context).textPrimary,
         elevation: 0,
         centerTitle: true,
       ),
@@ -304,19 +304,19 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
       enableFilter: true,
       requestFocusOnTap: true,
       label: const Text('اختر العميل *'),
-      textStyle: AppTextStyles.base.copyWith(color: AppColors.textPrimary),
+      textStyle: AppTextStyles.base.copyWith(color: AppColors.of(context).textPrimary),
       inputDecorationTheme: InputDecorationTheme(
         labelStyle: AppTextStyles.sm.copyWith(color: AppColors.textSecondary),
         filled: true,
-        fillColor: AppColors.surface1,
+        fillColor: AppColors.of(context).surface1,
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.borderSubtle, width: 1),
+          borderSide: BorderSide(color: AppColors.of(context).borderSubtle, width: 1),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.borderSubtle, width: 1),
+          borderSide: BorderSide(color: AppColors.of(context).borderSubtle, width: 1),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -332,7 +332,7 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
           value: c,
           label: c.name,
           style: MenuItemButton.styleFrom(
-            foregroundColor: AppColors.textPrimary,
+            foregroundColor: AppColors.of(context).textPrimary,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           ),
         );

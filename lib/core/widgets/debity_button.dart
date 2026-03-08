@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
+import '../theme/app_color_scheme.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_text_styles.dart';
 
@@ -84,8 +85,8 @@ class DebityGhostButton extends StatelessWidget {
       child: OutlinedButton(
         onPressed: onPressed,
           style: OutlinedButton.styleFrom(
-          foregroundColor: AppColors.textSecondary,
-          side: const BorderSide(color: AppColors.borderLight, width: 1),
+          foregroundColor: AppColorScheme.of(context).textSecondary,
+          side: BorderSide(color: AppColorScheme.of(context).borderLight, width: 1),
           padding: const EdgeInsets.symmetric(vertical: 14),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppRadius.md),

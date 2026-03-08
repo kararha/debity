@@ -91,8 +91,8 @@ class _DebtsScreenState extends State<DebtsScreen> with SingleTickerProviderStat
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bgColor = AppColors.surface0;
-    final surfaceColor = AppColors.surface1;
+    final bgColor = AppColors.of(context).surface0;
+    final surfaceColor = AppColors.of(context).surface1;
 
     return Scaffold(
       backgroundColor: bgColor,
@@ -166,7 +166,7 @@ class _DebtsScreenState extends State<DebtsScreen> with SingleTickerProviderStat
                   child: TextField(
                     controller: _searchController,
                     style: AppTextStyles.base.copyWith(
-                      color: isDark ? Colors.white : AppColors.textPrimary,
+                      color: AppColors.of(context).textPrimary,
                     ),
                     decoration: InputDecoration(
                       hintText: AppLocalizations.of(context).debtsSearchHint,
@@ -361,7 +361,7 @@ class _DebtsScreenState extends State<DebtsScreen> with SingleTickerProviderStat
     return RefreshIndicator(
       onRefresh: _loadDebts,
       color: AppColors.brand500,
-      backgroundColor: AppColors.surface1,
+      backgroundColor: AppColors.of(context).surface1,
       child: ListView.builder(
         padding: const EdgeInsets.fromLTRB(AppSpacing.pageH, AppSpacing.sp16, AppSpacing.pageH, 80),
         itemCount: debts.length,
@@ -372,7 +372,7 @@ class _DebtsScreenState extends State<DebtsScreen> with SingleTickerProviderStat
 
   Widget _buildDebtCard(Debt debt) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final surface = AppColors.surface1;
+    final surface = AppColors.of(context).surface1;
     final progress = debt.progressPercentage / 100;
     final statusColor = StatusColors.getDebtStatusColor(debt.status.name);
     final statusLabel = debt.status == DebtStatus.active
@@ -387,7 +387,7 @@ class _DebtsScreenState extends State<DebtsScreen> with SingleTickerProviderStat
         decoration: BoxDecoration(
           color: surface,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: AppColors.borderSubtle, width: 1),
+          border: Border.all(color: AppColors.of(context).borderSubtle, width: 1),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
@@ -439,7 +439,7 @@ class _DebtsScreenState extends State<DebtsScreen> with SingleTickerProviderStat
                               debt.itemName,
                               style: AppTextStyles.lg.copyWith(
                                 fontWeight: FontWeight.bold,
-                                color: isDark ? Colors.white : AppColors.textPrimary,
+                                color: isDark ? Colors.white : AppColors.of(context).textPrimary,
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -507,7 +507,7 @@ class _DebtsScreenState extends State<DebtsScreen> with SingleTickerProviderStat
                     child: LinearProgressIndicator(
                       value: progress,
                       minHeight: 8,
-                      backgroundColor: isDark ? AppColors.surface2 : AppColors.borderSubtle,
+                      backgroundColor: isDark ? AppColors.surface2 : AppColors.of(context).borderSubtle,
                       valueColor: AlwaysStoppedAnimation(
                         progress >= 1 ? AppColors.success : AppColors.primaryColor,
                       ),
@@ -539,7 +539,7 @@ class _DebtsScreenState extends State<DebtsScreen> with SingleTickerProviderStat
                     ],
                   ),
                   const SizedBox(height: AppSpacing.sp16),
-                  Divider(color: AppColors.borderSubtle, height: 1),
+                  Divider(color: AppColors.of(context).borderSubtle, height: 1),
                   const SizedBox(height: AppSpacing.sp12),
                   Row(
                     children: [

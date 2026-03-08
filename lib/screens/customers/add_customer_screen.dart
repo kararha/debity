@@ -106,14 +106,14 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.surface0,
+      backgroundColor: AppColors.of(context).surface0,
       appBar: AppBar(
         title: Text(
           _isEditing ? AppLocalizations.of(context).saveChanges : AppLocalizations.of(context).addCustomerButton,
           style: AppTextStyles.sectionTitle,
         ),
-        backgroundColor: AppColors.surface0,
-        foregroundColor: AppColors.textPrimary,
+        backgroundColor: AppColors.of(context).surface0,
+        foregroundColor: AppColors.of(context).textPrimary,
         elevation: 0,
         centerTitle: true,
       ),

@@ -63,8 +63,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final c = AppColors.of(context);
     return Scaffold(
-      backgroundColor: AppColors.surface0,
+      backgroundColor: c.surface0,
       body: IndexedStack(index: _currentIndex, children: _screens),
       bottomNavigationBar: _DebityBottomNav(
         currentIndex: _currentIndex,
@@ -102,9 +103,10 @@ class _DebityBottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = AppColors.of(context);
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface0,
+        color: c.surface0,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.04),
@@ -147,7 +149,7 @@ class _DebityBottomNav extends StatelessWidget {
                             size: 24,
                             color: selected
                                 ? AppColors.brand500
-                                : AppColors.textMuted,
+                                : c.textMuted,
                           ),
                         ),
                         const SizedBox(height: 4),
@@ -157,7 +159,7 @@ class _DebityBottomNav extends StatelessWidget {
                           style: AppTextStyles.navLabel.copyWith(
                             color: selected
                                 ? AppColors.brand500
-                                : AppColors.textMuted,
+                                : c.textMuted,
                             fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
                             fontSize: 11,
                           ),
@@ -220,15 +222,16 @@ class _DashboardViewState extends State<DashboardView> {
 
   @override
   Widget build(BuildContext context) {
+    final c = AppColors.of(context);
     return Scaffold(
-      backgroundColor: AppColors.surface0,
+      backgroundColor: c.surface0,
       appBar: DebityAppBar(
         userInitial: _userInitial,
       ),
       body: Column(
         children: [
           // Optional divider under App Bar
-          Container(height: 1.0, color: AppColors.borderSubtle.withOpacity(0.5)),
+          Container(height: 1.0, color: c.borderSubtle.withOpacity(0.5)),
           Expanded(
             child: _isLoading
                 ? _buildSkeleton()
@@ -319,7 +322,7 @@ class _DashboardViewState extends State<DashboardView> {
     return RefreshIndicator(
       onRefresh: _loadStatistics,
       color: AppColors.brand500,
-      backgroundColor: AppColors.surface0,
+      backgroundColor: AppColors.of(context).surface0,
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.fromLTRB(
@@ -375,7 +378,7 @@ class _DashboardViewState extends State<DashboardView> {
                   icon: Icons.schedule_rounded,
                   valueColor: stats.overdueCount > 0
                       ? AppColors.danger
-                      : AppColors.textPrimary,
+                      : AppColors.of(context).textPrimary,
                 ),
               ],
             ),
@@ -460,9 +463,9 @@ class _DashboardViewState extends State<DashboardView> {
       child: Center(
         child: Column(
           children: [
-            Icon(icon, size: 40, color: AppColors.textMuted.withOpacity(0.5)),
+            Icon(icon, size: 40, color: AppColors.of(context).textMuted.withOpacity(0.5)),
             const SizedBox(height: AppSpacing.sp12),
-            Text(msg, style: AppTextStyles.base.copyWith(color: AppColors.textMuted, fontWeight: FontWeight.w500)),
+            Text(msg, style: AppTextStyles.base.copyWith(color: AppColors.of(context).textMuted, fontWeight: FontWeight.w500)),
           ],
         ),
       ),
@@ -537,9 +540,9 @@ class _MiniStatTile extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.sp16),
       decoration: BoxDecoration(
-        color: AppColors.surface0,
+        color: AppColors.of(context).surface0,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.borderSubtle.withOpacity(0.5)),
+        border: Border.all(color: AppColors.of(context).borderSubtle.withOpacity(0.5)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.02),

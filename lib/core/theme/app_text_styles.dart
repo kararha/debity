@@ -14,7 +14,7 @@ class AppTextStyles {
   static TextStyle _inter({
     required double size,
     required FontWeight weight,
-    Color color = AppColors.textPrimary,
+    Color? color,   // null → inherits theme onSurface
     double? letterSpacing,
     double? height,
   }) =>
@@ -29,7 +29,7 @@ class AppTextStyles {
   static TextStyle _notoArabic({
     required double size,
     required FontWeight weight,
-    Color color = AppColors.textPrimary,
+    Color? color,   // null → inherits theme onSurface
     double? letterSpacing,
     double? height,
   }) =>
@@ -88,13 +88,13 @@ class AppTextStyles {
         fontWeight: FontWeight.w500,
       );
   static TextStyle get statValue => xl2;
-  static TextStyle get sectionTitle => md.copyWith(fontWeight: FontWeight.w600, color: AppColors.textPrimary);
-  static TextStyle get listPrimary => base.copyWith(fontWeight: FontWeight.w500, color: AppColors.textPrimary);
+  static TextStyle get sectionTitle => md.copyWith(fontWeight: FontWeight.w600);
+  static TextStyle get listPrimary => base.copyWith(fontWeight: FontWeight.w500);
   static TextStyle get listSecondary => xs.copyWith(fontSize: 12, color: AppColors.textSecondary);
   static TextStyle get listAmount => base.copyWith(fontWeight: FontWeight.w600);
   static TextStyle get listDate => xs.copyWith(fontSize: 12, color: AppColors.textMuted);
   static TextStyle get inputLabel => base.copyWith(fontWeight: FontWeight.w500, color: AppColors.textSecondary);
-  static TextStyle get inputText => base.copyWith(color: AppColors.textPrimary);
+  static TextStyle get inputText => base;
   static TextStyle get inputHint => base.copyWith(color: AppColors.textMuted);
   static TextStyle get btnPrimary => _inter(size: 15, weight: FontWeight.w600, color: Colors.white);
   static TextStyle get navLabel => xs.copyWith(fontSize: 11, fontWeight: FontWeight.w500);

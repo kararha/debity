@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
+import '../theme/app_color_scheme.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_text_styles.dart';
 
@@ -49,7 +50,7 @@ class _DebtListItemState extends State<DebtListItem> {
           vertical: AppSpacing.listItemV,
         ),
         decoration: BoxDecoration(
-          color: _pressed ? AppColors.surface3 : AppColors.surface2,
+          color: _pressed ? AppColorScheme.of(context).surface3 : AppColorScheme.of(context).surface2,
           borderRadius: BorderRadius.circular(AppRadius.md),
         ),
         child: Row(

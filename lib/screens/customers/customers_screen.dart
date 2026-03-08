@@ -159,7 +159,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
                   child: TextField(
                     controller: _searchController,
                     style: TextStyle(
-                      color: isDark ? Colors.white : AppColors.textPrimary,
+                      color: AppColors.of(context).textPrimary,
                     ),
                       decoration: InputDecoration(
                       hintText: AppLocalizations.of(context).customersSearchHint,
@@ -436,7 +436,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
                             fontSize: 15,
                             color: isDark
                                 ? Colors.white
-                                : AppColors.textPrimary,
+                                : AppColors.of(context).textPrimary,
                           ),
                         ),
                         const SizedBox(height: 4),

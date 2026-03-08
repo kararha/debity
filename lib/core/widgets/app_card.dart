@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
+import '../theme/app_color_scheme.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_text_styles.dart';
 
@@ -30,16 +31,17 @@ class _AppCardState extends State<AppCard> {
 
   @override
   Widget build(BuildContext context) {
+    final c = AppColorScheme.of(context);
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
       curve: Curves.ease,
       decoration: BoxDecoration(
-        color: AppColors.surface1,
+        color: c.surface1,
         borderRadius: BorderRadius.circular(AppRadius.lg),
         border: Border.all(
           color: _hovered
               ? AppColors.brand500.withValues(alpha: 0.30)
-              : AppColors.borderSubtle,
+              : c.borderSubtle,
           width: 1,
         ),
       ),
@@ -141,7 +143,7 @@ class StatCard extends StatelessWidget {
                 ),
               ),
               if (icon != null)
-                Icon(icon, size: 16, color: AppColors.textMuted),
+                Icon(icon, size: 16, color: AppColorScheme.of(context).textMuted),
             ],
           ),
           const SizedBox(height: AppSpacing.sp8),
@@ -160,7 +162,7 @@ class StatCard extends StatelessWidget {
           ),
           if (sub != null) ...[
             const SizedBox(height: AppSpacing.sp4),
-            Text(sub!, style: AppTextStyles.xs.copyWith(color: AppColors.textMuted)),
+            Text(sub!, style: AppTextStyles.xs.copyWith(color: AppColorScheme.of(context).textMuted)),
           ],
         ],
       ),
