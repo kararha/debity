@@ -8,6 +8,7 @@ import 'firebase_options.dart';
 import 'core/services/fcm_service.dart';
 import 'core/constants/app_constants.dart';
 import 'core/theme/app_theme.dart';
+import 'core/theme/theme_controller.dart';
 import 'screens/splash_screen.dart';
 
 void main() async {
@@ -44,6 +45,9 @@ void main() async {
   // Initialize FCM
   await FCMService.initialize();
 
+  // Load persisted theme choice before starting the app
+  await ThemeController.init();
+
   runApp(const DebityApp());
 }
 
@@ -78,14 +82,17 @@ class DebityApp extends StatelessWidget {
         final locale = AppLocale.instance.locale;
         final isRtl = AppLocale.instance.isRtl;
 
-        return MaterialApp(
-          title: 'ديبتي',
-          debugShowCheckedModeBanner: false,
+        return ValueListenableBuilder<ThemeMode>(
+          valueListenable: ThemeController.themeMode,
+          builder: (context, themeMode, __) {
+            return MaterialApp(
+              title: 'ديبتي',
+              debugShowCheckedModeBanner: false,
 
-          // Always dark mode
-          theme: AppTheme.darkTheme,
-          darkTheme: AppTheme.darkTheme,
-          themeMode: ThemeMode.dark,
+              // Use AppTheme light/dark and apply the selected ThemeMode
+              theme: AppTheme.lightTheme,
+              darkTheme: AppTheme.darkTheme,
+              themeMode: themeMode,
 
           // Localizations
           localizationsDelegates: const [
@@ -110,7 +117,9 @@ class DebityApp extends StatelessWidget {
             );
           },
 
-          home: const SplashScreen(),
+        home: const SplashScreen(),
+            );
+          },
         );
       },
     );

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../api/api_service.dart';
 import '../../core/theme/app_colors.dart';
@@ -24,21 +23,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _overdueAlerts = true;
   int _reminderDaysBefore = 1;
   ThemeMode _themeMode = ThemeMode.system;
-  String? _fcmToken;
-  bool _testingNotification = false;
-  bool _triggeringReminders = false;
   String _selectedLocale = AppLocale.instance.locale.languageCode;
 
   @override
   void initState() {
     super.initState();
     _loadSettings();
-    _loadFcmToken();
-  }
-
-  Future<void> _loadFcmToken() async {
-    final token = await FCMService.getToken();
-    if (mounted) setState(() => _fcmToken = token);
   }
 
   Future<void> _loadSettings() async {
@@ -179,17 +169,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                   _buildReminderDaysTile(),
                 ],
-              ]),
-              const SizedBox(height: 20),
-              _buildSection(title: loc.testNotificationsSection, isDark: isDark, children: [
-                  _buildActionTile(icon: Icons.notifications_active_rounded, title: loc.testNotificationNow, subtitle: AppLocalizations.of(context).testNotificationSub, loading: _testingNotification, onTap: _sendTestNotification),
-                  _buildActionTile(icon: Icons.send_rounded, title: loc.sendDueNotifications, subtitle: AppLocalizations.of(context).sendDueNotificationsSub, loading: _triggeringReminders, onTap: _triggerUpcomingReminders),
-                  _buildActionTile(icon: Icons.vpn_key_outlined, title: loc.showFcmToken, subtitle: AppLocalizations.of(context).fcmTokenSubtitle, onTap: _showFcmTokenDialog),
-              ]),
-              const SizedBox(height: 20),
-              _buildSection(title: loc.dataSection, isDark: isDark, children: [
-                _buildActionTile(icon: Icons.sync_rounded, title: loc.syncData, subtitle: AppLocalizations.of(context).syncDataSub, onTap: _syncData),
-                _buildActionTile(icon: Icons.update_rounded, title: loc.updateOverdues, subtitle: AppLocalizations.of(context).updateOverduesSub, onTap: _checkOverdue),
               ]),
               const SizedBox(height: 20),
               _buildSection(title: loc.aboutSection, isDark: isDark, children: [
@@ -509,81 +488,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _saveSettings();
   }
 
-  // ─── Send test local notification ───────────────────────────────────
-  Future<void> _sendTestNotification() async {
-    setState(() => _testingNotification = true);
-    try {
-      await FCMService.showTestNotification();
-      if (mounted) _showSnack('تم إرسال الإشعار التجريبي ✓', isSuccess: true);
-    } catch (e) {
-      if (mounted) _showSnack('خطأ: $e', isError: true);
-    } finally {
-      if (mounted) setState(() => _testingNotification = false);
-    }
-  }
-
-  // ─── Trigger notify-upcoming-due edge function ──────────────────────
-  Future<void> _triggerUpcomingReminders() async {
-    setState(() => _triggeringReminders = true);
-    try {
-      final result = await _apiService.notifyUpcomingDue(
-        daysBefore: _reminderDaysBefore,
-      );
-      if (mounted) {
-        _showSnack(AppLocalizations.of(context).newNotificationsCreated(result.processed), isSuccess: true);
-      }
-    } catch (e) {
-      if (mounted) _showSnack('خطأ في إرسال الإشعارات: $e', isError: true);
-    } finally {
-      if (mounted) setState(() => _triggeringReminders = false);
-    }
-  }
-
-  // ─── Show FCM token dialog ─────────────────────────────────────────
-  void _showFcmTokenDialog() {
-    final token = _fcmToken ?? 'جاري التحميل...';
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(AppLocalizations.of(ctx).showFcmToken),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(AppLocalizations.of(ctx).fcmTokenSubtitle, style: const TextStyle(fontSize: 12)),
-            const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade100,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: SelectableText(
-                token,
-                style: const TextStyle(fontSize: 11, fontFamily: 'monospace'),
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton.icon(
-            icon: const Icon(Icons.copy, size: 16),
-            label: Text(AppLocalizations.of(ctx).copy),
-            onPressed: () {
-              Clipboard.setData(ClipboardData(text: token));
-              Navigator.pop(ctx);
-              _showSnack(AppLocalizations.of(ctx).copied, isSuccess: true);
-            },
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text(AppLocalizations.of(ctx).cancel),
-          ),
-        ],
-      ),
-    );
-  }
-
   void _showSnack(String msg, {bool isSuccess = false, bool isError = false}) {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -596,49 +500,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 : null,
       ),
     );
-  }
-
-  Future<void> _syncData() async {
-    try {
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) => const Center(child: CircularProgressIndicator()),
-      );
-      await _apiService.getStatistics();
-      if (mounted) {
-        Navigator.pop(context);
-        _showSnack('تمت المزامنة بنجاح ✓', isSuccess: true);
-      }
-    } catch (e) {
-      if (mounted) {
-        Navigator.pop(context);
-        _showSnack('خطأ في المزامنة: $e', isError: true);
-      }
-    }
-  }
-
-  Future<void> _checkOverdue() async {
-    try {
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) => const Center(child: CircularProgressIndicator()),
-      );
-      final response = await _apiService.checkOverdueInstallments();
-      if (mounted) {
-        Navigator.pop(context);
-        _showSnack(
-          'تم تحديث ${response.newlyOverdue} قسط متأخر',
-          isSuccess: response.newlyOverdue == 0,
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        Navigator.pop(context);
-        _showSnack('خطأ: $e', isError: true);
-      }
-    }
   }
 
   Future<void> _handleLogout() async {

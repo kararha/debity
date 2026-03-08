@@ -5,13 +5,12 @@ import 'app_colors.dart';
 import 'app_spacing.dart';
 import 'app_text_styles.dart';
 
-/// Debity design system â€” dark mode only.
-/// Both [lightTheme] and [darkTheme] return the same dark theme so the app
-/// always renders in dark mode regardless of system preference.
+/// Debity design system.
+/// Provides both light and dark theme variants.
 class AppTheme {
   AppTheme._();
 
-  static ThemeData get lightTheme => _buildDark();
+  static ThemeData get lightTheme => _buildLight();
   static ThemeData get darkTheme  => _buildDark();
 
   static ThemeData _buildDark() {
@@ -259,6 +258,136 @@ class AppTheme {
           TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
         },
       ),
+    );
+  }
+
+  static ThemeData _buildLight() {
+    const colorScheme = ColorScheme.light(
+      primary:    AppColors.brand500,
+      secondary:  AppColors.brand400,
+      surface:    Colors.white,
+      error:      AppColors.danger,
+      onPrimary:  Colors.white,
+      onSecondary: Colors.white,
+      onSurface:  AppColors.textFaint,
+      brightness: Brightness.light,
+    );
+
+    return ThemeData(
+      useMaterial3: true,
+      brightness: Brightness.light,
+      colorScheme: colorScheme,
+      primaryColor: AppColors.brand500,
+      scaffoldBackgroundColor: AppColors.brand50,
+      fontFamily: GoogleFonts.inter().fontFamily,
+
+      appBarTheme: AppBarTheme(
+        backgroundColor: Colors.white,
+        foregroundColor: AppColors.textFaint,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        shadowColor: Colors.transparent,
+        toolbarHeight: AppSpacing.appBarH,
+        systemOverlayStyle: const SystemUiOverlayStyle(
+          statusBarColor: Colors.transparent,
+          statusBarIconBrightness: Brightness.dark,
+          systemNavigationBarColor: Colors.white,
+          systemNavigationBarIconBrightness: Brightness.dark,
+        ),
+        titleTextStyle: AppTextStyles.lg.copyWith(
+          color:  AppColors.textFaint,
+          fontWeight: FontWeight.w600,
+        ),
+        iconTheme: const IconThemeData(color: AppColors.textFaint),
+        actionsIconTheme: const IconThemeData(color: AppColors.textFaint),
+        shape: const Border(
+          bottom: BorderSide(color: AppColors.borderSubtle, width: 1),
+        ),
+      ),
+
+      cardTheme: CardThemeData(
+        color: Colors.white,
+        elevation: 0,
+        margin: EdgeInsets.zero,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadius.lg),
+          side: const BorderSide(color: AppColors.borderLight, width: 1),
+        ),
+      ),
+
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.brand500,
+          foregroundColor: Colors.white,
+          elevation: 0,
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadius.md),
+          ),
+          textStyle: AppTextStyles.btnPrimary,
+        ),
+      ),
+
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: AppColors.textFaint,
+          side: const BorderSide(color: AppColors.borderLight, width: 1),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadius.md),
+          ),
+          textStyle: AppTextStyles.base.copyWith(fontWeight: FontWeight.w500),
+        ),
+      ),
+
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: AppColors.brand50,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppRadius.md),
+          borderSide: const BorderSide(color: AppColors.borderLight, width: 1),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppRadius.md),
+          borderSide: const BorderSide(color: AppColors.borderLight, width: 1),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppRadius.md),
+          borderSide: const BorderSide(color: AppColors.brand500, width: 2),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppRadius.md),
+          borderSide: const BorderSide(color: AppColors.danger, width: 1),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppRadius.md),
+          borderSide: const BorderSide(color: AppColors.danger, width: 2),
+        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        hintStyle: AppTextStyles.inputHint,
+        labelStyle: AppTextStyles.inputLabel,
+      ),
+
+      dialogTheme: DialogThemeData(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadius.xl),
+          side: const BorderSide(color: AppColors.borderSubtle, width: 1),
+        ),
+        elevation: 0,
+      ),
+
+      snackBarTheme: SnackBarThemeData(
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: Colors.white,
+        contentTextStyle: AppTextStyles.base.copyWith(color: AppColors.textFaint),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadius.md),
+          side: const BorderSide(color: AppColors.borderLight),
+        ),
+      ),
+
+      textTheme: AppTextStyles.textTheme,
     );
   }
 }

@@ -35,9 +35,15 @@ class VerifyEmailScreen extends StatelessWidget {
             SafeArea(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 28),
-                child: Column(
-                  children: [
-                    const Spacer(flex: 2),
+                child: LayoutBuilder(
+                  builder: (context, constraints) => SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                      child: IntrinsicHeight(
+                        child: Column(
+                          children: [
+                            const Spacer(flex: 2),
 
                     // ── Icon ────────────────────────────────────────────────
                     Container(
@@ -127,6 +133,10 @@ class VerifyEmailScreen extends StatelessWidget {
                                 text: AppLocalizations.of(context).returnToAppAndLogin,
                               ),
                             ],
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
                         ),
                       ),
