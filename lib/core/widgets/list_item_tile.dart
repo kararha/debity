@@ -92,7 +92,7 @@ class _DebtListItemState extends State<DebtListItem> {
                     Text(
                       widget.amount!,
                       style: AppTextStyles.listAmount.copyWith(
-                        color: widget.amountColor ?? AppColors.textPrimary,
+                        color: widget.amountColor ?? AppColors.of(context).textPrimary,
                       ),
                     ),
                   if (widget.date != null) ...[

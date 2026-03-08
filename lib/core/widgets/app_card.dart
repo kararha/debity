@@ -154,7 +154,7 @@ class StatCard extends StatelessWidget {
               child: Text(
                 value,
                 style: AppTextStyles.statValue.copyWith(
-                  color: valueColor ?? AppColors.textPrimary,
+                  color: valueColor ?? AppColors.of(context).textPrimary,
                 ),
                 maxLines: 1,
               ),
