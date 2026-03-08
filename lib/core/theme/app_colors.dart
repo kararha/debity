@@ -1,8 +1,18 @@
 import 'package:flutter/material.dart';
+import 'app_color_scheme.dart';
 
-/// Debity design-system color tokens — dark mode only.
+/// Debity design-system color tokens.
+///
+/// Brand / semantic colors are mode-independent.
+/// Surface / text / border tokens are adaptive — use [AppColors.of(context)]
+/// which returns an [AppColorScheme] for the current [ThemeMode].
 class AppColors {
   AppColors._();
+
+  /// Returns the adaptive color tokens for the current theme mode.
+  /// Use this instead of the raw surface/text/border constants.
+  static AppColorScheme of(BuildContext context) =>
+      AppColorScheme.of(context);
 
   // ─── Brand palette (blue-indigo ~250°) ─────────────────────────────
   static const Color brand50  = Color(0xFFF2F3FF);
