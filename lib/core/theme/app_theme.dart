@@ -267,7 +267,7 @@ class AppTheme {
     // Adaptive tokens for light mode
     const c = AppColorScheme.light;
 
-    const colorScheme = ColorScheme.light(
+    final colorScheme = ColorScheme.light(
       primary:     AppColors.brand500,
       secondary:   AppColors.brand600,
       surface:     c.surface1,
