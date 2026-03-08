@@ -497,7 +497,7 @@ class _RuleRow extends StatelessWidget {
             label,
             style: TextStyle(
               fontSize: 13,
-              color: met ? AppColors.textPrimary : AppColors.textMuted, // Updated colors
+              color: met ? AppColors.of(context).textPrimary : AppColors.textMuted, // Updated colors
               fontWeight: met ? FontWeight.w500 : FontWeight.w400,
             ),
           ),
