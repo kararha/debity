@@ -227,28 +227,6 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
   Widget _buildIdentityInput() {
     return Column(
       children: [
-        Center(
-          child: Container(
-            width: 96,
-            height: 96,
-            decoration: BoxDecoration(
-              color: AppColors.brand500.withOpacity(0.15),
-              shape: BoxShape.circle,
-              border: Border.all(color: AppColors.brand500, width: 2),
-            ),
-            alignment: Alignment.center,
-            child: Text(
-              _nameController.text.isNotEmpty
-                  ? _nameController.text[0].toUpperCase()
-                  : '؟',
-              style: AppTextStyles.xl4.copyWith(
-                color: AppColors.brand400,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(height: AppSpacing.sp32),
         DebityTextField(
           controller: _nameController,
           label: '${AppLocalizations.of(context).nameLabel} *',
