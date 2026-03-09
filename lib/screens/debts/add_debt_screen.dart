@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/theme/app_colors.dart';
@@ -9,6 +11,7 @@ import '../../core/theme/app_theme.dart';
 import '../../models/customer.dart';
 import 'package:intl/intl.dart';
 import '../../models/debt.dart';
+import '../customers/add_customer_screen.dart';
 
 class AddDebtScreen extends StatefulWidget {
   final Customer? customer;
@@ -31,11 +34,19 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
   final _installmentsController = TextEditingController(text: '1');
   final _notesController = TextEditingController();
 
-  List<Customer> _customers = [];
   Customer? _selectedCustomer;
   DateTime _startDate = DateTime.now();
   bool _isLoading = false;
-  bool _isLoadingCustomers = true;
+
+  // Typeahead state
+  final _customerSearchController = TextEditingController();
+  final _customerFocusNode = FocusNode();
+  List<Customer> _suggestions = [];
+  bool _isSearchingCustomer = false;
+  bool _showSuggestions = false;
+  Timer? _debounceTimer;
+  final Map<String, List<Customer>> _queryCache = {};
+  final List<Customer> _recentCustomers = [];
   
   // NEW: Purely for UI tracking in the Stepper
   int _currentStep = 0;
@@ -47,7 +58,17 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
       '[AddDebtScreen] initState — pre-selected customer: ${widget.customer?.name ?? "none"}',
     );
     _selectedCustomer = widget.customer;
-    _loadCustomers();
+    if (widget.customer != null) {
+      _customerSearchController.text = widget.customer!.name;
+    }
+    _customerFocusNode.addListener(() {
+      if (!_customerFocusNode.hasFocus && mounted) {
+        // Small delay so tapping a suggestion registers before hiding the list
+        Future.delayed(const Duration(milliseconds: 150), () {
+          if (mounted) setState(() => _showSuggestions = false);
+        });
+      }
+    });
   }
 
   @override
@@ -59,43 +80,62 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
     _downPaymentController.dispose();
     _installmentsController.dispose();
     _notesController.dispose();
+    _customerSearchController.dispose();
+    _customerFocusNode.dispose();
+    _debounceTimer?.cancel();
     super.dispose();
   }
 
-  // --- LOGIC METHODS REMAIN EXACTLY THE SAME ---
+  // --- LOGIC METHODS ---
 
-  Future<void> _loadCustomers() async {
-    debugPrint('[AddDebtScreen] _loadCustomers → fetching customers from Supabase...');
-    try {
-      final response = await _supabase
-          .from('customers')
-          .select('id, name, phone, address, notes, created_at, updated_at')
-          .order('name');
+  void _onCustomerSearchChanged(String query) {
+    _debounceTimer?.cancel();
+    if (query.trim().isEmpty) {
+      setState(() {
+        _suggestions = List.from(_recentCustomers);
+        _isSearchingCustomer = false;
+      });
+      return;
+    }
+    _debounceTimer = Timer(
+      const Duration(milliseconds: 300),
+      () => _searchCustomers(query),
+    );
+  }
 
+  Future<void> _searchCustomers(String query) async {
+    final cacheKey = query.toLowerCase().trim();
+    if (_queryCache.containsKey(cacheKey)) {
       if (mounted) {
         setState(() {
-          _customers = (response as List).map((data) => Customer.fromJson(data)).toList();
-          if (widget.customer != null) {
-            final matches = _customers.where((c) => c.id == widget.customer!.id);
-            if (matches.isNotEmpty) {
-              _selectedCustomer = matches.first;
-            } else if (_customers.isNotEmpty) {
-              _selectedCustomer = _customers.first;
-            }
-          }
-          _isLoadingCustomers = false;
+          _suggestions = _queryCache[cacheKey]!;
+          _isSearchingCustomer = false;
+        });
+      }
+      return;
+    }
+    if (mounted) setState(() => _isSearchingCustomer = true);
+    try {
+      final resp = await _supabase
+          .from('customers')
+          .select('id, name, phone, address, notes, created_at, updated_at')
+          .or('name.ilike.%$query%,phone.ilike.%$query%')
+          .limit(20)
+          .order('name');
+      final results = (resp as List).map((e) => Customer.fromJson(e)).toList();
+      _queryCache[cacheKey] = results;
+      if (mounted) {
+        setState(() {
+          _suggestions = results;
+          _isSearchingCustomer = false;
         });
       }
     } catch (e) {
-      debugPrint('[AddDebtScreen] _loadCustomers ERROR: $e');
-      if (mounted) {
-        setState(() => _isLoadingCustomers = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('خطأ في تحميل العملاء: $e'), backgroundColor: AppColors.danger),
-        );
-      }
+      debugPrint('[AddDebtScreen] _searchCustomers ERROR: $e');
+      if (mounted) setState(() => _isSearchingCustomer = false);
     }
   }
+
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
@@ -194,11 +234,9 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
         elevation: 0,
         centerTitle: true,
       ),
-      body: _isLoadingCustomers
-          ? const Center(child: CircularProgressIndicator(color: AppColors.brand500))
-          : Form(
-              key: _formKey,
-              child: Theme(
+      body: Form(
+          key: _formKey,
+          child: Theme(
                 // Adjusting Stepper theme to match your app colors
                 data: Theme.of(context).copyWith(
                   colorScheme: const ColorScheme.light(
@@ -296,47 +334,176 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
   // I removed the 'SectionPanel' wrappers here because the Stepper's 'Step' acts as the visual container.
 
   Widget _buildCustomerInput() {
-    return DropdownMenu<Customer>(
-      initialSelection: _selectedCustomer,
-      expandedInsets: EdgeInsets.zero,
-      enableSearch: true,
-      enableFilter: true,
-      requestFocusOnTap: true,
-      label: const Text('اختر العميل *'),
-      textStyle: AppTextStyles.base.copyWith(color: AppColors.of(context).textPrimary),
-      inputDecorationTheme: InputDecorationTheme(
-        labelStyle: AppTextStyles.sm.copyWith(color: AppColors.textSecondary),
-        filled: true,
-        fillColor: AppColors.of(context).surface1,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: AppColors.of(context).borderSubtle, width: 1),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: AppColors.of(context).borderSubtle, width: 1),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.brand500, width: 2),
-        ),
-      ),
-      leadingIcon: const Icon(
-        Icons.person_search_rounded,
-        color: AppColors.textMuted,
-      ),
-      dropdownMenuEntries: _customers.map((c) {
-        return DropdownMenuEntry<Customer>(
-          value: c,
-          label: c.name,
-          style: MenuItemButton.styleFrom(
-            foregroundColor: AppColors.of(context).textPrimary,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        TextFormField(
+          controller: _customerSearchController,
+          focusNode: _customerFocusNode,
+          style: AppTextStyles.base.copyWith(color: AppColors.of(context).textPrimary),
+          decoration: InputDecoration(
+            labelText: 'اختر العميل *',
+            labelStyle: AppTextStyles.sm.copyWith(color: AppColors.textSecondary),
+            prefixIcon: const Icon(Icons.person_search_rounded, color: AppColors.textMuted),
+            suffixIcon: _selectedCustomer != null
+                ? const Icon(Icons.check_circle_rounded, color: AppColors.success)
+                : _isSearchingCustomer
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: Padding(
+                          padding: EdgeInsets.all(12),
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: AppColors.brand500,
+                          ),
+                        ),
+                      )
+                    : null,
+            filled: true,
+            fillColor: AppColors.of(context).surface1,
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: AppColors.of(context).borderSubtle, width: 1),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: AppColors.of(context).borderSubtle, width: 1),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: AppColors.brand500, width: 2),
+            ),
           ),
-        );
-      }).toList(),
-      onSelected: (v) => setState(() => _selectedCustomer = v),
+          onChanged: (v) {
+            setState(() {
+              _selectedCustomer = null;
+              _showSuggestions = true;
+            });
+            _onCustomerSearchChanged(v);
+          },
+          onTap: () {
+            setState(() => _showSuggestions = true);
+            if (_customerSearchController.text.isEmpty) {
+              setState(() => _suggestions = List.from(_recentCustomers));
+            }
+          },
+          validator: (_) => _selectedCustomer == null ? 'الرجاء اختيار العميل' : null,
+        ),
+        if (_showSuggestions && (_suggestions.isNotEmpty || _isSearchingCustomer))
+          Container(
+            margin: const EdgeInsets.only(top: 4),
+            constraints: const BoxConstraints(maxHeight: 260),
+            decoration: BoxDecoration(
+              color: AppColors.of(context).surface1,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppColors.of(context).borderSubtle),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.12),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: _isSearchingCustomer && _suggestions.isEmpty
+                ? const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(16),
+                      child: CircularProgressIndicator(
+                        color: AppColors.brand500,
+                        strokeWidth: 2,
+                      ),
+                    ),
+                  )
+                : ListView.separated(
+                    padding: EdgeInsets.zero,
+                    shrinkWrap: true,
+                    itemCount: _suggestions.length + 1,
+                    separatorBuilder: (_, __) => Divider(
+                      height: 1,
+                      color: AppColors.of(context).borderSubtle,
+                    ),
+                    itemBuilder: (ctx, index) {
+                      // Last item: "Add new customer" shortcut
+                      if (index == _suggestions.length) {
+                        return ListTile(
+                          leading: const Icon(
+                            Icons.person_add_rounded,
+                            color: AppColors.brand500,
+                          ),
+                          title: Text(
+                            'إضافة عميل جديد',
+                            style: AppTextStyles.sm.copyWith(color: AppColors.brand500),
+                          ),
+                          onTap: () async {
+                            setState(() => _showSuggestions = false);
+                            _customerFocusNode.unfocus();
+                            final newCustomer = await Navigator.push<Customer>(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const AddCustomerScreen(),
+                              ),
+                            );
+                            if (newCustomer != null && mounted) {
+                              setState(() {
+                                _selectedCustomer = newCustomer;
+                                _customerSearchController.text = newCustomer.name;
+                                _recentCustomers.insert(0, newCustomer);
+                                if (_recentCustomers.length > 5) _recentCustomers.removeLast();
+                              });
+                            }
+                          },
+                        );
+                      }
+                      // Regular customer entry
+                      final customer = _suggestions[index];
+                      final showHistoryIcon = _customerSearchController.text.isEmpty;
+                      return ListTile(
+                        leading: CircleAvatar(
+                          backgroundColor: AppColors.brand500.withOpacity(0.15),
+                          child: Text(
+                            customer.name.isNotEmpty ? customer.name[0].toUpperCase() : '?',
+                            style: const TextStyle(
+                              color: AppColors.brand500,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        title: Text(
+                          customer.name,
+                          style: AppTextStyles.sm.copyWith(
+                            color: AppColors.of(ctx).textPrimary,
+                          ),
+                        ),
+                        subtitle: Text(
+                          customer.phone,
+                          style: AppTextStyles.xs.copyWith(color: AppColors.textSecondary),
+                        ),
+                        trailing: showHistoryIcon
+                            ? Icon(
+                                Icons.history_rounded,
+                                size: 16,
+                                color: AppColors.textSecondary,
+                              )
+                            : null,
+                        onTap: () {
+                          setState(() {
+                            _selectedCustomer = customer;
+                            _customerSearchController.text = customer.name;
+                            _showSuggestions = false;
+                            _recentCustomers.removeWhere((c) => c.id == customer.id);
+                            _recentCustomers.insert(0, customer);
+                            if (_recentCustomers.length > 5) _recentCustomers.removeLast();
+                          });
+                          _customerFocusNode.unfocus();
+                        },
+                      );
+                    },
+                  ),
+          ),
+      ],
     );
   }
 
