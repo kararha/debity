@@ -16,6 +16,7 @@ import '../core/widgets/skeleton_widget.dart';
 import '../core/widgets/status_badge.dart';
 import 'customers/customers_screen.dart';
 import 'debts/debts_screen.dart';
+import 'notifications/notifications_screen.dart';
 import 'settings/settings_screen.dart';
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -33,11 +34,12 @@ class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
   late final StreamSubscription<AuthState> _authSub;
 
-  // 4 tabs: Dashboard, Customers, Debts, Settings
+  // 5 tabs: Dashboard, Customers, Debts, Notifications, Settings
   final List<Widget> _screens = const [
     DashboardView(),
     CustomersScreen(),
     DebtsScreen(),
+    NotificationsScreen(),
     SettingsScreen(),
   ];
 
@@ -97,6 +99,7 @@ class _DebityBottomNav extends StatelessWidget {
         _NavItem(icon: Icons.home_outlined, label: AppLocalizations.of(context).navHome),
         _NavItem(icon: Icons.people_outline, label: AppLocalizations.of(context).navCustomers),
         _NavItem(icon: Icons.receipt_long_outlined, label: AppLocalizations.of(context).navDebts),
+        _NavItem(icon: Icons.notifications_outlined, label: AppLocalizations.of(context).navNotifications),
         _NavItem(icon: Icons.settings_outlined, label: AppLocalizations.of(context).navSettings),
       ];
 
@@ -181,6 +184,7 @@ class _DebityBottomNav extends StatelessWidget {
     if (outlinedIcon == Icons.home_outlined) return Icons.home_rounded;
     if (outlinedIcon == Icons.people_outline) return Icons.people_rounded;
     if (outlinedIcon == Icons.receipt_long_outlined) return Icons.receipt_long_rounded;
+    if (outlinedIcon == Icons.notifications_outlined) return Icons.notifications_rounded;
     if (outlinedIcon == Icons.settings_outlined) return Icons.settings_rounded;
     return outlinedIcon;
   }

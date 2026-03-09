@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../api/api_service.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/l10n/app_localizations.dart';
@@ -31,20 +32,33 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     });
 
     try {
-      debugPrint('[NotificationsScreen] calling getPendingNotifications()');
-      final response = await _apiService.getPendingNotifications();
-      debugPrint('[NotificationsScreen] got ${response.notifications.length} notifications (count=${response.count})');
-      setState(() {
-        _notifications = response.notifications;
-        _isLoading = false;
-      });
+      // Query directly — does NOT mark rows as sent, so the inbox stays persistent
+      final rows = await Supabase.instance.client
+          .from('pending_notifications')
+          .select()
+          .order('created_at', ascending: false)
+          .limit(50);
+
+      final notifications = (rows as List)
+          .map((e) => PendingNotification.fromJson(e as Map<String, dynamic>))
+          .toList();
+
+      debugPrint('[NotificationsScreen] got ${notifications.length} notifications');
+      if (mounted) {
+        setState(() {
+          _notifications = notifications;
+          _isLoading = false;
+        });
+      }
     } catch (e, stack) {
       debugPrint('[NotificationsScreen] ERROR: $e');
       debugPrint('[NotificationsScreen] STACK: $stack');
-      setState(() {
-        _error = e.toString();
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _error = e.toString();
+          _isLoading = false;
+        });
+      }
     }
   }
 

@@ -168,6 +168,10 @@ class AppLocalizations {
       'ar': 'الإعدادات',
       'en': 'Settings',
     },
+    'nav_notifications': {
+      'ar': 'الإشعارات',
+      'en': 'Notifications',
+    },
     'dashboard_title': {
       'ar': 'لوحة التحكم',
       'en': 'Dashboard',
@@ -856,6 +860,7 @@ class AppLocalizations {
   String get navCustomers => _t('nav_customers')!;
   String get navDebts => _t('nav_debts')!;
   String get navSettings => _t('nav_settings')!;
+  String get navNotifications => _t('nav_notifications')!;
   String get dashboardTitle => _t('dashboard_title')!;
   String get retry => _t('retry')!;
   String get statTotalDebts => _t('stat_total_debts')!;

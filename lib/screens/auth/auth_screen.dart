@@ -22,42 +22,51 @@ class AuthScreen extends StatefulWidget {
   State<AuthScreen> createState() => _AuthScreenState();
 }
 
-class _AuthScreenState extends State<AuthScreen> {
-  final GlobalKey<_AuthBottomSheetState> _sheetKey = GlobalKey();
+class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateMixin {
+  TabController? _tabController;
+  bool _isLogin = true;
 
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+    _tabController!.addListener(() {
+      if (!_tabController!.indexIsChanging) {
+        setState(() => _isLogin = _tabController!.index == 0);
+      }
+    });
     if (widget.openLoginSheetOnLoad) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        _sheetKey.currentState?.open();
+        _tabController?.animateTo(1);
       });
     }
+  }
+
+  @override
+  void dispose() {
+    _tabController?.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.of(context).surface0,
-      body: Stack(
-        children: [
-          SafeArea(
-            child: Align(
-              alignment: Alignment.topCenter,
+      body: SafeArea(
+        child: Column(
+          children: [
+            Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.only(
-                  left: AppSpacing.pageH,
-                  right: AppSpacing.pageH,
-                  top: AppSpacing.sp48,
-                  bottom: AppSpacing.sp8,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.pageH,
+                  vertical: AppSpacing.sp48,
                 ),
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 400),
                   child: Column(
-                    mainAxisSize: MainAxisSize.min,
                     children: [
                       const DebityLogo(size: LogoSize.lg),
-                      const SizedBox(height: AppSpacing.sp48),
+                      const SizedBox(height: AppSpacing.sp24),
                       Text(
                         AppLocalizations.of(context).tagline,
                         textAlign: TextAlign.center,
@@ -65,140 +74,74 @@ class _AuthScreenState extends State<AuthScreen> {
                           color: AppColors.textSecondary,
                         ),
                       ),
-                      const SizedBox(height: AppSpacing.sp48),
-                      _LanguageToggle(),
+                      const SizedBox(height: AppSpacing.sp8),
+                      _buildLanguageToggle(),
                     ],
                   ),
                 ),
               ),
             ),
-          ),
-          _AuthBottomSheet(key: _sheetKey),
-        ],
-      ),
-    );
-  }
-}
-
-class _AuthBottomSheet extends StatefulWidget {
-  const _AuthBottomSheet({Key? key}) : super(key: key);
-
-  @override
-  State<_AuthBottomSheet> createState() => _AuthBottomSheetState();
-}
-
-class _AuthBottomSheetState extends State<_AuthBottomSheet> {
-  bool _isLogin = true;
-  int _currentPage = 0;
-
-  void open() {
-    setState(() => _currentPage = 1);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        return AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeInOut,
-          child: GestureDetector(
-            onVerticalDragEnd: (details) {
-              if (details.primaryVelocity! < -200) {
-                setState(() => _currentPage = 1);
-              } else if (details.primaryVelocity! > 200) {
-                setState(() => _currentPage = 0);
-              }
-            },
-            onTap: () {
-              if (_currentPage == 0) {
-                setState(() => _currentPage = 1);
-              }
-            },
-            child: Container(
-              height: _currentPage == 0 ? 80 : constraints.maxHeight * 0.85,
-              decoration: BoxDecoration(
-                color: AppColors.of(context).surface1,
-                borderRadius: BorderRadius.vertical(
-                  top: Radius.circular(_currentPage == 0 ? 20 : AppRadius.xxl),
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 20,
-                    offset: const Offset(0, -5),
-                  ),
-                ],
-              ),
-              child: _currentPage == 0 ? _buildCollapsed() : _buildExpanded(),
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildCollapsed() {
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 40,
-            height: 4,
-            margin: const EdgeInsets.only(bottom: 8),
-            decoration: BoxDecoration(
-              color: AppColors.of(context).borderSubtle,
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
-          Text(
-            _isLogin ? 'تسجيل الدخول' : 'إنشاء حساب',
-            style: AppTextStyles.sm.copyWith(color: AppColors.textSecondary),
-          ),
-          const SizedBox(height: 4),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                _isLogin ? 'ليس لديك حساب؟' : 'لديك حساب بالفعل؟',
-                style: AppTextStyles.xs.copyWith(color: AppColors.textMuted),
-              ),
-              GestureDetector(
-                onTap: () => setState(() => _isLogin = !_isLogin),
-                child: Text(
-                  _isLogin ? 'إنشاء حساب' : 'تسجيل الدخول',
-                  style: AppTextStyles.xs.copyWith(
-                    color: AppColors.brand400,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
+            _buildAuthCard(),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildExpanded() {
-    return ClipRRect(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.xxl)),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-        child: SingleChildScrollView(
-          padding: EdgeInsets.fromLTRB(
-            AppSpacing.sp24,
-            AppSpacing.sp16,
-            AppSpacing.sp24,
-            AppSpacing.sp40,
+  Widget _buildLanguageToggle() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: AppColors.of(context).borderLight,
+          width: 1,
+        ),
+      ),
+      child: Text(
+        'AR  |  EN',
+        style: AppTextStyles.xs.copyWith(
+          fontWeight: FontWeight.w600,
+          color: AppColors.textSecondary,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAuthCard() {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.of(context).surface1,
+        borderRadius: const BorderRadius.vertical(
+          top: Radius.circular(24),
+        ),
+        border: Border.all(
+          color: AppColors.of(context).borderSubtle,
+          width: 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2),
+            blurRadius: 20,
+            offset: const Offset(0, -5),
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              GestureDetector(
-                onTap: () => setState(() => _currentPage = 0),
-                child: Container(
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.sp24,
+              AppSpacing.sp16,
+              AppSpacing.sp24,
+              AppSpacing.sp32,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
                   width: 40,
                   height: 4,
                   margin: const EdgeInsets.only(bottom: 16),
@@ -207,106 +150,44 @@ class _AuthBottomSheetState extends State<_AuthBottomSheet> {
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  _TabButton(
-                    label: 'تسجيل الدخول',
-                    isSelected: _isLogin,
-                    onTap: () => setState(() => _isLogin = true),
-                  ),
-                  const SizedBox(width: 16),
-                  _TabButton(
-                    label: 'إنشاء حساب',
-                    isSelected: !_isLogin,
-                    onTap: () => setState(() => _isLogin = false),
-                  ),
-                ],
-              ),
-              const SizedBox(height: AppSpacing.sp24),
-              _isLogin ? const _LoginForm() : const _RegisterForm(),
-            ],
+                _buildTabBar(),
+                const SizedBox(height: AppSpacing.sp24),
+                _isLogin ? const _LoginForm() : const _RegisterForm(),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
-}
 
-class _TabButton extends StatelessWidget {
-  final String label;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  const _TabButton({
-    required this.label,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-        decoration: BoxDecoration(
-          color: isSelected ? AppColors.brand500 : Colors.transparent,
-          borderRadius: BorderRadius.circular(20),
+  Widget _buildTabBar() {
+    return Container(
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: AppColors.of(context).surface2,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: TabBar(
+        controller: _tabController!,
+        indicator: BoxDecoration(
+          color: AppColors.brand500,
+          borderRadius: BorderRadius.circular(8),
         ),
-        child: Text(
-          label,
-          style: AppTextStyles.sm.copyWith(
-            color: isSelected ? Colors.white : AppColors.textSecondary,
-            fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-          ),
-        ),
+        indicatorSize: TabBarIndicatorSize.tab,
+        dividerColor: Colors.transparent,
+        labelColor: Colors.white,
+        unselectedLabelColor: AppColors.textSecondary,
+        labelStyle: AppTextStyles.sm.copyWith(fontWeight: FontWeight.w600),
+        unselectedLabelStyle: AppTextStyles.sm,
+        tabs: const [
+          Tab(text: 'تسجيل الدخول'),
+          Tab(text: 'إنشاء حساب'),
+        ],
       ),
     );
   }
 }
-
-// ═══════════════════════════════════════════════════════════════════════
-// Language toggle pill
-// ═══════════════════════════════════════════════════════════════════════
-
-class _LanguageToggle extends StatefulWidget {
-  @override
-  State<_LanguageToggle> createState() => _LanguageToggleState();
-}
-
-class _LanguageToggleState extends State<_LanguageToggle> {
-  bool _isArabic = true;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => setState(() => _isArabic = !_isArabic),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(AppRadius.pill),
-          border: Border.all(
-            color: AppColors.of(context).borderLight,
-            width: 1,
-          ),
-        ),
-        child: Text(
-          _isArabic ? 'AR  |  EN' : 'EN  |  AR',
-          style: AppTextStyles.xs.copyWith(
-            fontWeight: FontWeight.w600,
-            color: AppColors.textSecondary,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ═══════════════════════════════════════════════════════════════════════
-// LOGIN FORM
-// ═══════════════════════════════════════════════════════════════════════
 
 class _LoginForm extends StatefulWidget {
   const _LoginForm();
@@ -361,25 +242,13 @@ class _LoginFormState extends State<_LoginForm> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            'تسجيل الدخول',
-            style: AppTextStyles.xl.copyWith(
-              color: AppColors.of(context).textPrimary,
-            ),
-          ),
-          const SizedBox(height: AppSpacing.sp4),
-          Text(
-            'سجّل دخولك للمتابعة',
-            style: AppTextStyles.sm.copyWith(color: AppColors.textSecondary),
-          ),
-          const SizedBox(height: AppSpacing.sp24),
-
-          if (_errorMsg != null)
+          if (_errorMsg != null) ...[
             ErrorBanner(
               message: _errorMsg!,
               onDismiss: () => setState(() => _errorMsg = null),
             ),
-
+            const SizedBox(height: AppSpacing.sp16),
+          ],
           DebityTextField(
             controller: _emailCtrl,
             label: 'البريد الإلكتروني',
@@ -402,8 +271,20 @@ class _LoginFormState extends State<_LoginForm> {
             validator: (v) =>
                 (v == null || v.isEmpty) ? 'الرجاء إدخال كلمة المرور' : null,
           ),
-          const SizedBox(height: AppSpacing.sp24),
-
+          const SizedBox(height: AppSpacing.sp8),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: TextButton(
+              onPressed: () {},
+              child: Text(
+                'نسيت كلمة المرور؟',
+                style: AppTextStyles.sm.copyWith(
+                  color: AppColors.brand400,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.sp16),
           DebityPrimaryButton(
             label: 'تسجيل الدخول',
             onPressed: _submit,
@@ -414,10 +295,6 @@ class _LoginFormState extends State<_LoginForm> {
     );
   }
 }
-
-// ═══════════════════════════════════════════════════════════════════════
-// REGISTER FORM
-// ═══════════════════════════════════════════════════════════════════════
 
 class _RegisterForm extends StatefulWidget {
   const _RegisterForm();
@@ -488,25 +365,13 @@ class _RegisterFormState extends State<_RegisterForm> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            'إنشاء حساب جديد',
-            style: AppTextStyles.xl.copyWith(
-              color: AppColors.of(context).textPrimary,
-            ),
-          ),
-          const SizedBox(height: AppSpacing.sp4),
-          Text(
-            'أدخل بياناتك للبدء',
-            style: AppTextStyles.sm.copyWith(color: AppColors.textSecondary),
-          ),
-          const SizedBox(height: AppSpacing.sp24),
-
-          if (_errorMsg != null)
+          if (_errorMsg != null) ...[
             ErrorBanner(
               message: _errorMsg!,
               onDismiss: () => setState(() => _errorMsg = null),
             ),
-
+            const SizedBox(height: AppSpacing.sp16),
+          ],
           DebityTextField(
             controller: _nameCtrl,
             label: 'الاسم الكامل',
@@ -554,7 +419,6 @@ class _RegisterFormState extends State<_RegisterForm> {
             validator: PasswordValidator.validate,
           ),
           const SizedBox(height: AppSpacing.sp24),
-
           DebityPrimaryButton(
             label: 'إنشاء حساب',
             onPressed: _submit,
