@@ -13,7 +13,6 @@ import '../../core/widgets/error_banner.dart';
 import '../home_screen.dart';
 import 'verify_email_screen.dart';
 
-/// Debity auth landing screen — dark mode, centered design.
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key, this.openLoginSheetOnLoad = false});
 
@@ -24,83 +23,248 @@ class AuthScreen extends StatefulWidget {
 }
 
 class _AuthScreenState extends State<AuthScreen> {
+  final GlobalKey<_AuthBottomSheetState> _sheetKey = GlobalKey();
+
   @override
   void initState() {
     super.initState();
     if (widget.openLoginSheetOnLoad) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        _AuthScreenState._showLoginSheet(context);
+        _sheetKey.currentState?.open();
       });
     }
-  }
-
-  static void _showLoginSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      isDismissible: false,
-      enableDrag: false,
-      backgroundColor: Colors.transparent,
-      builder: (_) => const _LoginSheet(),
-    );
-  }
-
-  static void _showRegisterSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      isDismissible: false,
-      enableDrag: false,
-      backgroundColor: Colors.transparent,
-      builder: (_) => const _RegisterSheet(),
-    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.of(context).surface0,
-      body: SafeArea(
-        child: Align(
-          alignment: Alignment.topCenter,
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.only(
-              left: AppSpacing.pageH,
-              right: AppSpacing.pageH,
-              top: AppSpacing.sp48,
-              bottom: AppSpacing.sp8,
-            ),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 400),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // ── Logo ─────────────────────────────────────────
-                  const DebityLogo(size: LogoSize.lg),
-                  const SizedBox(height: AppSpacing.sp48),
-
-                  // ── Subtitle ─────────────────────────────────────
-                  Text(
-                    AppLocalizations.of(context).tagline,
-                    textAlign: TextAlign.center,
-                    style: AppTextStyles.base.copyWith(
-                      color: AppColors.textSecondary,
-                    ),
+      body: Stack(
+        children: [
+          SafeArea(
+            child: Align(
+              alignment: Alignment.topCenter,
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.only(
+                  left: AppSpacing.pageH,
+                  right: AppSpacing.pageH,
+                  top: AppSpacing.sp48,
+                  bottom: AppSpacing.sp8,
+                ),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 400),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const DebityLogo(size: LogoSize.lg),
+                      const SizedBox(height: AppSpacing.sp48),
+                      Text(
+                        AppLocalizations.of(context).tagline,
+                        textAlign: TextAlign.center,
+                        style: AppTextStyles.base.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.sp48),
+                      _LanguageToggle(),
+                    ],
                   ),
-                  const SizedBox(height: AppSpacing.sp48),
-
-                  // ── Language toggle ───────────────────────────────
-                  _LanguageToggle(),
-                ],
+                ),
               ),
             ),
+          ),
+          _AuthBottomSheet(key: _sheetKey),
+        ],
+      ),
+    );
+  }
+}
+
+class _AuthBottomSheet extends StatefulWidget {
+  const _AuthBottomSheet({Key? key}) : super(key: key);
+
+  @override
+  State<_AuthBottomSheet> createState() => _AuthBottomSheetState();
+}
+
+class _AuthBottomSheetState extends State<_AuthBottomSheet> {
+  bool _isLogin = true;
+  int _currentPage = 0;
+
+  void open() {
+    setState(() => _currentPage = 1);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+          child: GestureDetector(
+            onVerticalDragEnd: (details) {
+              if (details.primaryVelocity! < -200) {
+                setState(() => _currentPage = 1);
+              } else if (details.primaryVelocity! > 200) {
+                setState(() => _currentPage = 0);
+              }
+            },
+            onTap: () {
+              if (_currentPage == 0) {
+                setState(() => _currentPage = 1);
+              }
+            },
+            child: Container(
+              height: _currentPage == 0 ? 80 : constraints.maxHeight * 0.85,
+              decoration: BoxDecoration(
+                color: AppColors.of(context).surface1,
+                borderRadius: BorderRadius.vertical(
+                  top: Radius.circular(_currentPage == 0 ? 20 : AppRadius.xxl),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 20,
+                    offset: const Offset(0, -5),
+                  ),
+                ],
+              ),
+              child: _currentPage == 0 ? _buildCollapsed() : _buildExpanded(),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildCollapsed() {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 40,
+            height: 4,
+            margin: const EdgeInsets.only(bottom: 8),
+            decoration: BoxDecoration(
+              color: AppColors.of(context).borderSubtle,
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          Text(
+            _isLogin ? 'تسجيل الدخول' : 'إنشاء حساب',
+            style: AppTextStyles.sm.copyWith(color: AppColors.textSecondary),
+          ),
+          const SizedBox(height: 4),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                _isLogin ? 'ليس لديك حساب؟' : 'لديك حساب بالفعل؟',
+                style: AppTextStyles.xs.copyWith(color: AppColors.textMuted),
+              ),
+              GestureDetector(
+                onTap: () => setState(() => _isLogin = !_isLogin),
+                child: Text(
+                  _isLogin ? 'إنشاء حساب' : 'تسجيل الدخول',
+                  style: AppTextStyles.xs.copyWith(
+                    color: AppColors.brand400,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildExpanded() {
+    return ClipRRect(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.xxl)),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+        child: SingleChildScrollView(
+          padding: EdgeInsets.fromLTRB(
+            AppSpacing.sp24,
+            AppSpacing.sp16,
+            AppSpacing.sp24,
+            AppSpacing.sp40,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              GestureDetector(
+                onTap: () => setState(() => _currentPage = 0),
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  margin: const EdgeInsets.only(bottom: 16),
+                  decoration: BoxDecoration(
+                    color: AppColors.of(context).borderSubtle,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  _TabButton(
+                    label: 'تسجيل الدخول',
+                    isSelected: _isLogin,
+                    onTap: () => setState(() => _isLogin = true),
+                  ),
+                  const SizedBox(width: 16),
+                  _TabButton(
+                    label: 'إنشاء حساب',
+                    isSelected: !_isLogin,
+                    onTap: () => setState(() => _isLogin = false),
+                  ),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.sp24),
+              _isLogin ? const _LoginForm() : const _RegisterForm(),
+            ],
           ),
         ),
       ),
     );
   }
+}
 
-  // ─── Bottom sheets ─────────────────────────────────────────────────
+class _TabButton extends StatelessWidget {
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _TabButton({
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? AppColors.brand500 : Colors.transparent,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Text(
+          label,
+          style: AppTextStyles.sm.copyWith(
+            color: isSelected ? Colors.white : AppColors.textSecondary,
+            fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -123,7 +287,10 @@ class _LanguageToggleState extends State<_LanguageToggle> {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(AppRadius.pill),
-          border: Border.all(color: AppColors.of(context).borderLight, width: 1),
+          border: Border.all(
+            color: AppColors.of(context).borderLight,
+            width: 1,
+          ),
         ),
         child: Text(
           _isArabic ? 'AR  |  EN' : 'EN  |  AR',
@@ -137,19 +304,17 @@ class _LanguageToggleState extends State<_LanguageToggle> {
   }
 }
 
-// Embedded login form removed — use bottom-sheet variants instead.
-
 // ═══════════════════════════════════════════════════════════════════════
-// LOGIN SHEET (bottom-sheet variant for quick access)
+// LOGIN FORM
 // ═══════════════════════════════════════════════════════════════════════
 
-class _LoginSheet extends StatefulWidget {
-  const _LoginSheet();
+class _LoginForm extends StatefulWidget {
+  const _LoginForm();
   @override
-  State<_LoginSheet> createState() => _LoginSheetState();
+  State<_LoginForm> createState() => _LoginFormState();
 }
 
-class _LoginSheetState extends State<_LoginSheet> {
+class _LoginFormState extends State<_LoginForm> {
   final _formKey = GlobalKey<FormState>();
   final _emailCtrl = TextEditingController();
   final _passwordCtrl = TextEditingController();
@@ -165,7 +330,10 @@ class _LoginSheetState extends State<_LoginSheet> {
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
-    setState(() { _loading = true; _errorMsg = null; });
+    setState(() {
+      _loading = true;
+      _errorMsg = null;
+    });
 
     try {
       await AuthService().login(
@@ -178,104 +346,86 @@ class _LoginSheetState extends State<_LoginSheet> {
         (_) => false,
       );
     } catch (e) {
-      if (mounted) setState(() { _errorMsg = _parseError(e.toString()); _loading = false; });
+      if (mounted)
+        setState(() {
+          _errorMsg = _parseError(e.toString());
+          _loading = false;
+        });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
-    return _SheetWrapper(
-      bottomInset: bottomInset,
-      child: Form(
-        key: _formKey,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text('تسجيل الدخول',
-                style: AppTextStyles.xl.copyWith(color: AppColors.of(context).textPrimary)),
-            const SizedBox(height: AppSpacing.sp4),
-            Text('سجّل دخولك للمتابعة',
-                style: AppTextStyles.sm.copyWith(color: AppColors.textSecondary)),
-            const SizedBox(height: AppSpacing.sp24),
-
-            if (_errorMsg != null)
-              ErrorBanner(
-                  message: _errorMsg!,
-                  onDismiss: () => setState(() => _errorMsg = null)),
-
-            DebityTextField(
-              controller: _emailCtrl,
-              label: 'البريد الإلكتروني',
-              hintText: 'example@mail.com',
-              keyboardType: TextInputType.emailAddress,
-              textInputAction: TextInputAction.next,
-              prefixIcon: const Icon(Icons.email_outlined),
-              validator: _emailValidator,
+    return Form(
+      key: _formKey,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            'تسجيل الدخول',
+            style: AppTextStyles.xl.copyWith(
+              color: AppColors.of(context).textPrimary,
             ),
-            const SizedBox(height: AppSpacing.sp16),
-            DebityTextField(
-              controller: _passwordCtrl,
-              label: 'كلمة المرور',
-              hintText: '••••••••',
-              obscureText: true,
-              showPasswordToggle: true,
-              prefixIcon: const Icon(Icons.lock_outline),
-              textInputAction: TextInputAction.done,
-              onSubmitted: (_) => _submit(),
-              validator: (v) =>
-                  (v == null || v.isEmpty) ? 'الرجاء إدخال كلمة المرور' : null,
-            ),
-            const SizedBox(height: AppSpacing.sp24),
+          ),
+          const SizedBox(height: AppSpacing.sp4),
+          Text(
+            'سجّل دخولك للمتابعة',
+            style: AppTextStyles.sm.copyWith(color: AppColors.textSecondary),
+          ),
+          const SizedBox(height: AppSpacing.sp24),
 
-            DebityPrimaryButton(
-              label: 'تسجيل الدخول',
-              onPressed: _submit,
-              isLoading: _loading,
+          if (_errorMsg != null)
+            ErrorBanner(
+              message: _errorMsg!,
+              onDismiss: () => setState(() => _errorMsg = null),
             ),
-            const SizedBox(height: AppSpacing.sp12),
 
-            Center(
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.pop(context);
-                  _AuthScreenState._showRegisterSheet(context);
-                },
-                child: RichText(
-                  text: TextSpan(children: [
-                    TextSpan(
-                      text: 'ليس لديك حساب؟  ',
-                      style: AppTextStyles.sm.copyWith(color: AppColors.textSecondary),
-                    ),
-                    TextSpan(
-                      text: 'إنشاء حساب',
-                      style: AppTextStyles.sm.copyWith(
-                        color: AppColors.brand400,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ]),
-                ),
-              ),
-            ),
-          ],
-        ),
+          DebityTextField(
+            controller: _emailCtrl,
+            label: 'البريد الإلكتروني',
+            hintText: 'example@mail.com',
+            keyboardType: TextInputType.emailAddress,
+            textInputAction: TextInputAction.next,
+            prefixIcon: const Icon(Icons.email_outlined),
+            validator: _emailValidator,
+          ),
+          const SizedBox(height: AppSpacing.sp16),
+          DebityTextField(
+            controller: _passwordCtrl,
+            label: 'كلمة المرور',
+            hintText: '••••••••',
+            obscureText: true,
+            showPasswordToggle: true,
+            prefixIcon: const Icon(Icons.lock_outline),
+            textInputAction: TextInputAction.done,
+            onSubmitted: (_) => _submit(),
+            validator: (v) =>
+                (v == null || v.isEmpty) ? 'الرجاء إدخال كلمة المرور' : null,
+          ),
+          const SizedBox(height: AppSpacing.sp24),
+
+          DebityPrimaryButton(
+            label: 'تسجيل الدخول',
+            onPressed: _submit,
+            isLoading: _loading,
+          ),
+        ],
       ),
     );
   }
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-// REGISTER SHEET
+// REGISTER FORM
 // ═══════════════════════════════════════════════════════════════════════
 
-class _RegisterSheet extends StatefulWidget {
-  const _RegisterSheet();
+class _RegisterForm extends StatefulWidget {
+  const _RegisterForm();
   @override
-  State<_RegisterSheet> createState() => _RegisterSheetState();
+  State<_RegisterForm> createState() => _RegisterFormState();
 }
 
-class _RegisterSheetState extends State<_RegisterSheet> {
+class _RegisterFormState extends State<_RegisterForm> {
   final _formKey = GlobalKey<FormState>();
   final _nameCtrl = TextEditingController();
   final _phoneCtrl = TextEditingController();
@@ -295,7 +445,10 @@ class _RegisterSheetState extends State<_RegisterSheet> {
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
-    setState(() { _loading = true; _errorMsg = null; });
+    setState(() {
+      _loading = true;
+      _errorMsg = null;
+    });
 
     try {
       String phone = _phoneCtrl.text.trim().replaceAll(RegExp(r'[^\d+]'), '');
@@ -320,150 +473,98 @@ class _RegisterSheetState extends State<_RegisterSheet> {
         (_) => false,
       );
     } catch (e) {
-      if (mounted) setState(() { _errorMsg = _parseError(e.toString()); _loading = false; });
+      if (mounted)
+        setState(() {
+          _errorMsg = _parseError(e.toString());
+          _loading = false;
+        });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
-    return _SheetWrapper(
-      bottomInset: bottomInset,
-      child: Form(
-        key: _formKey,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text('إنشاء حساب جديد',
-                style: AppTextStyles.xl.copyWith(color: AppColors.of(context).textPrimary)),
-            const SizedBox(height: AppSpacing.sp4),
-            Text('أدخل بياناتك للبدء',
-                style: AppTextStyles.sm.copyWith(color: AppColors.textSecondary)),
-            const SizedBox(height: AppSpacing.sp24),
+    return Form(
+      key: _formKey,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            'إنشاء حساب جديد',
+            style: AppTextStyles.xl.copyWith(
+              color: AppColors.of(context).textPrimary,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.sp4),
+          Text(
+            'أدخل بياناتك للبدء',
+            style: AppTextStyles.sm.copyWith(color: AppColors.textSecondary),
+          ),
+          const SizedBox(height: AppSpacing.sp24),
 
-            if (_errorMsg != null)
-              ErrorBanner(
-                  message: _errorMsg!,
-                  onDismiss: () => setState(() => _errorMsg = null)),
+          if (_errorMsg != null)
+            ErrorBanner(
+              message: _errorMsg!,
+              onDismiss: () => setState(() => _errorMsg = null),
+            ),
 
-            DebityTextField(
-              controller: _nameCtrl,
-              label: 'الاسم الكامل',
-              prefixIcon: const Icon(Icons.person_outline),
-              textInputAction: TextInputAction.next,
-              validator: (v) =>
-                  (v == null || v.trim().isEmpty) ? 'الرجاء إدخال الاسم' : null,
-            ),
-            const SizedBox(height: AppSpacing.sp16),
-            DebityTextField(
-              controller: _phoneCtrl,
-              label: 'رقم الهاتف',
-              hintText: '07xxxxxxxxx',
-              prefixIcon: const Icon(Icons.phone_outlined),
-              keyboardType: TextInputType.phone,
-              textInputAction: TextInputAction.next,
-              validator: (v) {
-                if (v == null || v.trim().isEmpty) return 'الرجاء إدخال رقم الهاتف';
-                if (v.trim().length < 10) return 'رقم الهاتف يجب أن يكون 10 أرقام على الأقل';
-                return null;
-              },
-            ),
-            const SizedBox(height: AppSpacing.sp16),
-            DebityTextField(
-              controller: _emailCtrl,
-              label: 'البريد الإلكتروني',
-              hintText: 'example@mail.com',
-              prefixIcon: const Icon(Icons.email_outlined),
-              keyboardType: TextInputType.emailAddress,
-              textInputAction: TextInputAction.next,
-              validator: _emailValidator,
-            ),
-            const SizedBox(height: AppSpacing.sp16),
-            DebityTextField(
-              controller: _passwordCtrl,
-              label: 'كلمة المرور',
-              hintText: '••••••••',
-              obscureText: true,
-              showPasswordToggle: true,
-              prefixIcon: const Icon(Icons.lock_outline),
-              textInputAction: TextInputAction.done,
-              onSubmitted: (_) => _submit(),
-              validator: PasswordValidator.validate,
-            ),
-            const SizedBox(height: AppSpacing.sp24),
+          DebityTextField(
+            controller: _nameCtrl,
+            label: 'الاسم الكامل',
+            prefixIcon: const Icon(Icons.person_outline),
+            textInputAction: TextInputAction.next,
+            validator: (v) =>
+                (v == null || v.trim().isEmpty) ? 'الرجاء إدخال الاسم' : null,
+          ),
+          const SizedBox(height: AppSpacing.sp16),
+          DebityTextField(
+            controller: _phoneCtrl,
+            label: 'رقم الهاتف',
+            hintText: '07xxxxxxxxx',
+            prefixIcon: const Icon(Icons.phone_outlined),
+            keyboardType: TextInputType.phone,
+            textInputAction: TextInputAction.next,
+            validator: (v) {
+              if (v == null || v.trim().isEmpty)
+                return 'الرجاء إدخال رقم الهاتف';
+              if (v.trim().length < 10)
+                return 'رقم الهاتف يجب أن يكون 10 أرقام على الأقل';
+              return null;
+            },
+          ),
+          const SizedBox(height: AppSpacing.sp16),
+          DebityTextField(
+            controller: _emailCtrl,
+            label: 'البريد الإلكتروني',
+            hintText: 'example@mail.com',
+            prefixIcon: const Icon(Icons.email_outlined),
+            keyboardType: TextInputType.emailAddress,
+            textInputAction: TextInputAction.next,
+            validator: _emailValidator,
+          ),
+          const SizedBox(height: AppSpacing.sp16),
+          DebityTextField(
+            controller: _passwordCtrl,
+            label: 'كلمة المرور',
+            hintText: '••••••••',
+            obscureText: true,
+            showPasswordToggle: true,
+            prefixIcon: const Icon(Icons.lock_outline),
+            textInputAction: TextInputAction.done,
+            onSubmitted: (_) => _submit(),
+            validator: PasswordValidator.validate,
+          ),
+          const SizedBox(height: AppSpacing.sp24),
 
-            DebityPrimaryButton(
-              label: 'إنشاء حساب',
-              onPressed: _submit,
-              isLoading: _loading,
-            ),
-            const SizedBox(height: AppSpacing.sp12),
-
-            Center(
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.pop(context);
-                  _AuthScreenState._showLoginSheet(context);
-                },
-                child: RichText(
-                  text: TextSpan(children: [
-                    TextSpan(
-                      text: 'لديك حساب بالفعل؟  ',
-                      style: AppTextStyles.sm.copyWith(color: AppColors.textSecondary),
-                    ),
-                    TextSpan(
-                      text: 'تسجيل الدخول',
-                      style: AppTextStyles.sm.copyWith(
-                        color: AppColors.brand400,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ]),
-                ),
-              ),
-            ),
-          ],
-        ),
+          DebityPrimaryButton(
+            label: 'إنشاء حساب',
+            onPressed: _submit,
+            isLoading: _loading,
+          ),
+        ],
       ),
     );
   }
 }
-
-// ═══════════════════════════════════════════════════════════════════════
-// SHARED WIDGETS
-// ═══════════════════════════════════════════════════════════════════════
-
-class _SheetWrapper extends StatelessWidget {
-  const _SheetWrapper({required this.bottomInset, required this.child});
-  final double bottomInset;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: const BorderRadius.vertical(top: Radius.circular(AppRadius.xxl)),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-        child: Container(
-          padding: EdgeInsets.fromLTRB(
-            AppSpacing.sp24, AppSpacing.sp16,
-            AppSpacing.sp24, AppSpacing.sp20 + bottomInset,
-          ),
-          decoration: BoxDecoration(
-            color: AppColors.of(context).surface1,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(AppRadius.xxl)),
-            border: Border(
-              top: BorderSide(color: AppColors.of(context).borderSubtle, width: 1),
-            ),
-          ),
-          child: SingleChildScrollView(child: child),
-        ),
-      ),
-    );
-  }
-}
-
-// ─── Helpers ──────────────────────────────────────────────────────────
 
 String? _emailValidator(String? v) {
   if (v == null || v.isEmpty) return 'الرجاء إدخال البريد الإلكتروني';

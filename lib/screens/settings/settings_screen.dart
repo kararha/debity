@@ -506,16 +506,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
     // Show confirmation dialog
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: Text(AppLocalizations.of(context).logoutLabel),
         content: Text(AppLocalizations.of(context).confirmLogout),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context, false),
+            onPressed: () => Navigator.pop(dialogContext, false),
             child: Text(AppLocalizations.of(context).cancel),
           ),
           TextButton(
-            onPressed: () => Navigator.pop(context, true),
+            onPressed: () => Navigator.pop(dialogContext, true),
             style: TextButton.styleFrom(
               foregroundColor: AppColors.error,
             ),
@@ -529,12 +529,29 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     if (!mounted) return;
 
-    // Show loading dialog
-    showDialog(
+    // Show loading bottom sheet
+    showModalBottomSheet(
       context: context,
-      barrierDismissible: false,
-      builder: (context) => const Center(
-        child: CircularProgressIndicator(),
+      isDismissible: true,
+      enableDrag: true,
+      builder: (sheetContext) => Container(
+        decoration: BoxDecoration(
+          color: AppColors.of(context).surface1,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Row(
+            children: [
+              const CircularProgressIndicator(),
+              const SizedBox(width: 16),
+              Text(
+                'جاري تسجيل الخروج...',
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
+            ],
+          ),
+        ),
       ),
     );
 
@@ -544,7 +561,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       await _apiService.logout();
 
       if (mounted) {
-        Navigator.pop(context);
+        Navigator.pop(context); // Pop the loading bottom sheet
         Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (context) => const AuthScreen()),
           (route) => false,
@@ -552,7 +569,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       }
     } catch (e) {
       if (mounted) {
-        Navigator.pop(context);
+        Navigator.pop(context); // Pop the loading bottom sheet
         _showSnack('خطأ في تسجيل الخروج: $e', isError: true);
         await Future.delayed(const Duration(seconds: 1));
         if (mounted) {
