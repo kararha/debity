@@ -33,7 +33,8 @@ class AppTextStyles {
     double? letterSpacing,
     double? height,
   }) =>
-      GoogleFonts.notoSansArabic(
+      TextStyle(
+        fontFamily: 'Parastoo',
         fontSize: size,
         fontWeight: weight,
         color: color,
