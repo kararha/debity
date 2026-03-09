@@ -1,35 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'app_colors.dart';
 
 /// Debity design-system typography.
 ///
-/// Primary font  : Inter (LTR)
-/// Arabic font   : Noto Sans Arabic (RTL)
-/// Monospace     : JetBrains Mono (numeric amounts)
+/// Font: Parastoo (all locales)
 class AppTextStyles {
   AppTextStyles._();
 
-  // ─── Helper: pick font family based on locale ──────────────────────
-  static TextStyle _inter({
+  // ─── Base helper ───────────────────────────────────────────────────
+  static TextStyle _parastoo({
     required double size,
     required FontWeight weight,
-    Color? color,   // null → inherits theme onSurface
-    double? letterSpacing,
-    double? height,
-  }) =>
-      GoogleFonts.inter(
-        fontSize: size,
-        fontWeight: weight,
-        color: color,
-        letterSpacing: letterSpacing,
-        height: height ?? 1.6,
-      );
-
-  static TextStyle _notoArabic({
-    required double size,
-    required FontWeight weight,
-    Color? color,   // null → inherits theme onSurface
+    Color? color,
     double? letterSpacing,
     double? height,
   }) =>
@@ -41,6 +23,23 @@ class AppTextStyles {
         letterSpacing: letterSpacing,
         height: height ?? 1.6,
       );
+
+  // Aliases kept for backward compatibility
+  static TextStyle _inter({
+    required double size,
+    required FontWeight weight,
+    Color? color,
+    double? letterSpacing,
+    double? height,
+  }) => _parastoo(size: size, weight: weight, color: color, letterSpacing: letterSpacing, height: height);
+
+  static TextStyle _notoArabic({
+    required double size,
+    required FontWeight weight,
+    Color? color,
+    double? letterSpacing,
+    double? height,
+  }) => _parastoo(size: size, weight: weight, color: color, letterSpacing: letterSpacing, height: height);
 
   /// Return [arabic] style when [isRtl] is true, otherwise [ltr] style.
   static TextStyle resolve(
@@ -97,7 +96,7 @@ class AppTextStyles {
   static TextStyle get inputLabel => base.copyWith(fontWeight: FontWeight.w500, color: AppColors.textSecondary);
   static TextStyle get inputText => base;
   static TextStyle get inputHint => base.copyWith(color: AppColors.textMuted);
-  static TextStyle get btnPrimary => _inter(size: 15, weight: FontWeight.w600, color: Colors.white);
+  static TextStyle get btnPrimary => _parastoo(size: 15, weight: FontWeight.w600, color: Colors.white);
   static TextStyle get navLabel => xs.copyWith(fontSize: 11, fontWeight: FontWeight.w500);
   static TextStyle get badgeText => xs.copyWith(fontSize: 12, fontWeight: FontWeight.w500, letterSpacing: 0.2);
 

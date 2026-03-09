@@ -1,6 +1,5 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'app_color_scheme.dart';
 import 'app_colors.dart';
 import 'app_spacing.dart';
@@ -33,7 +32,7 @@ class AppTheme {
       colorScheme: colorScheme,
       primaryColor: AppColors.brand500,
       scaffoldBackgroundColor: AppColors.surface0,
-      fontFamily: GoogleFonts.inter().fontFamily,
+      fontFamily: 'Parastoo',
       extensions: const [AppColorScheme.dark],
 
       //  AppBar 
@@ -284,7 +283,7 @@ class AppTheme {
       colorScheme: colorScheme,
       primaryColor: AppColors.brand500,
       scaffoldBackgroundColor: c.surface0,
-      fontFamily: GoogleFonts.inter().fontFamily,
+      fontFamily: 'Parastoo',
       extensions: const [c],
 
       // ── AppBar ──────────────────────────────────────────────────────

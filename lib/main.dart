@@ -89,27 +89,9 @@ class DebityApp extends StatelessWidget {
               title: 'ديبتي',
               debugShowCheckedModeBanner: false,
 
-                // Use AppTheme light/dark and apply the selected ThemeMode.
-                // When Arabic (RTL) is active, override font to the bundled
-                // `Parastoo` asset so the app uses the local font for Arabic.
-                theme: isRtl
-                  ? AppTheme.lightTheme.copyWith(
-                      textTheme: AppTheme.lightTheme.textTheme.apply(fontFamily: 'Parastoo'),
-                      primaryTextTheme: AppTheme.lightTheme.primaryTextTheme.apply(fontFamily: 'Parastoo'),
-                      appBarTheme: AppTheme.lightTheme.appBarTheme.copyWith(
-                        titleTextStyle: AppTheme.lightTheme.appBarTheme.titleTextStyle?.copyWith(fontFamily: 'Parastoo'),
-                      ),
-                    )
-                  : AppTheme.lightTheme,
-                darkTheme: isRtl
-                  ? AppTheme.darkTheme.copyWith(
-                      textTheme: AppTheme.darkTheme.textTheme.apply(fontFamily: 'Parastoo'),
-                      primaryTextTheme: AppTheme.darkTheme.primaryTextTheme.apply(fontFamily: 'Parastoo'),
-                      appBarTheme: AppTheme.darkTheme.appBarTheme.copyWith(
-                        titleTextStyle: AppTheme.darkTheme.appBarTheme.titleTextStyle?.copyWith(fontFamily: 'Parastoo'),
-                      ),
-                    )
-                  : AppTheme.darkTheme,
+              // Use AppTheme light/dark and apply the selected ThemeMode
+              theme: AppTheme.lightTheme,
+              darkTheme: AppTheme.darkTheme,
               themeMode: themeMode,
 
           // Localizations
