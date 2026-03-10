@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -1037,13 +1038,13 @@ class PendingNotification {
       id: json['id'] ?? '',
       installmentId: json['installment_id'] ?? '',
       customerId: json['customer_id'],
-      type: json['type'] ?? '',
-      title: json['title'] ?? '',
-      body: json['body'] ?? '',
-      data: json['data'],
-      createdAt: DateTime.tryParse(json['created_at'] ?? '') ?? DateTime.now(),
-      sent: json['sent'] ?? false,
-      sentAt: json['sent_at'] != null ? DateTime.tryParse(json['sent_at']) : null,
+      type: json['type']?.toString() ?? '',
+      title: json['title']?.toString() ?? '',
+      body: json['body']?.toString() ?? '',
+      data: json['data'] != null ? jsonEncode(json['data']) : null,
+      createdAt: DateTime.tryParse(json['created_at']?.toString() ?? '') ?? DateTime.now(),
+      sent: json['sent'] == true,
+      sentAt: json['sent_at'] != null ? DateTime.tryParse(json['sent_at'].toString()) : null,
     );
   }
 }
