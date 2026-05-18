@@ -93,9 +93,16 @@ class FCMService {
   /// Save/upsert the FCM token to the user_fcm_tokens Supabase table
   static Future<void> saveFcmTokenToSupabase(String token) async {
     try {
+      final user = Supabase.instance.client.auth.currentUser;
+      if (user == null) {
+        debugPrint('FCM: No user logged in, skipping token save');
+        return;
+      }
+
       final platform = Platform.isAndroid ? 'Android' : Platform.isIOS ? 'iOS' : 'Unknown';
       await Supabase.instance.client.from('user_fcm_tokens').upsert(
         {
+          'user_id': user.id,
           'token': token,
           'platform': platform,
           'device_name': 'Unknown',
@@ -104,7 +111,7 @@ class FCMService {
         },
         onConflict: 'token',
       );
-      debugPrint('FCM token saved to Supabase');
+      debugPrint('FCM token saved to Supabase for user: ${user.id}');
     } catch (e) {
       debugPrint('Failed to save FCM token: $e');
     }

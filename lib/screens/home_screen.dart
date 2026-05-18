@@ -31,7 +31,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _currentIndex = 0;
+  final ValueNotifier<int> _currentIndex = ValueNotifier<int>(0);
   late final StreamSubscription<AuthState> _authSub;
 
   // 5 tabs: Dashboard, Customers, Debts, Notifications, Settings
@@ -59,6 +59,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void dispose() {
     _authSub.cancel();
+    _currentIndex.dispose();
     super.dispose();
   }
 
@@ -67,10 +68,20 @@ class _HomeScreenState extends State<HomeScreen> {
     final c = AppColors.of(context);
     return Scaffold(
       backgroundColor: c.surface0,
-      body: IndexedStack(index: _currentIndex, children: _screens),
-      bottomNavigationBar: _DebityBottomNav(
-        currentIndex: _currentIndex,
-        onTap: (i) => setState(() => _currentIndex = i),
+      body: ValueListenableBuilder<int>(
+        valueListenable: _currentIndex,
+        builder: (context, index, _) {
+          return IndexedStack(index: index, children: _screens);
+        },
+      ),
+      bottomNavigationBar: ValueListenableBuilder<int>(
+        valueListenable: _currentIndex,
+        builder: (context, index, _) {
+          return _DebityBottomNav(
+            currentIndex: index,
+            onTap: (i) => _currentIndex.value = i,
+          );
+        },
       ),
     );
   }

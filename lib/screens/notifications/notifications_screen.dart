@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../api/api_service.dart';
@@ -243,118 +244,100 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   }
 
   Widget _buildNotificationsList() {
-    // Group notifications by type
-    final overdueNotifications =
-        _notifications.where((n) => n.type == 'overdue').toList();
-    final todayNotifications =
-        _notifications.where((n) => n.type == 'reminder_today').toList();
-    final tomorrowNotifications =
-        _notifications.where((n) => n.type == 'reminder_tomorrow').toList();
+    final overdueNotifications = _notifications.where((n) => n.type == 'overdue').toList();
+    final todayNotifications = _notifications.where((n) => n.type == 'reminder_today').toList();
+    final tomorrowNotifications = _notifications.where((n) => n.type == 'reminder_tomorrow').toList();
     final otherNotifications = _notifications
-        .where((n) =>
-            n.type != 'overdue' &&
-            n.type != 'reminder_today' &&
-            n.type != 'reminder_tomorrow')
+        .where((n) => n.type != 'overdue' && n.type != 'reminder_today' && n.type != 'reminder_tomorrow')
         .toList();
+
+    // Flatten lists
+    final List<dynamic> flattened = [];
+    if (overdueNotifications.isNotEmpty) {
+      flattened.add({'type': 'header', 'title': 'أقساط متأخرة', 'icon': Icons.warning_amber_rounded, 'color': AppColors.error, 'count': overdueNotifications.length});
+      flattened.addAll(overdueNotifications.map((n) => {'type': 'item', 'data': n, 'color': AppColors.error}));
+    }
+    if (todayNotifications.isNotEmpty) {
+      flattened.add({'type': 'header', 'title': 'مستحقة اليوم', 'icon': Icons.today, 'color': AppColors.warning, 'count': todayNotifications.length});
+      flattened.addAll(todayNotifications.map((n) => {'type': 'item', 'data': n, 'color': AppColors.warning}));
+    }
+    if (tomorrowNotifications.isNotEmpty) {
+      flattened.add({'type': 'header', 'title': 'مستحقة غداً', 'icon': Icons.event, 'color': AppColors.info, 'count': tomorrowNotifications.length});
+      flattened.addAll(tomorrowNotifications.map((n) => {'type': 'item', 'data': n, 'color': AppColors.info}));
+    }
+    if (otherNotifications.isNotEmpty) {
+      flattened.add({'type': 'header', 'title': 'إشعارات أخرى', 'icon': Icons.notifications, 'color': AppColors.primaryColor, 'count': otherNotifications.length});
+      flattened.addAll(otherNotifications.map((n) => {'type': 'item', 'data': n, 'color': AppColors.primaryColor}));
+    }
 
     return RefreshIndicator(
       onRefresh: _loadNotifications,
-      child: ListView(
+      child: ListView.builder(
         padding: const EdgeInsets.all(16),
-        children: [
-          // Overdue Section
-          if (overdueNotifications.isNotEmpty) ...[
-            _buildSection(
-              title: 'أقساط متأخرة',
-              icon: Icons.warning_amber_rounded,
-              color: AppColors.error,
-              notifications: overdueNotifications,
-            ),
-            const SizedBox(height: 16),
-          ],
-
-          // Today Section
-          if (todayNotifications.isNotEmpty) ...[
-            _buildSection(
-              title: 'مستحقة اليوم',
-              icon: Icons.today,
-              color: AppColors.warning,
-              notifications: todayNotifications,
-            ),
-            const SizedBox(height: 16),
-          ],
-
-          // Tomorrow Section
-          if (tomorrowNotifications.isNotEmpty) ...[
-            _buildSection(
-              title: 'مستحقة غداً',
-              icon: Icons.event,
-              color: AppColors.info,
-              notifications: tomorrowNotifications,
-            ),
-            const SizedBox(height: 16),
-          ],
-
-          // Other Section
-          if (otherNotifications.isNotEmpty) ...[
-            _buildSection(
-              title: 'إشعارات أخرى',
-              icon: Icons.notifications,
-              color: AppColors.primaryColor,
-              notifications: otherNotifications,
-            ),
-          ],
-        ],
+        itemCount: flattened.length,
+        itemBuilder: (context, index) {
+          final item = flattened[index];
+          if (item['type'] == 'header') {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (index != 0) const SizedBox(height: 16),
+                _buildSectionHeader(
+                  title: item['title'] as String,
+                  icon: item['icon'] as IconData,
+                  color: item['color'] as Color,
+                  count: item['count'] as int,
+                ),
+                const SizedBox(height: 12),
+              ],
+            );
+          } else {
+            return _buildNotificationCard(item['data'] as PendingNotification, item['color'] as Color);
+          }
+        },
       ),
     );
   }
 
-  Widget _buildSection({
+  Widget _buildSectionHeader({
     required String title,
     required IconData icon,
     required Color color,
-    required List<PendingNotification> notifications,
+    required int count,
   }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Row(
       children: [
-        Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                color: Color.fromRGBO((color.toARGB32() >> 16) & 0xFF, (color.toARGB32() >> 8) & 0xFF, color.toARGB32() & 0xFF, 0.1),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(icon, color: color, size: 20),
-            ),
-            const SizedBox(width: 12),
-            Text(
-              title,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
-            const SizedBox(width: 8),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-              decoration: BoxDecoration(
-                color: Color.fromRGBO((color.toARGB32() >> 16) & 0xFF, (color.toARGB32() >> 8) & 0xFF, color.toARGB32() & 0xFF, 0.1),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                '${notifications.length}',
-                style: TextStyle(
-                  color: color,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 12,
-                ),
-              ),
-            ),
-          ],
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Color.fromRGBO((color.toARGB32() >> 16) & 0xFF, (color.toARGB32() >> 8) & 0xFF, color.toARGB32() & 0xFF, 0.1),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(icon, color: color, size: 20),
         ),
-        const SizedBox(height: 12),
-        ...notifications.map((n) => _buildNotificationCard(n, color)),
+        const SizedBox(width: 12),
+        Text(
+          title,
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+        ),
+        const SizedBox(width: 8),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+          decoration: BoxDecoration(
+            color: Color.fromRGBO((color.toARGB32() >> 16) & 0xFF, (color.toARGB32() >> 8) & 0xFF, color.toARGB32() & 0xFF, 0.1),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Text(
+            '$count',
+            style: TextStyle(
+              color: color,
+              fontWeight: FontWeight.bold,
+              fontSize: 12,
+            ),
+          ),
+        ),
       ],
     );
   }

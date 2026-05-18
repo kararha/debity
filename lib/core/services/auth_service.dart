@@ -7,6 +7,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../constants/app_constants.dart';
+import 'fcm_service.dart';
 
 // Re-export EmptyLocalStorage so main.dart can reference it from one import.
 export 'package:supabase_flutter/supabase_flutter.dart' show EmptyLocalStorage;
@@ -144,6 +145,14 @@ class AuthService {
     _cancelRefreshTimer();
     _accessToken = null;
     await _secureStorage.delete(key: _secureStorageKey);
+
+    // Deactivate FCM token on logout
+    try {
+      await FCMService.deactivateToken();
+    } catch (e) {
+      debugPrint('FCM deactivateToken (ignored): $e');
+    }
+
     try {
       await Supabase.instance.client.auth.signOut();
     } catch (e) {
@@ -189,6 +198,16 @@ class AuthService {
       await Supabase.instance.client.auth.setSession(refreshToken);
     } catch (e) {
       debugPrint('setSession (ignored): $e');
+    }
+
+    // After setting the session, save the FCM token to Supabase
+    try {
+      final fcmToken = await FCMService.getToken();
+      if (fcmToken != null) {
+        await FCMService.saveFcmTokenToSupabase(fcmToken);
+      }
+    } catch (e) {
+      debugPrint('Failed to save FCM token during auth: $e');
     }
 
     // Schedule proactive refresh ~2 minutes before expiry (default expiry ≈ 1 h).
