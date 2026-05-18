@@ -12,31 +12,15 @@ import 'fcm_service.dart';
 // Re-export EmptyLocalStorage so main.dart can reference it from one import.
 export 'package:supabase_flutter/supabase_flutter.dart' show EmptyLocalStorage;
 
-// ---------------------------------------------------------------------------
-// AuthService
-//
-// Responsibilities:
-//   • Registration  → POST /functions/v1/create-user  (no JWT, no auto-login)
-//   • Login         → POST /functions/v1/login
-//   • Token refresh → POST /functions/v1/refresh-token
-//   • Logout        → clear memory + secure storage
-//   • Session restore on cold start (reads refresh_token from secure storage)
-//
-// Token storage policy (enforced here):
-//   • access_token  → in-memory only (_accessToken static field)
-//   • refresh_token → flutter_secure_storage (encrypted on-device)
-// ---------------------------------------------------------------------------
 class AuthService {
   static final AuthService _instance = AuthService._internal();
   factory AuthService() => _instance;
   AuthService._internal();
 
-  // ── Constants ──────────────────────────────────────────────────────────────
   static const _functionsBaseUrl = AppConstants.functionsBaseUrl;
   static const _anonKey = AppConstants.supabaseAnonKey;
   static const _secureStorageKey = 'debity_refresh_token';
 
-  // ── State ─────────────────────────────────────────────────────────────────
   String? _accessToken;
   Timer? _refreshTimer;
 
@@ -45,26 +29,20 @@ class AuthService {
     iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
   );
 
-  // ── Public getters ─────────────────────────────────────────────────────────
   String? get accessToken => _accessToken;
   bool get isLoggedIn => _accessToken != null;
 
-  // ── Default HTTP headers (no auth) ─────────────────────────────────────────
   Map<String, String> get _baseHeaders => {
         'Content-Type': 'application/json',
         'apikey': _anonKey,
       };
 
-  // ── Authenticated headers ──────────────────────────────────────────────────
   Map<String, String> get authHeaders => {
         ..._baseHeaders,
         if (_accessToken != null) 'Authorization': 'Bearer $_accessToken',
       };
 
-  // ---------------------------------------------------------------------------
-  // Registration — calls create-user edge function
-  // Spec: returns { user } — NO tokens. Do NOT log the user in.
-  // ---------------------------------------------------------------------------
+  // ── Registration ───────────────────────────────────────────────────────────
   Future<void> register({
     required String email,
     required String password,
@@ -82,23 +60,22 @@ class AuthService {
 
     final data = await _postJson('create-user', body, context: 'create-user');
 
-    // Server returns { user } — no tokens, user must verify email first.
     if (data['user'] == null) {
       throw Exception(data['error'] ?? 'فشل إنشاء الحساب');
     }
   }
 
-  // ---------------------------------------------------------------------------
-  // Login — calls login edge function
-  // Spec: returns { access_token, refresh_token, user }
-  // ---------------------------------------------------------------------------
+  // ── Login ──────────────────────────────────────────────────────────────────
   Future<Map<String, dynamic>> login({
     required String email,
     required String password,
   }) async {
-    final data = await _postJson('login', {'email': email, 'password': password}, context: 'login');
+    final data = await _postJson(
+      'login',
+      {'email': email, 'password': password},
+      context: 'login',
+    );
 
-    // Edge function wraps result as { data: { user, session: { access_token, refresh_token } } }
     final inner = data['data'] as Map<String, dynamic>?;
     final session = inner?['session'] as Map<String, dynamic>?;
 
@@ -113,20 +90,19 @@ class AuthService {
     return data;
   }
 
-  // ---------------------------------------------------------------------------
-  // Token Refresh — calls refresh-token edge function
-  // Reads the stored refresh_token, exchanges it, stores the new pair.
-  // ---------------------------------------------------------------------------
+  // ── Token Refresh ──────────────────────────────────────────────────────────
   Future<void> refreshToken() async {
-    final storedRefresh =
-        await _secureStorage.read(key: _secureStorageKey);
+    final storedRefresh = await _secureStorage.read(key: _secureStorageKey);
     if (storedRefresh == null) {
       throw Exception('لا يوجد refresh token محفوظ');
     }
 
-    final data = await _postJson('refresh-token', {'refresh_token': storedRefresh}, context: 'refresh-token');
+    final data = await _postJson(
+      'refresh-token',
+      {'refresh_token': storedRefresh},
+      context: 'refresh-token',
+    );
 
-    // refresh-token edge function returns: { session: { access_token, refresh_token }, user }
     final session = data['session'] as Map<String, dynamic>?;
     final accessToken = session?['access_token'] as String?;
     final refreshToken = session?['refresh_token'] as String?;
@@ -138,15 +114,12 @@ class AuthService {
     await _applyTokens(accessToken, refreshToken);
   }
 
-  // ---------------------------------------------------------------------------
-  // Logout — clear memory + secure storage + Supabase in-memory session
-  // ---------------------------------------------------------------------------
+  // ── Logout ─────────────────────────────────────────────────────────────────
   Future<void> logout() async {
     _cancelRefreshTimer();
     _accessToken = null;
     await _secureStorage.delete(key: _secureStorageKey);
 
-    // Deactivate FCM token on logout
     try {
       await FCMService.deactivateToken();
     } catch (e) {
@@ -160,11 +133,7 @@ class AuthService {
     }
   }
 
-  // ---------------------------------------------------------------------------
-  // Session Restore — called on cold start
-  // Reads refresh_token → calls refresh edge function → re-hydrates session
-  // Returns true if session was restored successfully.
-  // ---------------------------------------------------------------------------
+  // ── Session Restore ────────────────────────────────────────────────────────
   Future<bool> tryRestoreSession() async {
     try {
       final stored = await _secureStorage.read(key: _secureStorageKey);
@@ -173,34 +142,29 @@ class AuthService {
       return true;
     } catch (e) {
       debugPrint('Session restore failed: $e');
-      // Clear stale tokens
       _accessToken = null;
       await _secureStorage.delete(key: _secureStorageKey);
       return false;
     }
   }
 
-  // ---------------------------------------------------------------------------
-  // Private helpers
-  // ---------------------------------------------------------------------------
+  // ── Private helpers ────────────────────────────────────────────────────────
 
-  /// Store tokens, inject into Supabase client, schedule proactive refresh.
-  Future<void> _applyTokens(
-      String accessToken, String refreshToken) async {
+  Future<void> _applyTokens(String accessToken, String refreshToken) async {
     // access_token → memory only
     _accessToken = accessToken;
 
     // refresh_token → secure storage
     await _secureStorage.write(key: _secureStorageKey, value: refreshToken);
 
-    // Inject into Supabase SDK so .from() calls work transparently.
+    // ✅ Pass access token (not refresh token) so currentUser is properly set
     try {
-      await Supabase.instance.client.auth.setSession(refreshToken);
+      await Supabase.instance.client.auth.setSession(accessToken);
     } catch (e) {
       debugPrint('setSession (ignored): $e');
     }
 
-    // After setting the session, save the FCM token to Supabase
+    // currentUser is now set — FCM token save will work correctly
     try {
       final fcmToken = await FCMService.getToken();
       if (fcmToken != null) {
@@ -210,7 +174,7 @@ class AuthService {
       debugPrint('Failed to save FCM token during auth: $e');
     }
 
-    // Schedule proactive refresh ~2 minutes before expiry (default expiry ≈ 1 h).
+    // Schedule proactive refresh ~2 minutes before expiry (default expiry ≈ 1 h)
     _scheduleRefresh(const Duration(minutes: 58));
   }
 
@@ -230,7 +194,6 @@ class AuthService {
     _refreshTimer = null;
   }
 
-  /// Parse HTTP response; throw on non-2xx.
   Map<String, dynamic> _parseResponse(http.Response response,
       {required String context}) {
     Map<String, dynamic> body = {};
@@ -247,26 +210,23 @@ class AuthService {
     return body;
   }
 
-  /// Helper to POST JSON to functions and convert network-level errors to a
-  /// short, consistent message so callers can detect network failures.
-  Future<Map<String, dynamic>> _postJson(String path, Map<String, dynamic> body,
-      {required String context}) async {
+  Future<Map<String, dynamic>> _postJson(
+    String path,
+    Map<String, dynamic> body, {
+    required String context,
+  }) async {
     try {
       final response = await http.post(
         Uri.parse('$_functionsBaseUrl/$path'),
         headers: _baseHeaders,
         body: jsonEncode(body),
       );
-
       return _parseResponse(response, context: context);
     } on SocketException catch (_) {
-      // Map socket failures to a concise token that UI recognizes.
       throw Exception('network');
     } on http.ClientException catch (_) {
       throw Exception('network');
     } catch (e) {
-      // For any other unexpected errors, rethrow as-is to preserve details
-      // for debugging while allowing UI to show a fallback message.
       throw Exception(e.toString());
     }
   }
