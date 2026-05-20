@@ -10,6 +10,9 @@ import 'core/constants/app_constants.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/theme_controller.dart';
 import 'screens/splash_screen.dart';
+import 'package:secure_application/secure_application.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'screens/auth/app_lock_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -76,52 +79,68 @@ class DebityApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListenableBuilder(
-      listenable: AppLocale.instance,
-      builder: (context, _) {
-        final locale = AppLocale.instance.locale;
-        final isRtl = AppLocale.instance.isRtl;
+    return ProviderScope(
+      child: SecureApplication(
+        nativeRemoveDelay: 800,
+        autoUnlockNative: true,
+        child: ListenableBuilder(
+        listenable: AppLocale.instance,
+        builder: (context, _) {
+          final locale = AppLocale.instance.locale;
+          final isRtl = AppLocale.instance.isRtl;
 
-        return ValueListenableBuilder<ThemeMode>(
-          valueListenable: ThemeController.themeMode,
-          builder: (context, themeMode, __) {
-            return MaterialApp(
-              title: 'ديبتي',
-              debugShowCheckedModeBanner: false,
+          return ValueListenableBuilder<ThemeMode>(
+            valueListenable: ThemeController.themeMode,
+            builder: (context, themeMode, __) {
+              return MaterialApp(
+                title: 'ديبتي',
+                debugShowCheckedModeBanner: false,
 
-              // Use AppTheme light/dark and apply the selected ThemeMode
-              theme: AppTheme.lightTheme,
-              darkTheme: AppTheme.darkTheme,
-              themeMode: themeMode,
+                // Use AppTheme light/dark and apply the selected ThemeMode
+                theme: AppTheme.lightTheme,
+                darkTheme: AppTheme.darkTheme,
+                themeMode: themeMode,
 
-          // Localizations
-          localizationsDelegates: const [
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-            // App strings
-            AppLocalizationsDelegate(),
-          ],
-          locale: locale,
-          supportedLocales: const [
-            Locale('ar', 'IQ'),
-            Locale('ar'),
-            Locale('en'),
-          ], 
+            // Localizations
+            localizationsDelegates: const [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+              // App strings
+              AppLocalizationsDelegate(),
+            ],
+            locale: locale,
+            supportedLocales: const [
+              Locale('ar', 'IQ'),
+              Locale('ar'),
+              Locale('en'),
+            ], 
 
-          // RTL / LTR based on locale
-          builder: (context, child) {
-            return Directionality(
-              textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
-              child: child ?? const SizedBox.shrink(),
-            );
-          },
+            // RTL / LTR based on locale
+            builder: (context, child) {
+              return SecureGate(
+                blurr: 20,
+                opacity: 0.85,
+                lockedBuilder: (context, secureNotifier) {
+                  return Directionality(
+                    textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
+                    child: const AppLockScreen(),
+                  );
+                },
+                child: Directionality(
+                  textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
+                  child: child ?? const SizedBox.shrink(),
+                ),
+              );
+            },
 
-        home: const SplashScreen(),
-            );
-          },
-        );
-      },
+          home: const SplashScreen(),
+              );
+            },
+          );
+        },
+        ),
+      ),
     );
   }
 }

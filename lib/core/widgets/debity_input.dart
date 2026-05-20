@@ -24,6 +24,7 @@ class DebityTextField extends StatefulWidget {
     this.onSubmitted,
     this.validator,
     this.prefixIcon,
+    this.suffixIcon,
     this.enabled = true,
     this.autofocus = false,
     this.maxLines = 1,
@@ -44,6 +45,7 @@ class DebityTextField extends StatefulWidget {
   final ValueChanged<String>? onSubmitted;
   final FormFieldValidator<String>? validator;
   final Widget? prefixIcon;
+  final Widget? suffixIcon;
   final bool enabled;
   final bool autofocus;
   final int maxLines;
@@ -145,7 +147,7 @@ class _DebityTextFieldState extends State<DebityTextField> {
                     onPressed: () => setState(() => _obscured = !_obscured),
                     splashRadius: 16,
                   )
-                : null,
+                : widget.suffixIcon,
             errorStyle: AppTextStyles.xs.copyWith(color: AppColors.danger),
           ),
         ),

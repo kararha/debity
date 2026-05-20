@@ -51,6 +51,7 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
   Future<void> _saveCustomer() async {
     if (!_formKey.currentState!.validate()) return;
 
+    if (!mounted) return;
     setState(() => _isLoading = true);
 
     try {
@@ -90,15 +91,14 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
         }
       }
     } catch (e) {
+      if (!mounted) return;
       setState(() => _isLoading = false);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('${AppLocalizations.of(context).deleteError}: ${e.toString().replaceAll('Exception: ', '')}'),
-            backgroundColor: AppColors.danger,
-          ),
-        );
-      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('لا يمكن حفظ العميل: ${e.toString().replaceAll('Exception: ', '')}'),
+          backgroundColor: AppColors.danger,
+        ),
+      );
     }
   }
 
@@ -129,7 +129,7 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
               type: StepperType.vertical,
               physics: const BouncingScrollPhysics(),
               currentStep: _currentStep,
-              onStepTapped: (step) => setState(() => _currentStep = step),
+              onStepTapped: (step) { if (mounted) setState(() => _currentStep = step); },
               onStepContinue: () {
                 // Optional Enhancement: Validate the current step before allowing 'Next'
                 if (_currentStep == 0 && _nameController.text.trim().length < 2) {
@@ -149,12 +149,12 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
                 if (isLastStep) {
                   _saveCustomer();
                 } else {
-                  setState(() => _currentStep += 1);
+                  if (mounted) setState(() => _currentStep += 1);
                 }
               },
               onStepCancel: _currentStep == 0
                   ? null
-                  : () => setState(() => _currentStep -= 1),
+                  : () { if (mounted) setState(() => _currentStep -= 1); },
               
               controlsBuilder: (context, details) {
                 final isLastStep = _currentStep == _getSteps().length - 1;
@@ -241,7 +241,7 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
             }
             return null;
           },
-          onChanged: (_) => setState(() {}),
+          onChanged: (_) { if (mounted) setState(() {}); },
         ),
       ],
     );

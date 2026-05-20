@@ -23,6 +23,9 @@ class AuthService {
 
   String? _accessToken;
   Timer? _refreshTimer;
+  /// Ensures [FCMService.setupTokenListeners] is only called once per app
+  /// lifecycle — even if [_applyTokens] is called on every proactive refresh.
+  bool _fcmListenersSetUp = false;
 
   final _secureStorage = const FlutterSecureStorage(
     aOptions: AndroidOptions(encryptedSharedPreferences: true),
@@ -90,6 +93,23 @@ class AuthService {
     return data;
   }
 
+  // ── Password Recovery ──────────────────────────────────────────────────────
+  /// Sends a password-reset email via Supabase Auth (/auth/v1/recover).
+  ///
+  /// Callers MUST enforce a one-shot guard and a cooldown timer to avoid
+  /// hitting Supabase's `over_email_send_rate_limit` (429) error.
+  Future<void> resetPassword({required String email}) async {
+    try {
+      await Supabase.instance.client.auth.resetPasswordForEmail(email);
+    } on AuthException catch (e) {
+      throw Exception(e.message);
+    } on SocketException catch (_) {
+      throw Exception('network');
+    } catch (e) {
+      throw Exception(e.toString());
+    }
+  }
+
   // ── Token Refresh ──────────────────────────────────────────────────────────
   Future<void> refreshToken() async {
     final storedRefresh = await _secureStorage.read(key: _secureStorageKey);
@@ -118,6 +138,7 @@ class AuthService {
   Future<void> logout() async {
     _cancelRefreshTimer();
     _accessToken = null;
+    _fcmListenersSetUp = false; // reset so the next login re-registers listeners
     await _secureStorage.delete(key: _secureStorageKey);
 
     try {
@@ -157,21 +178,21 @@ class AuthService {
     // refresh_token → secure storage
     await _secureStorage.write(key: _secureStorageKey, value: refreshToken);
 
-    // ✅ Pass access token (not refresh token) so currentUser is properly set
+    // ✅ Hydrate the Supabase client session so currentUser is properly set
     try {
-      await Supabase.instance.client.auth.setSession(accessToken);
+      await Supabase.instance.client.auth.setSession(refreshToken);
     } catch (e) {
       debugPrint('setSession (ignored): $e');
     }
 
-    // currentUser is now set — FCM token save will work correctly
-    try {
-      final fcmToken = await FCMService.getToken();
-      if (fcmToken != null) {
-        await FCMService.saveFcmTokenToSupabase(fcmToken);
+    // currentUser is now set — set up FCM token listeners once.
+    if (!_fcmListenersSetUp) {
+      _fcmListenersSetUp = true;
+      try {
+        await FCMService.setupTokenListeners();
+      } catch (e) {
+        debugPrint('Failed to set up FCM token listeners: $e');
       }
-    } catch (e) {
-      debugPrint('Failed to save FCM token during auth: $e');
     }
 
     // Schedule proactive refresh ~2 minutes before expiry (default expiry ≈ 1 h)

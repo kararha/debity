@@ -38,6 +38,7 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
   }
 
   Future<void> _loadDebts() async {
+    if (!mounted) return;
     setState(() => _isLoading = true);
 
     try {
@@ -146,7 +147,7 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
                 ),
               );
               if (result is Customer) {
-                setState(() => _customer = result);
+                if (mounted) setState(() => _customer = result);
               }
             },
           ),

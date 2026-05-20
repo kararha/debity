@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../api/api_service.dart';
@@ -27,6 +26,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   Future<void> _loadNotifications() async {
     debugPrint('[NotificationsScreen] _loadNotifications() — start');
+    if (!mounted) return;
     setState(() {
       _isLoading = true;
       _error = null;
@@ -64,13 +64,16 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   }
 
   Future<void> _runDailyCheck() async {
+    if (!mounted) return;
+    setState(() => _isLoading = true);
+
     try {
       final messenger = ScaffoldMessenger.of(context);
       final loc = AppLocalizations.of(context);
-      setState(() => _isLoading = true);
 
       final response = await _apiService.runDailyReminderCheck();
 
+      if (!mounted) return;
       messenger.showSnackBar(
         SnackBar(
           content: Text(loc.newNotificationsCreated(response.summary.totalNotifications)),
@@ -80,8 +83,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
       _loadNotifications();
     } catch (e) {
-      setState(() => _isLoading = false);
       if (!mounted) return;
+      setState(() => _isLoading = false);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('خطأ: $e')),
       );
@@ -89,13 +92,16 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   }
 
   Future<void> _checkOverdue() async {
+    if (!mounted) return;
+    setState(() => _isLoading = true);
+
     try {
       final messenger = ScaffoldMessenger.of(context);
       final loc = AppLocalizations.of(context);
-      setState(() => _isLoading = true);
 
       final response = await _apiService.checkOverdueInstallments();
 
+      if (!mounted) return;
       messenger.showSnackBar(
         SnackBar(
           content: Text(loc.updatedOverdueSummary(response.newlyOverdue, response.totalOverdue)),
@@ -107,8 +113,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
       _loadNotifications();
     } catch (e) {
-      setState(() => _isLoading = false);
       if (!mounted) return;
+      setState(() => _isLoading = false);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('خطأ: $e')),
       );
@@ -168,6 +174,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   }
 
   Widget _buildErrorView() {
+    final c = AppColors.of(context);
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -176,14 +183,14 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           children: [
             const Icon(Icons.error_outline, size: 64, color: AppColors.error),
             const SizedBox(height: 16),
-            Text(AppLocalizations.of(context).loadFailed, style: Theme.of(context).textTheme.titleMedium),
+            Text(AppLocalizations.of(context).loadFailed, style: Theme.of(context).textTheme.titleMedium?.copyWith(color: c.textPrimary)),
             const SizedBox(height: 8),
             Text(
               _error ?? '',
               style: Theme.of(context)
                   .textTheme
                   .bodySmall
-                  ?.copyWith(color: AppColors.textSecondary),
+                  ?.copyWith(color: c.textSecondary),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
@@ -199,6 +206,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   }
 
   Widget _buildEmptyView() {
+    final c = AppColors.of(context);
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -208,13 +216,13 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: Color.fromRGBO((AppColors.success.toARGB32() >> 16) & 0xFF, (AppColors.success.toARGB32() >> 8) & 0xFF, AppColors.success.toARGB32() & 0xFF, 0.1),
+                color: AppColors.success.withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 Icons.notifications_none,
                 size: 64,
-                color: Color.fromRGBO((AppColors.success.toARGB32() >> 16) & 0xFF, (AppColors.success.toARGB32() >> 8) & 0xFF, AppColors.success.toARGB32() & 0xFF, 0.7),
+                color: AppColors.success.withOpacity(0.7),
               ),
             ),
             const SizedBox(height: 24),
@@ -222,13 +230,14 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               AppLocalizations.of(context).noNotifications,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
+                    color: c.textPrimary,
                   ),
             ),
             const SizedBox(height: 8),
             Text(
               AppLocalizations.of(context).allClearMessage,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppColors.textSecondary,
+                    color: c.textSecondary,
                   ),
             ),
             const SizedBox(height: 32),
@@ -262,12 +271,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       flattened.addAll(todayNotifications.map((n) => {'type': 'item', 'data': n, 'color': AppColors.warning}));
     }
     if (tomorrowNotifications.isNotEmpty) {
-      flattened.add({'type': 'header', 'title': 'مستحقة غداً', 'icon': Icons.event, 'color': AppColors.info, 'count': tomorrowNotifications.length});
-      flattened.addAll(tomorrowNotifications.map((n) => {'type': 'item', 'data': n, 'color': AppColors.info}));
+      flattened.add({'type': 'header', 'title': 'مستحقة غداً', 'icon': Icons.event, 'color': AppColors.brand400, 'count': tomorrowNotifications.length});
+      flattened.addAll(tomorrowNotifications.map((n) => {'type': 'item', 'data': n, 'color': AppColors.brand400}));
     }
     if (otherNotifications.isNotEmpty) {
-      flattened.add({'type': 'header', 'title': 'إشعارات أخرى', 'icon': Icons.notifications, 'color': AppColors.primaryColor, 'count': otherNotifications.length});
-      flattened.addAll(otherNotifications.map((n) => {'type': 'item', 'data': n, 'color': AppColors.primaryColor}));
+      flattened.add({'type': 'header', 'title': 'إشعارات أخرى', 'icon': Icons.notifications, 'color': AppColors.brand500, 'count': otherNotifications.length});
+      flattened.addAll(otherNotifications.map((n) => {'type': 'item', 'data': n, 'color': AppColors.brand500}));
     }
 
     return RefreshIndicator(
@@ -305,12 +314,13 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     required Color color,
     required int count,
   }) {
+    final c = AppColors.of(context);
     return Row(
       children: [
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: Color.fromRGBO((color.toARGB32() >> 16) & 0xFF, (color.toARGB32() >> 8) & 0xFF, color.toARGB32() & 0xFF, 0.1),
+            color: color.withOpacity(0.1),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(icon, color: color, size: 20),
@@ -320,13 +330,14 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           title,
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
+                color: c.textPrimary,
               ),
         ),
         const SizedBox(width: 8),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
           decoration: BoxDecoration(
-            color: Color.fromRGBO((color.toARGB32() >> 16) & 0xFF, (color.toARGB32() >> 8) & 0xFF, color.toARGB32() & 0xFF, 0.1),
+            color: color.withOpacity(0.1),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Text(
@@ -343,11 +354,13 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   }
 
   Widget _buildNotificationCard(PendingNotification notification, Color color) {
-    return Card(
+    final c = AppColors.of(context);
+    return Container(
       margin: const EdgeInsets.only(bottom: 8),
-      shape: RoundedRectangleBorder(
+      decoration: BoxDecoration(
+        color: c.surface1,
         borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: Color.fromRGBO((color.toARGB32() >> 16) & 0xFF, (color.toARGB32() >> 8) & 0xFF, color.toARGB32() & 0xFF, 0.2)),
+        border: Border.all(color: color.withOpacity(0.2)),
       ),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -361,13 +374,14 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     notification.title,
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
                           fontWeight: FontWeight.bold,
+                          color: c.textPrimary,
                         ),
                   ),
                 ),
                 Text(
                   _formatTime(notification.createdAt),
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppColors.textSecondary,
+                        color: c.textSecondary,
                       ),
                 ),
               ],
@@ -376,7 +390,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             Text(
               notification.body,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppColors.textSecondary,
+                    color: c.textSecondary,
                   ),
             ),
           ],

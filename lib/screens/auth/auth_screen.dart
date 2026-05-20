@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../core/services/auth_service.dart';
@@ -32,6 +33,7 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
     _tabController = TabController(length: 2, vsync: this);
     _tabController!.addListener(() {
       if (!_tabController!.indexIsChanging) {
+        if (!mounted) return;
         setState(() => _isLogin = _tabController!.index == 0);
       }
     });
@@ -211,6 +213,7 @@ class _LoginFormState extends State<_LoginForm> {
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
+    if (!mounted) return;
     setState(() {
       _loading = true;
       _errorMsg = null;
@@ -245,7 +248,10 @@ class _LoginFormState extends State<_LoginForm> {
           if (_errorMsg != null) ...[
             ErrorBanner(
               message: _errorMsg!,
-              onDismiss: () => setState(() => _errorMsg = null),
+              onDismiss: () {
+                if (!mounted) return;
+                setState(() => _errorMsg = null);
+              },
             ),
             const SizedBox(height: AppSpacing.sp16),
           ],
@@ -275,7 +281,7 @@ class _LoginFormState extends State<_LoginForm> {
           Align(
             alignment: Alignment.centerLeft,
             child: TextButton(
-              onPressed: () {},
+              onPressed: () => _ForgotPasswordSheet.show(context),
               child: Text(
                 'نسيت كلمة المرور؟',
                 style: AppTextStyles.sm.copyWith(
@@ -322,6 +328,7 @@ class _RegisterFormState extends State<_RegisterForm> {
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
+    if (!mounted) return;
     setState(() {
       _loading = true;
       _errorMsg = null;
@@ -368,7 +375,10 @@ class _RegisterFormState extends State<_RegisterForm> {
           if (_errorMsg != null) ...[
             ErrorBanner(
               message: _errorMsg!,
-              onDismiss: () => setState(() => _errorMsg = null),
+              onDismiss: () {
+                if (!mounted) return;
+                setState(() => _errorMsg = null);
+              },
             ),
             const SizedBox(height: AppSpacing.sp16),
           ],
@@ -454,6 +464,11 @@ String _parseError(String raw) {
       s.contains('already exists')) {
     return 'هذا البريد الإلكتروني مسجل بالفعل';
   }
+  if (s.contains('over_email_send_rate_limit') ||
+      s.contains('email rate limit') ||
+      s.contains('rate limit exceeded')) {
+    return 'تم إرسال رسالة مؤخراً — انتظر دقيقة ثم أعد المحاولة';
+  }
   if (s.contains('password') || s.contains('Password')) {
     return 'كلمة المرور لا تستوفي الشروط';
   }
@@ -464,4 +479,226 @@ String _parseError(String raw) {
     return 'خطأ في الاتصال — تحقق من الإنترنت';
   }
   return s.isNotEmpty ? s : 'حدث خطأ غير متوقع';
+}
+
+// ---------------------------------------------------------------------------
+// Forgot-password bottom sheet
+// ---------------------------------------------------------------------------
+
+class _ForgotPasswordSheet extends StatefulWidget {
+  const _ForgotPasswordSheet();
+
+  /// Convenience method to open the sheet from any context.
+  static void show(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => const _ForgotPasswordSheet(),
+    );
+  }
+
+  @override
+  State<_ForgotPasswordSheet> createState() => _ForgotPasswordSheetState();
+}
+
+class _ForgotPasswordSheetState extends State<_ForgotPasswordSheet> {
+  final _formKey = GlobalKey<FormState>();
+  final _emailCtrl = TextEditingController();
+
+  /// True while the network request is in flight — prevents double-submit.
+  bool _isSubmitting = false;
+
+  /// True after a successful send — blocks further requests until cooldown ends.
+  bool _sent = false;
+
+  /// Remaining cooldown seconds shown to the user.
+  int _cooldown = 0;
+  Timer? _cooldownTimer;
+
+  static const int _cooldownSeconds = 60;
+
+  @override
+  void dispose() {
+    _emailCtrl.dispose();
+    _cooldownTimer?.cancel();
+    super.dispose();
+  }
+
+  void _startCooldown() {
+    _cooldown = _cooldownSeconds;
+    _cooldownTimer = Timer.periodic(const Duration(seconds: 1), (t) {
+      if (!mounted) {
+        t.cancel();
+        return;
+      }
+      setState(() {
+        _cooldown--;
+        if (_cooldown <= 0) {
+          t.cancel();
+          _sent = false; // allow another attempt after cooldown
+        }
+      });
+    });
+  }
+
+  Future<void> _submit() async {
+    // Guard: do nothing if a request is already in flight or in cooldown.
+    if (_isSubmitting || _sent) return;
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _isSubmitting = true);
+
+    try {
+      await AuthService().resetPassword(email: _emailCtrl.text.trim());
+
+      if (!mounted) return;
+      setState(() {
+        _isSubmitting = false;
+        _sent = true;
+      });
+      _startCooldown();
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _isSubmitting = false);
+
+      final msg = _parseError(e.toString());
+      // If Supabase itself returned a rate-limit error, start the cooldown
+      // so the user cannot hammer the button again immediately.
+      final isRateLimit = e.toString().contains('rate limit') ||
+          e.toString().contains('over_email_send_rate_limit');
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(msg),
+          backgroundColor: isRateLimit ? AppColors.warning : AppColors.danger,
+        ),
+      );
+
+      if (isRateLimit) {
+        setState(() => _sent = true);
+        _startCooldown();
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isAr = Localizations.localeOf(context).languageCode == 'ar';
+    return Padding(
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppColors.of(context).surface1,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          border: Border.all(color: AppColors.of(context).borderSubtle),
+        ),
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.sp24,
+          AppSpacing.sp16,
+          AppSpacing.sp24,
+          AppSpacing.sp32,
+        ),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Drag handle
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  margin: const EdgeInsets.only(bottom: AppSpacing.sp16),
+                  decoration: BoxDecoration(
+                    color: AppColors.of(context).borderSubtle,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              Text(
+                isAr ? 'استعادة كلمة المرور' : 'Reset Password',
+                style: AppTextStyles.lg.copyWith(fontWeight: FontWeight.w700),
+              ),
+              const SizedBox(height: AppSpacing.sp8),
+              Text(
+                isAr
+                    ? 'أدخل بريدك الإلكتروني وسنرسل لك رابط إعادة تعيين كلمة المرور'
+                    : 'Enter your email and we\'ll send you a reset link',
+                style: AppTextStyles.sm.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+              ),
+              const SizedBox(height: AppSpacing.sp24),
+              DebityTextField(
+                controller: _emailCtrl,
+                label: isAr ? 'البريد الإلكتروني' : 'Email',
+                hintText: 'example@mail.com',
+                keyboardType: TextInputType.emailAddress,
+                textInputAction: TextInputAction.done,
+                prefixIcon: const Icon(Icons.email_outlined),
+                onSubmitted: (_) => _submit(),
+                validator: _emailValidator,
+              ),
+              const SizedBox(height: AppSpacing.sp24),
+
+              // Success state
+              if (_sent) ...[  
+                Container(
+                  padding: const EdgeInsets.all(AppSpacing.sp16),
+                  decoration: BoxDecoration(
+                    color: AppColors.success.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: AppColors.success.withValues(alpha: 0.3),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.check_circle_outline,
+                        color: AppColors.success,
+                        size: 20,
+                      ),
+                      const SizedBox(width: AppSpacing.sp12),
+                      Expanded(
+                        child: Text(
+                          isAr
+                              ? 'تم إرسال رابط إعادة التعيين — تحقق من بريدك الإلكتروني'
+                              : 'Reset link sent — check your inbox',
+                          style: AppTextStyles.sm.copyWith(
+                            color: AppColors.success,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.sp16),
+                // Cooldown button (disabled)
+                DebityPrimaryButton(
+                  label: _cooldown > 0
+                      ? (isAr
+                          ? 'إعادة الإرسال بعد $_cooldown ث'
+                          : 'Resend in $_cooldown s')
+                      : (isAr ? 'إعادة الإرسال' : 'Resend'),
+                  onPressed: _cooldown > 0 ? null : _submit,
+                  isLoading: false,
+                ),
+              ] else ...[  
+                DebityPrimaryButton(
+                  label: isAr ? 'إرسال رابط الاستعادة' : 'Send Reset Link',
+                  onPressed: _isSubmitting ? null : _submit,
+                  isLoading: _isSubmitting,
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }

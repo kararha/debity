@@ -62,6 +62,7 @@ class _PayInstallmentScreenState extends State<PayInstallmentScreen> {
       return;
     }
 
+    if (!mounted) return;
     setState(() => _isLoading = true);
 
     try {
@@ -125,6 +126,7 @@ class _PayInstallmentScreenState extends State<PayInstallmentScreen> {
         );
       }
     } catch (e) {
+      if (!mounted) return;
       setState(() => _isLoading = false);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -204,6 +206,7 @@ class _PayInstallmentScreenState extends State<PayInstallmentScreen> {
                     subtitle: NumberFormatter.formatCurrency(_remainingAmount),
                     isSelected: _payFull,
                     onTap: () {
+                      if (!mounted) return;
                       setState(() {
                         _payFull = true;
                         _amountController.text =
@@ -219,6 +222,7 @@ class _PayInstallmentScreenState extends State<PayInstallmentScreen> {
                     subtitle: AppLocalizations.of(context).enterAmount,
                     isSelected: !_payFull,
                     onTap: () {
+                      if (!mounted) return;
                       setState(() {
                         _payFull = false;
                         _amountController.clear();

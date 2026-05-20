@@ -33,6 +33,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
     setState(() {
       _notificationsEnabled = prefs.getBool('notifications_enabled') ?? true;
       _dailyReminder = prefs.getBool('daily_reminder') ?? true;
@@ -61,24 +62,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   void _onLocaleChanged(String code) async {
     final prefs = await SharedPreferences.getInstance();
-    setState(() => _selectedLocale = code);
+    if (mounted) setState(() => _selectedLocale = code);
     await prefs.setString('locale', code);
     AppLocale.instance.setLocale(code == 'ar' ? const Locale('ar', 'IQ') : const Locale('en'));
   }
 
   @override
+  @override
   Widget build(BuildContext context) {
+    final c = AppColors.of(context);
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bgColor = isDark ? const Color(0xFF0F0F1A) : const Color(0xFFF4F6FB);
     final loc = AppLocalizations.of(context);
     return Scaffold(
-      backgroundColor: bgColor,
+      backgroundColor: c.surface0,
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
             pinned: true,
             expandedHeight: 140,
-            backgroundColor: bgColor,
+            backgroundColor: c.surface0,
             elevation: 0,
             scrolledUnderElevation: 0,
             flexibleSpace: FlexibleSpaceBar(
@@ -87,15 +89,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   gradient: LinearGradient(
                     begin: Alignment.topLeft, end: Alignment.bottomRight,
                     colors: isDark
-                        ? [const Color(0xFF1A1A3A), const Color(0xFF0D0D20)]
-                        : [AppColors.primaryColor, const Color(0xFF1565C0)],
+                        ? [AppColors.brand700, AppColors.brand900]
+                        : [AppColors.brand500, AppColors.brand600],
                   ),
                 ),
                 child: Padding(padding: EdgeInsets.fromLTRB(20, MediaQuery.of(context).padding.top + 20, 20, 16),
                   child: Row(children: [
                     Container(
                       width: 56, height: 56,
-                      decoration: BoxDecoration(color: Color.fromRGBO(255, 255, 255, 0.15), borderRadius: BorderRadius.circular(16)),
+                      decoration: BoxDecoration(color: const Color.fromRGBO(255, 255, 255, 0.15), borderRadius: BorderRadius.circular(16)),
                       child: const Center(child: Icon(Icons.account_balance_wallet_rounded, color: Colors.white, size: 28)),
                     ),
                     const SizedBox(width: 16),
@@ -113,29 +115,30 @@ class _SettingsScreenState extends State<SettingsScreen> {
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
             sliver: SliverList(delegate: SliverChildListDelegate([
-              _buildSection(title: loc.appInfoSection, isDark: isDark, children: [
+              _buildSection(title: loc.appInfoSection, context: context, children: [
                 _buildInfoTile(icon: Icons.info_outline, title: loc.versionLabel, subtitle: '1.0.0'),
                 _buildInfoTile(icon: Icons.code, title: 'المطور', subtitle: 'Karar Haider'),
               ]),
               const SizedBox(height: 20),
-              _buildSection(title: loc.appearanceSection, isDark: isDark, children: [
+              _buildSection(title: loc.appearanceSection, context: context, children: [
                 _buildThemeTile(),
                 ListTile(
                   leading: Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                    color: Color.fromRGBO((AppColors.primaryColor.toARGB32() >> 16) & 0xFF, (AppColors.primaryColor.toARGB32() >> 8) & 0xFF, AppColors.primaryColor.toARGB32() & 0xFF, 0.1),
-                    borderRadius: BorderRadius.circular(8),
+                      color: AppColors.brand500.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Icon(Icons.language, color: AppColors.brand500, size: 20),
                   ),
-                    child: const Icon(Icons.language, color: AppColors.primaryColor, size: 20),
-                  ),
-                  title: Text(loc.languageLabel),
+                  title: Text(loc.languageLabel, style: TextStyle(color: c.textPrimary)),
                   trailing: DropdownButton<String>(
                     value: _selectedLocale,
+                    dropdownColor: c.surface1,
                     underline: const SizedBox.shrink(),
                     items: [
-                      DropdownMenuItem(value: 'ar', child: Text(loc.languageAr)),
-                      DropdownMenuItem(value: 'en', child: Text(loc.languageEn)),
+                      DropdownMenuItem(value: 'ar', child: Text(loc.languageAr, style: TextStyle(color: c.textPrimary))),
+                      DropdownMenuItem(value: 'en', child: Text(loc.languageEn, style: TextStyle(color: c.textPrimary))),
                     ],
                     onChanged: (v) {
                       if (v != null) _onLocaleChanged(v);
@@ -144,7 +147,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ]),
               const SizedBox(height: 20),
-              _buildSection(title: loc.notificationsSection, isDark: isDark, children: [
+              _buildSection(title: loc.notificationsSection, context: context, children: [
                 _buildSwitchTile(
                   icon: Icons.notifications_rounded,
                   title: loc.enableNotifications,
@@ -158,36 +161,44 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     title: loc.dailyReminder,
                     subtitle: loc.dailyReminderSub,
                     value: _dailyReminder,
-                    onChanged: (v) { setState(() => _dailyReminder = v); _saveSettings(); },
+                    onChanged: (v) {
+                      if (!mounted) return;
+                      setState(() => _dailyReminder = v);
+                      _saveSettings();
+                    },
                   ),
                   _buildSwitchTile(
                     icon: Icons.warning_amber_rounded,
                     title: loc.overdueAlerts,
                     subtitle: loc.overdueAlertsSub,
                     value: _overdueAlerts,
-                    onChanged: (v) { setState(() => _overdueAlerts = v); _saveSettings(); },
+                    onChanged: (v) {
+                      if (!mounted) return;
+                      setState(() => _overdueAlerts = v);
+                      _saveSettings();
+                    },
                   ),
                   _buildReminderDaysTile(),
                 ],
               ]),
               const SizedBox(height: 20),
-              _buildSection(title: loc.aboutSection, isDark: isDark, children: [
+              _buildSection(title: loc.aboutSection, context: context, children: [
                 _buildActionTile(icon: Icons.description_outlined, title: loc.privacyPolicy, onTap: _showPrivacyPolicy),
                 _buildActionTile(icon: Icons.gavel_rounded, title: loc.termsOfService, onTap: _showTermsOfService),
                 _buildActionTile(icon: Icons.help_outline_rounded, title: loc.helpAndSupport, onTap: _showHelpAndSupport),
                 _buildActionTile(icon: Icons.star_outline_rounded, title: loc.rateApp, onTap: _showRateApp),
               ]),
               const SizedBox(height: 20),
-              _buildSection(title: 'حساب المستخدم', isDark: isDark, children: [
+              _buildSection(title: 'حساب المستخدم', context: context, children: [
                 _buildActionTile(icon: Icons.logout_rounded, title: loc.logoutLabel, subtitle: AppLocalizations.of(context).logoutSub, onTap: _handleLogout, isDestructive: true),
               ]),
               const SizedBox(height: 32),
               Center(child: Column(children: [
-                Text(loc.appName, style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.primaryColor, fontSize: 16)),
+                Text(loc.appName, style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.brand500, fontSize: 16)),
                 const SizedBox(height: 4),
-                Text(loc.tagline, style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                Text(loc.tagline, style: TextStyle(fontSize: 12, color: c.textSecondary)),
                 const SizedBox(height: 4),
-                Text(AppLocalizations.of(context).copyrightLabel, style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+                Text(AppLocalizations.of(context).copyrightLabel, style: TextStyle(fontSize: 11, color: c.textSecondary)),
               ])),
             ])),
           ),
@@ -196,16 +207,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildSection({required String title, required List<Widget> children, bool isDark = false}) {
-    final surface = isDark ? const Color(0xFF1C1C2E) : Colors.white;
+  Widget _buildSection({required String title, required List<Widget> children, required BuildContext context}) {
+    final c = AppColors.of(context);
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Padding(padding: const EdgeInsets.only(bottom: 10, right: 4, left: 4),
-        child: Text(title, style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.primaryColor, fontSize: 13, letterSpacing: 0.3))),
+        child: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.brand500, fontSize: 13, letterSpacing: 0.3))),
       Container(
         decoration: BoxDecoration(
-          color: surface,
+          color: c.surface1,
           borderRadius: BorderRadius.circular(18),
-          boxShadow: [BoxShadow(color: Color.fromRGBO(0, 0, 0, isDark ? 0.2 : 0.05), blurRadius: 14, offset: const Offset(0, 4))],
+          border: Border.all(color: c.borderSubtle, width: 1),
         ),
         child: Column(children: children),
       ),
@@ -217,20 +228,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
     required String title,
     required String subtitle,
   }) {
+    final c = AppColors.of(context);
     return ListTile(
       leading: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: Color.fromRGBO((AppColors.primaryColor.toARGB32() >> 16) & 0xFF, (AppColors.primaryColor.toARGB32() >> 8) & 0xFF, AppColors.primaryColor.toARGB32() & 0xFF, 0.1),
+          color: AppColors.brand500.withOpacity(0.1),
           borderRadius: BorderRadius.circular(8),
         ),
-        child: Icon(icon, color: AppColors.primaryColor, size: 20),
+        child: Icon(icon, color: AppColors.brand500, size: 20),
       ),
-      title: Text(title),
+      title: Text(title, style: TextStyle(color: c.textPrimary)),
       trailing: Text(
         subtitle,
         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: AppColors.textSecondary,
+              color: c.textSecondary,
             ),
       ),
     );
@@ -243,27 +255,30 @@ class _SettingsScreenState extends State<SettingsScreen> {
     required bool value,
     required ValueChanged<bool> onChanged,
   }) {
+    final c = AppColors.of(context);
     return SwitchListTile(
       secondary: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: Color.fromRGBO((AppColors.primaryColor.toARGB32() >> 16) & 0xFF, (AppColors.primaryColor.toARGB32() >> 8) & 0xFF, AppColors.primaryColor.toARGB32() & 0xFF, 0.1),
+          color: AppColors.brand500.withOpacity(0.1),
           borderRadius: BorderRadius.circular(8),
         ),
-        child: Icon(icon, color: AppColors.primaryColor, size: 20),
+        child: Icon(icon, color: AppColors.brand500, size: 20),
       ),
-      title: Text(title),
+      title: Text(title, style: TextStyle(color: c.textPrimary)),
       subtitle: subtitle != null
           ? Text(
               subtitle,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.textSecondary,
+                    color: c.textSecondary,
                   ),
             )
           : null,
       value: value,
       onChanged: onChanged,
-      activeThumbColor: AppColors.primaryColor,
+      activeColor: AppColors.brand500,
+      activeTrackColor: AppColors.brand500.withOpacity(0.3),
+      inactiveTrackColor: c.surface3,
     );
   }
 
@@ -275,23 +290,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
     bool loading = false,
     bool isDestructive = false,
   }) {
-    final color = isDestructive ? AppColors.error : AppColors.primaryColor;
+    final c = AppColors.of(context);
+    final color = isDestructive ? AppColors.error : AppColors.brand500;
     return ListTile(
       leading: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: Color.fromRGBO((color.toARGB32() >> 16) & 0xFF, (color.toARGB32() >> 8) & 0xFF, color.toARGB32() & 0xFF, 0.1),
+          color: color.withOpacity(0.1),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Icon(icon, color: color, size: 20),
       ),
-      title: Text(title,
-          style: isDestructive ? const TextStyle(color: AppColors.error) : null),
+      title: Text(
+        title,
+        style: TextStyle(
+          color: isDestructive ? AppColors.error : c.textPrimary,
+        ),
+      ),
       subtitle: subtitle != null
           ? Text(
               subtitle,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.textSecondary,
+                    color: c.textSecondary,
                   ),
             )
           : null,
@@ -300,18 +320,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
               width: 20,
               height: 20,
               child: CircularProgressIndicator(strokeWidth: 2))
-          : Icon(Icons.chevron_left,
-              color: isDestructive ? AppColors.error : AppColors.textSecondary),
+          : Icon(
+              Directionality.of(context) == TextDirection.rtl
+                  ? Icons.chevron_left_rounded
+                  : Icons.chevron_right_rounded,
+              color: isDestructive ? AppColors.error : c.textSecondary,
+            ),
       onTap: loading ? null : onTap,
     );
   }
 
   Widget _buildThemeTile() {
+    final c = AppColors.of(context);
     return ListTile(
       leading: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: Color.fromRGBO((AppColors.primaryColor.toARGB32() >> 16) & 0xFF, (AppColors.primaryColor.toARGB32() >> 8) & 0xFF, AppColors.primaryColor.toARGB32() & 0xFF, 0.1),
+          color: AppColors.brand500.withOpacity(0.1),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Icon(
@@ -320,32 +345,35 @@ class _SettingsScreenState extends State<SettingsScreen> {
               : _themeMode == ThemeMode.light
                   ? Icons.light_mode
                   : Icons.brightness_auto,
-          color: AppColors.primaryColor,
+          color: AppColors.brand500,
           size: 20,
         ),
       ),
-      title: Text(AppLocalizations.of(context).appearanceSection),
+      title: Text(
+        AppLocalizations.of(context).appearanceSection,
+        style: TextStyle(color: c.textPrimary),
+      ),
       trailing: DropdownButton<ThemeMode>(
         value: _themeMode,
+        dropdownColor: c.surface1,
         underline: const SizedBox(),
-        items: const [
+        items: [
           DropdownMenuItem(
             value: ThemeMode.system,
-            child: Text('تلقائي'),
+            child: Text('تلقائي', style: TextStyle(color: c.textPrimary)),
           ),
           DropdownMenuItem(
             value: ThemeMode.light,
-            child: Text('فاتح'),
+            child: Text('فاتح', style: TextStyle(color: c.textPrimary)),
           ),
           DropdownMenuItem(
             value: ThemeMode.dark,
-            child: Text('داكن'),
+            child: Text('داكن', style: TextStyle(color: c.textPrimary)),
           ),
         ],
         onChanged: (value) {
           if (value != null) {
-            setState(() => _themeMode = value);
-            // Updates the global notifier → MaterialApp rebuilds instantly.
+            if (mounted) setState(() => _themeMode = value);
             ThemeController.setThemeMode(value);
           }
         },
@@ -354,29 +382,33 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Widget _buildReminderDaysTile() {
+    final c = AppColors.of(context);
     return ListTile(
       leading: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: Color.fromRGBO((AppColors.primaryColor.toARGB32() >> 16) & 0xFF, (AppColors.primaryColor.toARGB32() >> 8) & 0xFF, AppColors.primaryColor.toARGB32() & 0xFF, 0.1),
+          color: AppColors.brand500.withOpacity(0.1),
           borderRadius: BorderRadius.circular(8),
         ),
-        child:
-            const Icon(Icons.schedule, color: AppColors.primaryColor, size: 20),
+        child: const Icon(Icons.schedule, color: AppColors.brand500, size: 20),
       ),
-      title: Text(AppLocalizations.of(context).reminderBeforeLabel),
+      title: Text(
+        AppLocalizations.of(context).reminderBeforeLabel,
+        style: TextStyle(color: c.textPrimary),
+      ),
       trailing: DropdownButton<int>(
         value: _reminderDaysBefore,
+        dropdownColor: c.surface1,
         underline: const SizedBox(),
-        items: const [
-          DropdownMenuItem(value: 1, child: Text('يوم واحد')),
-          DropdownMenuItem(value: 2, child: Text('يومين')),
-          DropdownMenuItem(value: 3, child: Text('3 أيام')),
-          DropdownMenuItem(value: 7, child: Text('أسبوع')),
+        items: [
+          DropdownMenuItem(value: 1, child: Text('يوم واحد', style: TextStyle(color: c.textPrimary))),
+          DropdownMenuItem(value: 2, child: Text('يومين', style: TextStyle(color: c.textPrimary))),
+          DropdownMenuItem(value: 3, child: Text('3 أيام', style: TextStyle(color: c.textPrimary))),
+          DropdownMenuItem(value: 7, child: Text('أسبوع', style: TextStyle(color: c.textPrimary))),
         ],
         onChanged: (value) {
           if (value != null) {
-            setState(() => _reminderDaysBefore = value);
+            if (mounted) setState(() => _reminderDaysBefore = value);
             _saveSettings();
           }
         },
@@ -484,7 +516,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         _showSnack('يمكن إيقاف الإشعارات من إعدادات الهاتف ← التطبيقات ← ديبتي');
       }
     }
-    setState(() => _notificationsEnabled = value);
+    if (mounted) setState(() => _notificationsEnabled = value);
     _saveSettings();
   }
 

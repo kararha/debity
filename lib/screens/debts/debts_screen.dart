@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/theme/app_colors.dart';
@@ -8,6 +9,9 @@ import '../../models/debt.dart';
 import 'debt_details_screen.dart';
 import 'add_debt_screen.dart';
 import '../../core/l10n/app_localizations.dart';
+import '../../core/widgets/app_card.dart';
+import '../../core/widgets/debity_input.dart';
+import '../../core/widgets/skeleton_widget.dart';
 
 class DebtsScreen extends StatefulWidget {
   const DebtsScreen({super.key});
@@ -24,26 +28,37 @@ class _DebtsScreenState extends State<DebtsScreen> with SingleTickerProviderStat
   String? _error;
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
+  Timer? _debounceTimer;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
     _loadDebts();
-    _searchController.addListener(() {
-      setState(() => _searchQuery = _searchController.text.toLowerCase());
-    });
+    _searchController.addListener(_onSearchChanged);
   }
 
   @override
   void dispose() {
     _tabController.dispose();
     _searchController.dispose();
+    _debounceTimer?.cancel();
     super.dispose();
   }
 
+  void _onSearchChanged() {
+    _debounceTimer?.cancel();
+    _debounceTimer = Timer(const Duration(milliseconds: 250), () {
+      if (mounted) {
+        setState(() => _searchQuery = _searchController.text.toLowerCase());
+      }
+    });
+  }
+
   Future<void> _loadDebts() async {
-    setState(() {
+    if (!mounted) return;
+    
+    if (mounted) setState(() {
       _isLoading = true;
       _error = null;
     });
@@ -54,14 +69,18 @@ class _DebtsScreenState extends State<DebtsScreen> with SingleTickerProviderStat
           .select('*, customers(name, phone)')
           .order('created_at', ascending: false);
 
-      setState(() {
+      if (!mounted) return;
+      
+      if (mounted) setState(() {
         _allDebts = (response as List)
             .map((json) => Debt.fromJson(json))
             .toList();
         _isLoading = false;
       });
     } catch (e) {
-      setState(() {
+      if (!mounted) return;
+      
+      if (mounted) setState(() {
         _error = e.toString();
         _isLoading = false;
       });
@@ -92,7 +111,6 @@ class _DebtsScreenState extends State<DebtsScreen> with SingleTickerProviderStat
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bgColor = AppColors.of(context).surface0;
-    final surfaceColor = AppColors.of(context).surface1;
 
     return Scaffold(
       backgroundColor: bgColor,
@@ -140,48 +158,16 @@ class _DebtsScreenState extends State<DebtsScreen> with SingleTickerProviderStat
                   ],
                 ),
                 const SizedBox(height: AppSpacing.sp16),
-                Container(
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: isDark ? AppColors.surface1.withValues(alpha: 0.2) : surfaceColor,
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: isDark
-                        ? []
-                        : [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.05),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                  ),
-                  child: TextField(
-                    controller: _searchController,
-                    style: AppTextStyles.base.copyWith(
-                      color: AppColors.of(context).textPrimary,
-                    ),
-                    decoration: InputDecoration(
-                      hintText: AppLocalizations.of(context).debtsSearchHint,
-                      hintStyle: AppTextStyles.sm.copyWith(color: AppColors.textSecondary),
-                      prefixIcon: const Icon(
-                        Icons.search_rounded,
-                        color: AppColors.textSecondary,
-                        size: 22,
-                      ),
-                      suffixIcon: _searchQuery.isNotEmpty
-                          ? IconButton(
-                              icon: const Icon(
-                                Icons.close_rounded,
-                                size: 20,
-                                color: AppColors.textSecondary,
-                              ),
-                              onPressed: _searchController.clear,
-                            )
-                          : null,
-                      border: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(vertical: 14),
-                    ),
-                  ),
+                DebityTextField(
+                  controller: _searchController,
+                  hintText: AppLocalizations.of(context).debtsSearchHint,
+                  prefixIcon: const Icon(Icons.search_rounded),
+                  suffixIcon: _searchQuery.isNotEmpty
+                      ? IconButton(
+                          icon: const Icon(Icons.close_rounded),
+                          onPressed: _searchController.clear,
+                        )
+                      : null,
                 ),
                 const SizedBox(height: AppSpacing.sp8),
                 TabBar(
@@ -203,7 +189,7 @@ class _DebtsScreenState extends State<DebtsScreen> with SingleTickerProviderStat
           ),
           Expanded(
             child: _isLoading
-                ? const Center(child: CircularProgressIndicator(color: AppColors.brand500))
+                ? _buildSkeletonList()
                 : _error != null
                     ? _buildErrorView()
                     : TabBarView(
@@ -317,6 +303,7 @@ class _DebtsScreenState extends State<DebtsScreen> with SingleTickerProviderStat
 
   Widget _buildDebtList(List<Debt> debts) {
     if (debts.isEmpty) {
+      final isSearching = _searchQuery.isNotEmpty;
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.sp32),
@@ -326,25 +313,63 @@ class _DebtsScreenState extends State<DebtsScreen> with SingleTickerProviderStat
               Container(
                 padding: const EdgeInsets.all(AppSpacing.sp24),
                 decoration: BoxDecoration(
-                  color: AppColors.primaryColor.withValues(alpha: 0.08),
+                  color: (isSearching ? AppColors.brand500 : AppColors.primaryColor).withValues(alpha: 0.08),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
-                  Icons.account_balance_wallet_outlined,
+                  isSearching ? Icons.search_off_rounded : Icons.account_balance_wallet_outlined,
                   size: 52,
-                  color: AppColors.primaryColor.withValues(alpha: 0.6),
+                  color: (isSearching ? AppColors.brand500 : AppColors.primaryColor).withValues(alpha: 0.6),
                 ),
               ),
               const SizedBox(height: AppSpacing.sp20),
               Text(
-                AppLocalizations.of(context).noDebts,
+                isSearching ? AppLocalizations.of(context).noResults : AppLocalizations.of(context).noDebts,
                 style: AppTextStyles.lg.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: AppSpacing.sp8),
               Text(
-                AppLocalizations.of(context).pressPlusAddDebt,
+                isSearching
+                    ? AppLocalizations.of(context).tryDifferentSearch
+                    : AppLocalizations.of(context).pressPlusAddDebt,
                 style: AppTextStyles.sm.copyWith(color: AppColors.textSecondary),
+                textAlign: TextAlign.center,
               ),
+              const SizedBox(height: AppSpacing.sp24),
+              if (isSearching)
+                TextButton.icon(
+                  onPressed: () {
+                    _searchController.clear();
+                  },
+                  icon: const Icon(Icons.clear_rounded, color: AppColors.brand400),
+                  label: Text(
+                    Localizations.localeOf(context).languageCode == 'ar' ? 'مسح البحث' : 'Clear Search',
+                    style: const TextStyle(color: AppColors.brand400),
+                  ),
+                )
+              else
+                ElevatedButton.icon(
+                  onPressed: () async {
+                    final result = await Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const AddDebtScreen()),
+                    );
+                    if (result == true) _loadDebts();
+                  },
+                  icon: const Icon(Icons.add_rounded),
+                  label: Text(AppLocalizations.of(context).addDebt),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.brand500,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.sp24,
+                      vertical: AppSpacing.sp12,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                ),
             ],
           ),
         ),
@@ -362,9 +387,73 @@ class _DebtsScreenState extends State<DebtsScreen> with SingleTickerProviderStat
     );
   }
 
+  Widget _buildSkeletonList() {
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.pageH, vertical: AppSpacing.sp16),
+      itemCount: 4,
+      itemBuilder: (_, __) => Padding(
+        padding: const EdgeInsets.only(bottom: AppSpacing.sp16),
+        child: AppCard(
+          padding: const EdgeInsets.all(AppSpacing.sp16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const SkeletonBox(width: 48, height: 48, radius: 12),
+                  const SizedBox(width: AppSpacing.sp12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SkeletonBox(width: 120, height: 16, radius: 4),
+                        const SizedBox(height: 6),
+                        const SkeletonBox(width: 80, height: 12, radius: 4),
+                      ],
+                    ),
+                  ),
+                  const SkeletonBox(width: 60, height: 24, radius: 12),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.sp16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: const [
+                  SkeletonBox(width: 60, height: 12, radius: 4),
+                  SkeletonBox(width: 32, height: 12, radius: 4),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.sp8),
+              const SkeletonBox(width: double.infinity, height: 8, radius: 4),
+              const SizedBox(height: AppSpacing.sp16),
+              Row(
+                children: [
+                  Expanded(child: const SkeletonBox(width: double.infinity, height: 40, radius: 12)),
+                  const SizedBox(width: AppSpacing.sp8),
+                  Expanded(child: const SkeletonBox(width: double.infinity, height: 40, radius: 12)),
+                  const SizedBox(width: AppSpacing.sp8),
+                  Expanded(child: const SkeletonBox(width: double.infinity, height: 40, radius: 12)),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.sp16),
+              const SkeletonBox(width: double.infinity, height: 1, radius: 0),
+              const SizedBox(height: AppSpacing.sp12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: const [
+                  SkeletonBox(width: 80, height: 12, radius: 4),
+                  SkeletonBox(width: 60, height: 12, radius: 4),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildDebtCard(Debt debt) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final surface = AppColors.of(context).surface1;
     final progress = debt.progressPercentage / 100;
     final statusColor = StatusColors.getDebtStatusColor(debt.status.name);
     final statusLabel = debt.status == DebtStatus.active
@@ -375,185 +464,164 @@ class _DebtsScreenState extends State<DebtsScreen> with SingleTickerProviderStat
 
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.sp16),
-      child: Container(
-        decoration: BoxDecoration(
-          color: surface,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: AppColors.of(context).borderSubtle, width: 1),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
+      child: AppCard(
+        padding: const EdgeInsets.all(AppSpacing.sp16),
+        onTap: () async {
+          final result = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => DebtDetailsScreen(debt: debt),
             ),
-          ],
-        ),
-        child: Material(
-          color: Colors.transparent,
-          borderRadius: BorderRadius.circular(20),
-          child: InkWell(
-            onTap: () async {
-              final result = await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => DebtDetailsScreen(debt: debt),
+          );
+          if (result == true) _loadDebts();
+        },
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryColor.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Icons.shopping_bag_rounded,
+                    color: AppColors.primaryColor,
+                    size: 24,
+                  ),
                 ),
-              );
-              if (result == true) _loadDebts();
-            },
-            borderRadius: BorderRadius.circular(20),
-            child: Padding(
-              padding: const EdgeInsets.all(AppSpacing.sp16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
+                const SizedBox(width: AppSpacing.sp12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Container(
-                        width: 48,
-                        height: 48,
-                        decoration: BoxDecoration(
-                          color: AppColors.primaryColor.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(12),
+                      Text(
+                        debt.itemName,
+                        style: AppTextStyles.lg.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: isDark ? Colors.white : AppColors.of(context).textPrimary,
                         ),
-                        child: const Icon(
-                          Icons.shopping_bag_rounded,
-                          color: AppColors.primaryColor,
-                          size: 24,
-                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(width: AppSpacing.sp12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                      if (debt.customerName != null) ...[
+                        const SizedBox(height: 4),
+                        Row(
                           children: [
-                            Text(
-                              debt.itemName,
-                              style: AppTextStyles.lg.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: isDark ? Colors.white : AppColors.of(context).textPrimary,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+                            Icon(
+                              Icons.person_outline_rounded,
+                              size: 14,
+                              color: AppColors.textSecondary,
                             ),
-                            if (debt.customerName != null) ...[
-                              const SizedBox(height: 4),
-                              Row(
-                                children: [
-                                  Icon(
-                                    Icons.person_outline_rounded,
-                                    size: 14,
-                                    color: AppColors.textSecondary,
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Expanded(
-                                    child: Text(
-                                      debt.customerName!,
-                                      style: AppTextStyles.xs.copyWith(color: AppColors.textSecondary),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                ],
+                            const SizedBox(width: 4),
+                            Expanded(
+                              child: Text(
+                                debt.customerName!,
+                                style: AppTextStyles.xs.copyWith(color: AppColors.textSecondary),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
-                            ],
+                            ),
                           ],
                         ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: statusColor.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          statusLabel,
-                          style: AppTextStyles.xs.copyWith(
-                            color: statusColor,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
+                      ],
                     ],
                   ),
-                  const SizedBox(height: AppSpacing.sp16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        AppLocalizations.of(context).progressLabel,
-                        style: AppTextStyles.xs.copyWith(color: AppColors.textSecondary, fontWeight: FontWeight.w600),
-                      ),
-                      Text(
-                        '${debt.progressPercentage.toStringAsFixed(0)}%',
-                        style: AppTextStyles.sm.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: progress >= 1 ? AppColors.success : AppColors.primaryColor,
-                        ),
-                      ),
-                    ],
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: statusColor.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(20),
                   ),
-                  const SizedBox(height: AppSpacing.sp8),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: LinearProgressIndicator(
-                      value: progress,
-                      minHeight: 8,
-                      backgroundColor: isDark ? AppColors.surface2 : AppColors.of(context).borderSubtle,
-                      valueColor: AlwaysStoppedAnimation(
-                        progress >= 1 ? AppColors.success : AppColors.primaryColor,
-                      ),
+                  child: Text(
+                    statusLabel,
+                    style: AppTextStyles.xs.copyWith(
+                      color: statusColor,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: AppSpacing.sp16),
-                  Row(
-                    children: [
-                      _buildAmountChip(
-                        AppLocalizations.of(context).paidLabel,
-                        NumberFormatter.formatCurrency(debt.paidAmount),
-                        AppColors.success,
-                        isDark,
-                      ),
-                      const SizedBox(width: AppSpacing.sp8),
-                      _buildAmountChip(
-                        AppLocalizations.of(context).remainingLabel,
-                        NumberFormatter.formatCurrency(debt.remainingAmount),
-                        AppColors.warning,
-                        isDark,
-                      ),
-                      const SizedBox(width: AppSpacing.sp8),
-                      _buildAmountChip(
-                        AppLocalizations.of(context).totalLabel,
-                        NumberFormatter.formatCurrency(debt.totalAmount),
-                        AppColors.primaryColor,
-                        isDark,
-                      ),
-                    ],
+                ),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.sp16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  AppLocalizations.of(context).progressLabel,
+                  style: AppTextStyles.xs.copyWith(color: AppColors.textSecondary, fontWeight: FontWeight.w600),
+                ),
+                Text(
+                  '${debt.progressPercentage.toStringAsFixed(0)}%',
+                  style: AppTextStyles.sm.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: progress >= 1 ? AppColors.success : AppColors.primaryColor,
                   ),
-                  const SizedBox(height: AppSpacing.sp16),
-                  Divider(color: AppColors.of(context).borderSubtle, height: 1),
-                  const SizedBox(height: AppSpacing.sp12),
-                  Row(
-                    children: [
-                      Icon(Icons.calendar_today_rounded, size: 14, color: AppColors.textSecondary),
-                      const SizedBox(width: 6),
-                      Text(
-                        DateFormatter.formatDate(debt.startDate),
-                        style: AppTextStyles.xs.copyWith(color: AppColors.textSecondary),
-                      ),
-                      const Spacer(),
-                      Icon(Icons.payments_rounded, size: 14, color: AppColors.textSecondary),
-                      const SizedBox(width: 6),
-                      Text(
-                        '${debt.numberOfInstallments} قسط',
-                        style: AppTextStyles.xs.copyWith(color: AppColors.textSecondary),
-                      ),
-                    ],
-                  ),
-                ],
+                ),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.sp8),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: LinearProgressIndicator(
+                value: progress,
+                minHeight: 8,
+                backgroundColor: isDark ? AppColors.surface2 : AppColors.of(context).borderSubtle,
+                valueColor: AlwaysStoppedAnimation(
+                  progress >= 1 ? AppColors.success : AppColors.primaryColor,
+                ),
               ),
             ),
-          ),
+            const SizedBox(height: AppSpacing.sp16),
+            Row(
+              children: [
+                _buildAmountChip(
+                  AppLocalizations.of(context).paidLabel,
+                  NumberFormatter.formatCurrency(debt.paidAmount),
+                  AppColors.success,
+                  isDark,
+                ),
+                const SizedBox(width: AppSpacing.sp8),
+                _buildAmountChip(
+                  AppLocalizations.of(context).remainingLabel,
+                  NumberFormatter.formatCurrency(debt.remainingAmount),
+                  AppColors.warning,
+                  isDark,
+                ),
+                const SizedBox(width: AppSpacing.sp8),
+                _buildAmountChip(
+                  AppLocalizations.of(context).totalLabel,
+                  NumberFormatter.formatCurrency(debt.totalAmount),
+                  AppColors.primaryColor,
+                  isDark,
+                ),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.sp16),
+            Divider(color: AppColors.of(context).borderSubtle, height: 1),
+            const SizedBox(height: AppSpacing.sp12),
+            Row(
+              children: [
+                Icon(Icons.calendar_today_rounded, size: 14, color: AppColors.textSecondary),
+                const SizedBox(width: 6),
+                Text(
+                  DateFormatter.formatDate(debt.startDate),
+                  style: AppTextStyles.xs.copyWith(color: AppColors.textSecondary),
+                ),
+                const Spacer(),
+                Icon(Icons.payments_rounded, size: 14, color: AppColors.textSecondary),
+                const SizedBox(width: 6),
+                Text(
+                  '${debt.numberOfInstallments} قسط',
+                  style: AppTextStyles.xs.copyWith(color: AppColors.textSecondary),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );

@@ -45,6 +45,10 @@ dependencies:
   shared_preferences: ^2.3.4
   flutter_svg: ^2.2.3
   google_fonts: ^8.0.2
+  local_auth: ^3.0.1
+  secure_application: ^4.1.0
+  flutter_riverpod: ^3.3.1
+  go_router: ^17.2.3
 
 dev_dependencies:
   flutter_test:

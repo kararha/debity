@@ -9,6 +9,7 @@ import '../../core/widgets/status_badge.dart' hide DebtStatus;
 import '../../models/debt.dart';
 import '../../models/installment.dart';
 import '../../core/l10n/app_localizations.dart';
+import '../../core/widgets/skeleton_widget.dart';
 
 // Assuming you have PayInstallmentScreen still using old navigation
 import '../installments/pay_installment_screen.dart';
@@ -36,6 +37,7 @@ class _DebtDetailsScreenState extends State<DebtDetailsScreen> {
   }
 
   Future<void> _loadInstallments() async {
+    if (!mounted) return;
     setState(() => _isLoading = true);
 
     try {
@@ -134,28 +136,136 @@ class _DebtDetailsScreenState extends State<DebtDetailsScreen> {
         ],
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: AppColors.brand500))
+          ? _buildSkeletonDetail()
           : RefreshIndicator(
               onRefresh: _loadInstallments,
               color: AppColors.brand500,
               backgroundColor: AppColors.of(context).surface1,
-              child: SingleChildScrollView(
+              child: CustomScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
-                padding: const EdgeInsets.all(AppSpacing.pageH),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildOverviewCard(),
-                    const SizedBox(height: AppSpacing.sp24),
-                    _buildStatsGrid(),
-                    const SizedBox(height: AppSpacing.sp32),
-                    _buildInstallmentsHeader(),
-                    const SizedBox(height: AppSpacing.sp16),
-                    _buildInstallmentsList(),
-                  ],
-                ),
+                slivers: [
+                  SliverPadding(
+                    padding: const EdgeInsets.all(AppSpacing.pageH),
+                    sliver: SliverList(
+                      delegate: SliverChildListDelegate([
+                        _buildOverviewCard(),
+                        const SizedBox(height: AppSpacing.sp24),
+                        _buildStatsGrid(),
+                        const SizedBox(height: AppSpacing.sp32),
+                        _buildInstallmentsHeader(),
+                        const SizedBox(height: AppSpacing.sp16),
+                      ]),
+                    ),
+                  ),
+                  SliverPadding(
+                    padding: const EdgeInsets.only(
+                      left: AppSpacing.pageH,
+                      right: AppSpacing.pageH,
+                      bottom: AppSpacing.pageH,
+                    ),
+                    sliver: _buildInstallmentsSliver(),
+                  ),
+                ],
               ),
             ),
+    );
+  }
+
+  Widget _buildSkeletonDetail() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(AppSpacing.pageH),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          AppCard(
+            padding: const EdgeInsets.all(AppSpacing.sp20),
+            child: Column(
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SkeletonBox(width: 52, height: 52, radius: 12),
+                    const SizedBox(width: AppSpacing.sp16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SkeletonBox(width: 140, height: 18, radius: 4),
+                          const SizedBox(height: 8),
+                          const SkeletonBox(width: 90, height: 14, radius: 4),
+                        ],
+                      ),
+                    ),
+                    const SkeletonBox(width: 60, height: 24, radius: 12),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.sp24),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: const [
+                    SkeletonBox(width: 80, height: 12, radius: 4),
+                    SkeletonBox(width: 36, height: 12, radius: 4),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.sp8),
+                const SkeletonBox(width: double.infinity, height: 10, radius: 5),
+              ],
+            ),
+          ),
+          const SizedBox(height: AppSpacing.sp24),
+          GridView.count(
+            crossAxisCount: 2,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            childAspectRatio: 1.6,
+            mainAxisSpacing: AppSpacing.sp12,
+            crossAxisSpacing: AppSpacing.sp12,
+            children: List.generate(4, (_) => const AppCard(
+              padding: EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SkeletonBox(width: 24, height: 24, radius: 6),
+                  SizedBox(height: 8),
+                  SkeletonBox(width: 50, height: 10, radius: 4),
+                  SizedBox(height: 6),
+                  SkeletonBox(width: 90, height: 16, radius: 4),
+                ],
+              ),
+            )),
+          ),
+          const SizedBox(height: AppSpacing.sp32),
+          const SkeletonBox(width: 100, height: 20, radius: 4),
+          const SizedBox(height: AppSpacing.sp16),
+          ListView.separated(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: 3,
+            separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sp12),
+            itemBuilder: (_, __) => AppCard(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sp16, vertical: AppSpacing.sp12),
+              child: Row(
+                children: [
+                  const SkeletonBox(width: 40, height: 40, radius: 20),
+                  const SizedBox(width: AppSpacing.sp16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SkeletonBox(width: 80, height: 14, radius: 4),
+                        const SizedBox(height: 6),
+                        const SkeletonBox(width: 120, height: 10, radius: 4),
+                      ],
+                    ),
+                  ),
+                  const SkeletonBox(width: 50, height: 22, radius: 10),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -284,10 +394,8 @@ class _DebtDetailsScreenState extends State<DebtDetailsScreen> {
     );
   }
 
-  Widget _buildInstallmentsList() {
-    return ListView.separated(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
+  Widget _buildInstallmentsSliver() {
+    return SliverList.separated(
       itemCount: _installments.length,
       separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sp12),
       itemBuilder: (context, index) {
@@ -354,7 +462,13 @@ class _DebtDetailsScreenState extends State<DebtDetailsScreen> {
                     StatusBadge.fromString(installment.status.name),
                     if (!isPaid) ...[
                       const SizedBox(width: 8),
-                      Icon(Icons.chevron_right_rounded, color: AppColors.textSecondary, size: 20),
+                      Icon(
+                        Directionality.of(context) == TextDirection.rtl
+                            ? Icons.chevron_left_rounded
+                            : Icons.chevron_right_rounded,
+                        color: AppColors.textSecondary,
+                        size: 20,
+                      ),
                     ]
                   ],
                 ),

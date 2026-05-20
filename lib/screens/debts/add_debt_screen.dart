@@ -91,7 +91,7 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
   void _onCustomerSearchChanged(String query) {
     _debounceTimer?.cancel();
     if (query.trim().isEmpty) {
-      setState(() {
+      if (mounted) setState(() {
         _suggestions = List.from(_recentCustomers);
         _isSearchingCustomer = false;
       });
@@ -148,7 +148,7 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
       },
     );
     if (picked != null && picked != _startDate) {
-      setState(() => _startDate = picked);
+      if (mounted) setState(() => _startDate = picked);
     }
   }
 
@@ -162,6 +162,7 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
       return;
     }
 
+    if (!mounted) return;
     setState(() => _isLoading = true);
 
     try {
@@ -212,12 +213,11 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تمت إضافة الدين بنجاح')));
       }
     } catch (e) {
+      if (!mounted) return;
       setState(() => _isLoading = false);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('خطأ: $e'), backgroundColor: AppColors.danger),
-        );
-      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('خطأ: $e'), backgroundColor: AppColors.danger),
+      );
     }
   }
 
@@ -247,18 +247,18 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
                   type: StepperType.vertical,
                   physics: const BouncingScrollPhysics(),
                   currentStep: _currentStep,
-                  onStepTapped: (step) => setState(() => _currentStep = step),
+                  onStepTapped: (step) { if (mounted) setState(() => _currentStep = step); },
                   onStepContinue: () {
                     final isLastStep = _currentStep == _getSteps().length - 1;
                     if (isLastStep) {
                       _saveDebt();
                     } else {
-                      setState(() => _currentStep += 1);
+                      if (mounted) setState(() => _currentStep += 1);
                     }
                   },
                   onStepCancel: _currentStep == 0
                       ? null
-                      : () => setState(() => _currentStep -= 1),
+                      : () { if (mounted) setState(() => _currentStep -= 1); },
                   
                   // Customizing the Stepper buttons to use your DebityPrimaryButton
                   controlsBuilder: (context, details) {
@@ -377,16 +377,16 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
             ),
           ),
           onChanged: (v) {
-            setState(() {
+            if (mounted) setState(() {
               _selectedCustomer = null;
               _showSuggestions = true;
             });
             _onCustomerSearchChanged(v);
           },
           onTap: () {
-            setState(() => _showSuggestions = true);
+            if (mounted) setState(() => _showSuggestions = true);
             if (_customerSearchController.text.isEmpty) {
-              setState(() => _suggestions = List.from(_recentCustomers));
+              if (mounted) setState(() => _suggestions = List.from(_recentCustomers));
             }
           },
           validator: (_) => _selectedCustomer == null ? 'الرجاء اختيار العميل' : null,
@@ -438,7 +438,7 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
                             style: AppTextStyles.sm.copyWith(color: AppColors.brand500),
                           ),
                           onTap: () async {
-                            setState(() => _showSuggestions = false);
+                            if (mounted) setState(() => _showSuggestions = false);
                             _customerFocusNode.unfocus();
                             final newCustomer = await Navigator.push<Customer>(
                               context,
@@ -447,7 +447,7 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
                               ),
                             );
                             if (newCustomer != null && mounted) {
-                              setState(() {
+                              if (mounted) setState(() {
                                 _selectedCustomer = newCustomer;
                                 _customerSearchController.text = newCustomer.name;
                                 _recentCustomers.insert(0, newCustomer);
@@ -489,7 +489,7 @@ class _AddDebtScreenState extends State<AddDebtScreen> {
                               )
                             : null,
                         onTap: () {
-                          setState(() {
+                          if (mounted) setState(() {
                             _selectedCustomer = customer;
                             _customerSearchController.text = customer.name;
                             _showSuggestions = false;

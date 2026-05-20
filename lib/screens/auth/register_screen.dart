@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import '../../core/services/auth_service.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/password_validator.dart';
@@ -30,7 +30,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   void initState() {
     super.initState();
     _passwordController.addListener(() {
-      setState(() => _password = _passwordController.text);
+      if (mounted) setState(() => _password = _passwordController.text);
     });
   }
 
@@ -57,6 +57,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       return;
     }
 
+    if (!mounted) return;
     setState(() => _isLoading = true);
 
     try {
@@ -312,3 +313,4 @@ class _RuleRow extends StatelessWidget {
     );
   }
 }
+

@@ -122,7 +122,7 @@ class _DebityBottomNav extends StatelessWidget {
         color: c.surface0,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             offset: const Offset(0, -4),
             blurRadius: 16,
           ),
@@ -153,7 +153,7 @@ class _DebityBottomNav extends StatelessWidget {
                           ),
                           decoration: BoxDecoration(
                             color: selected
-                                ? AppColors.brand500.withOpacity(0.12)
+                                ? AppColors.brand500.withValues(alpha: 0.12)
                                 : Colors.transparent,
                             borderRadius: BorderRadius.circular(20),
                           ),
@@ -225,6 +225,7 @@ class _DashboardViewState extends State<DashboardView> {
   }
 
   Future<void> _loadStatistics() async {
+    if (!mounted) return;
     setState(() { _isLoading = true; _error = null; });
     try {
       final response = await _apiService.getStatistics();
@@ -245,7 +246,7 @@ class _DashboardViewState extends State<DashboardView> {
       body: Column(
         children: [
           // Optional divider under App Bar
-          Container(height: 1.0, color: c.borderSubtle.withOpacity(0.5)),
+          Container(height: 1.0, color: c.borderSubtle.withValues(alpha: 0.5)),
           Expanded(
             child: _isLoading
                 ? _buildSkeleton()
@@ -295,7 +296,7 @@ class _DashboardViewState extends State<DashboardView> {
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: AppColors.danger.withOpacity(0.1),
+              color: AppColors.danger.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: const Icon(
@@ -473,7 +474,7 @@ class _DashboardViewState extends State<DashboardView> {
       child: Center(
         child: Column(
           children: [
-            Icon(icon, size: 40, color: AppColors.of(context).textMuted.withOpacity(0.5)),
+            Icon(icon, size: 40, color: AppColors.of(context).textMuted.withValues(alpha: 0.5)),
             const SizedBox(height: AppSpacing.sp12),
             Text(msg, style: AppTextStyles.base.copyWith(color: AppColors.of(context).textMuted, fontWeight: FontWeight.w500)),
           ],
@@ -498,16 +499,16 @@ class _OverdueAlert extends StatelessWidget {
         horizontal: AppSpacing.sp20, vertical: AppSpacing.sp16,
       ),
       decoration: BoxDecoration(
-        color: AppColors.danger.withOpacity(0.08),
+        color: AppColors.danger.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.danger.withOpacity(0.3), width: 1),
+        border: Border.all(color: AppColors.danger.withValues(alpha: 0.3), width: 1),
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: AppColors.danger.withOpacity(0.15),
+              color: AppColors.danger.withValues(alpha: 0.15),
               shape: BoxShape.circle,
             ),
             child: const Icon(Icons.warning_amber_rounded, color: AppColors.danger, size: 24),
@@ -524,12 +525,18 @@ class _OverdueAlert extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   AppLocalizations.of(context).overdueAlert.replaceAll('{count}', '$count'),
-                  style: AppTextStyles.base.copyWith(color: AppColors.danger.withOpacity(0.8), fontWeight: FontWeight.w500),
+                  style: AppTextStyles.base.copyWith(color: AppColors.danger.withValues(alpha: 0.8), fontWeight: FontWeight.w500),
                 ),
               ],
             ),
           ),
-          const Icon(Icons.chevron_left_rounded, color: AppColors.danger, size: 24), // Left for Arabic RTL
+          Icon(
+            Directionality.of(context) == TextDirection.rtl
+                ? Icons.chevron_left_rounded
+                : Icons.chevron_right_rounded,
+            color: AppColors.danger,
+            size: 24,
+          ),
         ],
       ),
     );
@@ -552,10 +559,10 @@ class _MiniStatTile extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.of(context).surface0,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.of(context).borderSubtle.withOpacity(0.5)),
+        border: Border.all(color: AppColors.of(context).borderSubtle.withValues(alpha: 0.5)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -566,7 +573,7 @@ class _MiniStatTile extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.12),
+              color: color.withValues(alpha: 0.12),
               shape: BoxShape.circle,
             ),
             child: Icon(icon, color: color, size: 20),

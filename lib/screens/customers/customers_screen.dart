@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../core/l10n/app_localizations.dart';
 import '../../core/theme/app_colors.dart';
@@ -5,6 +6,9 @@ import '../../models/customer.dart';
 import 'customer_details_screen.dart';
 import '../../core/services/api_service.dart';
 import 'add_customer_screen.dart';
+import '../../core/widgets/app_card.dart';
+import '../../core/widgets/debity_input.dart';
+import '../../core/widgets/skeleton_widget.dart';
 
 class CustomersScreen extends StatefulWidget {
   const CustomersScreen({super.key});
@@ -19,22 +23,31 @@ class _CustomersScreenState extends State<CustomersScreen> {
   bool _isLoading = true;
   String? _error;
   final TextEditingController _searchController = TextEditingController();
+  Timer? _debounceTimer;
 
   @override
   void initState() {
     super.initState();
     _loadCustomers();
-    _searchController.addListener(_filterCustomers);
+    _searchController.addListener(_onSearchChanged);
   }
 
   @override
   void dispose() {
     _searchController.dispose();
+    _debounceTimer?.cancel();
     super.dispose();
   }
 
+  void _onSearchChanged() {
+    _debounceTimer?.cancel();
+    _debounceTimer = Timer(const Duration(milliseconds: 250), () {
+      _filterCustomers();
+    });
+  }
+
   Future<void> _loadCustomers() async {
-    setState(() {
+    if (mounted) setState(() {
       _isLoading = true;
       _error = null;
     });
@@ -49,6 +62,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
         debugPrint('First customer: ${customers.first.toJson()}');
       }
 
+      if (!mounted) return;
       setState(() {
         _customers = customers; // The API returns List<Customer> directly
         _filteredCustomers = _customers;
@@ -66,6 +80,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
 
   void _filterCustomers() {
     final query = _searchController.text.toLowerCase();
+    if (!mounted) return;
     setState(() {
       if (query.isEmpty) {
         _filteredCustomers = _customers;
@@ -83,7 +98,6 @@ class _CustomersScreenState extends State<CustomersScreen> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bgColor = Theme.of(context).scaffoldBackgroundColor;
-    final surfaceColor = Theme.of(context).colorScheme.surface;
     return Scaffold(
       backgroundColor: bgColor,
       body: Column(
@@ -143,49 +157,23 @@ class _CustomersScreenState extends State<CustomersScreen> {
                 ),
                 const SizedBox(height: 14),
                 // Search bar
-                Container(
-                  height: 46,
-                  decoration: BoxDecoration(
-                    color: surfaceColor,
-                    borderRadius: BorderRadius.circular(14),
-                      boxShadow: [
-                      BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.1),
-                        blurRadius: 12,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
+                DebityTextField(
+                  controller: _searchController,
+                  hintText: AppLocalizations.of(context).customersSearchHint,
+                  prefixIcon: const Icon(
+                    Icons.search_rounded,
                   ),
-                  child: TextField(
-                    controller: _searchController,
-                    style: TextStyle(
-                      color: AppColors.of(context).textPrimary,
-                    ),
-                      decoration: InputDecoration(
-                      hintText: AppLocalizations.of(context).customersSearchHint,
-                      hintStyle: TextStyle(
-                        color: AppColors.textSecondary,
-                        fontSize: 13,
-                      ),
-                      prefixIcon: const Icon(
-                        Icons.search_rounded,
-                        color: AppColors.textSecondary,
-                        size: 20,
-                      ),
-                      suffixIcon: _searchController.text.isNotEmpty
-                          ? IconButton(
-                              icon: const Icon(
-                                Icons.close_rounded,
-                                size: 18,
-                                color: AppColors.textSecondary,
-                              ),
-                              onPressed: _searchController.clear,
-                            )
-                          : null,
-                      border: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(vertical: 12),
-                    ),
-                  ),
+                  suffixIcon: _searchController.text.isNotEmpty
+                      ? IconButton(
+                          icon: const Icon(
+                            Icons.close_rounded,
+                          ),
+                          onPressed: () {
+                            _searchController.clear();
+                            setState(() {});
+                          },
+                        )
+                      : null,
                 ),
               ],
             ),
@@ -193,7 +181,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
           // List
           Expanded(
             child: _isLoading
-                ? const Center(child: CircularProgressIndicator())
+                ? _buildSkeletonList()
                 : _error != null
                 ? _buildErrorView()
                 : _filteredCustomers.isEmpty
@@ -261,10 +249,10 @@ class _CustomersScreenState extends State<CustomersScreen> {
           children: [
             Container(
               padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: Color.fromRGBO((AppColors.error.toARGB32() >> 16) & 0xFF, (AppColors.error.toARGB32() >> 8) & 0xFF, AppColors.error.toARGB32() & 0xFF, 0.1),
-                      shape: BoxShape.circle,
-                    ),
+              decoration: BoxDecoration(
+                color: AppColors.error.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
               child: const Icon(
                 Icons.error_outline_rounded,
                 size: 48,
@@ -313,17 +301,17 @@ class _CustomersScreenState extends State<CustomersScreen> {
           children: [
             Container(
               padding: const EdgeInsets.all(24),
-                      decoration: BoxDecoration(
-                      color: Color.fromRGBO((AppColors.primaryColor.toARGB32() >> 16) & 0xFF, (AppColors.primaryColor.toARGB32() >> 8) & 0xFF, AppColors.primaryColor.toARGB32() & 0xFF, 0.08),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      isEmpty
-                          ? Icons.people_outline_rounded
-                          : Icons.search_off_rounded,
-                      size: 56,
-                      color: Color.fromRGBO((AppColors.primaryColor.toARGB32() >> 16) & 0xFF, (AppColors.primaryColor.toARGB32() >> 8) & 0xFF, AppColors.primaryColor.toARGB32() & 0xFF, 0.5),
-                    ),
+              decoration: BoxDecoration(
+                color: AppColors.brand500.withOpacity(0.08),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                isEmpty
+                    ? Icons.people_outline_rounded
+                    : Icons.search_off_rounded,
+                size: 56,
+                color: AppColors.brand500.withOpacity(0.5),
+              ),
             ),
             const SizedBox(height: 20),
             Text(
@@ -342,6 +330,42 @@ class _CustomersScreenState extends State<CustomersScreen> {
               ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
               textAlign: TextAlign.center,
             ),
+            const SizedBox(height: 24),
+            if (isEmpty)
+              ElevatedButton.icon(
+                onPressed: () async {
+                  final result = await Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const AddCustomerScreen()),
+                  );
+                  if (result == true) _loadCustomers();
+                },
+                icon: const Icon(Icons.person_add_rounded),
+                label: Text(AppLocalizations.of(context).addCustomer),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.brand500,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 12,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                ),
+              )
+            else
+              TextButton.icon(
+                onPressed: () {
+                  _searchController.clear();
+                  setState(() {});
+                },
+                icon: const Icon(Icons.clear_rounded, color: AppColors.brand400),
+                label: Text(
+                  Localizations.localeOf(context).languageCode == 'ar' ? 'مسح البحث' : 'Clear Search',
+                  style: const TextStyle(color: AppColors.brand400),
+                ),
+              ),
           ],
         ),
       ),
@@ -362,9 +386,39 @@ class _CustomersScreenState extends State<CustomersScreen> {
     );
   }
 
+  Widget _buildSkeletonList() {
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      itemCount: 5,
+      itemBuilder: (context, index) => Padding(
+        padding: const EdgeInsets.only(bottom: 10),
+        child: AppCard(
+          padding: const EdgeInsets.all(14),
+          child: Row(
+            children: [
+              const SkeletonBox(width: 52, height: 52, radius: 14),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SkeletonBox(width: 140, height: 16, radius: 4),
+                    const SizedBox(height: 8),
+                    const SkeletonBox(width: 100, height: 12, radius: 4),
+                    const SizedBox(height: 6),
+                    const SkeletonBox(width: 120, height: 12, radius: 4),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildCustomerCard(Customer customer) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final surface = Theme.of(context).colorScheme.surface;
     final colorPalette = [
       AppColors.primaryColor,
       AppColors.secondaryColor,
@@ -374,127 +428,109 @@ class _CustomersScreenState extends State<CustomersScreen> {
     ];
     final avatarColor =
         colorPalette[customer.name.codeUnitAt(0) % colorPalette.length];
+    final isRTL = Directionality.of(context) == TextDirection.rtl;
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
-      child: Container(
-        decoration: BoxDecoration(
-          color: surface,
-          borderRadius: BorderRadius.circular(18),
-          boxShadow: [
-            BoxShadow(
-              color: Color.fromRGBO(0, 0, 0, isDark ? 0.25 : 0.06),
-              blurRadius: 16,
-              offset: const Offset(0, 4),
+      child: AppCard(
+        padding: const EdgeInsets.all(14),
+        onTap: () async {
+          final result = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => CustomerDetailsScreen(customer: customer),
             ),
-          ],
-        ),
-        child: Material(
-          color: Colors.transparent,
-          borderRadius: BorderRadius.circular(18),
-          child: InkWell(
-            onTap: () async {
-              final result = await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => CustomerDetailsScreen(customer: customer),
+          );
+          if (result == true) _loadCustomers();
+        },
+        child: Row(
+          children: [
+            Container(
+              width: 52,
+              height: 52,
+              decoration: BoxDecoration(
+                color: avatarColor.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Center(
+                child: Text(
+                  customer.name.isNotEmpty ? customer.name[0] : '?',
+                  style: TextStyle(
+                    color: avatarColor,
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              );
-              if (result == true) _loadCustomers();
-            },
-            borderRadius: BorderRadius.circular(18),
-            child: Padding(
-              padding: const EdgeInsets.all(14),
-              child: Row(
+              ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                    width: 52,
-                    height: 52,
-                    decoration: BoxDecoration(
-                      color: Color.fromRGBO((avatarColor.toARGB32() >> 16) & 0xFF, (avatarColor.toARGB32() >> 8) & 0xFF, avatarColor.toARGB32() & 0xFF, 0.15),
-                      borderRadius: BorderRadius.circular(14),
+                  Text(
+                    customer.name,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                      color: isDark
+                          ? Colors.white
+                          : AppColors.of(context).textPrimary,
                     ),
-                    child: Center(
-                      child: Text(
-                        customer.name.isNotEmpty ? customer.name[0] : '?',
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.phone_outlined,
+                        size: 13,
+                        color: AppColors.textSecondary,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        customer.phone,
                         style: TextStyle(
-                          color: avatarColor,
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                          color: AppColors.textSecondary,
                         ),
                       ),
-                    ),
+                    ],
                   ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                  if (customer.address != null &&
+                      customer.address!.isNotEmpty) ...[
+                    const SizedBox(height: 2),
+                    Row(
                       children: [
-                        Text(
-                          customer.name,
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 15,
-                            color: isDark
-                                ? Colors.white
-                                : AppColors.of(context).textPrimary,
-                          ),
+                        Icon(
+                          Icons.location_on_outlined,
+                          size: 13,
+                          color: AppColors.textSecondary,
                         ),
-                        const SizedBox(height: 4),
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.phone_outlined,
-                              size: 13,
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: Text(
+                            customer.address!,
+                            style: TextStyle(
+                              fontSize: 12,
                               color: AppColors.textSecondary,
                             ),
-                            const SizedBox(width: 4),
-                            Text(
-                              customer.phone,
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: AppColors.textSecondary,
-                              ),
-                            ),
-                          ],
-                        ),
-                        if (customer.address != null &&
-                            customer.address!.isNotEmpty) ...[
-                          const SizedBox(height: 2),
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.location_on_outlined,
-                                size: 13,
-                                color: AppColors.textSecondary,
-                              ),
-                              const SizedBox(width: 4),
-                              Expanded(
-                                child: Text(
-                                  customer.address!,
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: AppColors.textSecondary,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                            ],
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                        ],
+                        ),
                       ],
                     ),
-                  ),
-                  Icon(
-                    Icons.chevron_left_rounded,
-                    color: isDark
-                        ? const Color(0xFF4B5563)
-                        : AppColors.borderColor,
-                  ),
+                  ],
                 ],
               ),
             ),
-          ),
+            Icon(
+              isRTL ? Icons.chevron_left_rounded : Icons.chevron_right_rounded,
+              color: isDark
+                  ? const Color(0xFF4B5563)
+                  : AppColors.borderColor,
+            ),
+          ],
         ),
       ),
     );

@@ -34,7 +34,12 @@ class FCMService {
     ),
   );
 
-  /// Call once in main() after Firebase.initializeApp()
+  /// Call once in main() after Firebase.initializeApp().
+  ///
+  /// This only sets up permissions, the notification channel, and the
+  /// foreground message listener. It does NOT attempt to save the FCM token
+  /// because no authenticated user exists yet at this point.
+  /// Call [setupTokenListeners] after authentication is established.
   static Future<void> initialize() async {
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
@@ -71,13 +76,28 @@ class FCMService {
         );
       }
     });
+  }
 
-    // Save token to Supabase
+  /// Call this ONCE after authentication is established (login or session
+  /// restore). It:
+  ///  1. Gets the current FCM token and saves it to Supabase.
+  ///  2. Subscribes to [FirebaseMessaging.onTokenRefresh] so that any future
+  ///     token rotation (e.g. after app reinstall or Firebase token expiry)
+  ///     is automatically persisted to Supabase.
+  static Future<void> setupTokenListeners() async {
+    // 1. Save current token immediately after auth is established.
     final token = await getToken();
     if (token != null) {
-      debugPrint('FCM Token: $token');
+      debugPrint('FCM: Saving initial token after auth');
       await saveFcmTokenToSupabase(token);
     }
+
+    // 2. Subscribe to token refresh — Firebase rotates the token after
+    //    reinstalls, token expiry, or security events. We must re-persist it.
+    _messaging.onTokenRefresh.listen((newToken) async {
+      debugPrint('FCM: Token rotated, updating Supabase');
+      await saveFcmTokenToSupabase(newToken);
+    });
   }
 
   /// Returns the current device FCM token
